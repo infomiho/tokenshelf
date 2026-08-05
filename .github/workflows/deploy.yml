@@ -1,0 +1,103 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deployment
+  cancel-in-progress: true
+
+env:
+  WASP_VERSION: 0.25.0
+  SERVER_APP_NAME: tokenshelf-server
+  SERVER_APP_URL: https://api.tokenshelf.dev
+  CLIENT_APP_NAME: tokenshelf-client
+  DOCKER_REGISTRY: ghcr.io
+  DOCKER_REGISTRY_USERNAME: ${{ github.repository_owner }}
+  DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build-and-push-images:
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Log in to container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ env.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ env.DOCKER_REGISTRY_PASSWORD }}
+
+      - name: Extract server image metadata
+        id: meta-server
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.SERVER_APP_NAME }}
+
+      - name: Extract client image metadata
+        id: meta-client
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.CLIENT_APP_NAME }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.14.1
+
+      - name: Install Wasp
+        run: npm install --global @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+
+      - name: Install Wasp app dependencies
+        run: wasp install
+
+      - name: Build Wasp app
+        run: wasp build
+
+      - name: Build client
+        run: npx vite build
+        env:
+          REACT_APP_API_URL: ${{ env.SERVER_APP_URL }}
+
+      - name: Prepare client Dockerfile
+        run: |
+          printf '%s\n' \
+            'FROM pierrezemb/gostatic' \
+            'CMD ["-fallback", "200.html", "-enable-logging"]' \
+            'COPY ./build /srv/http' \
+            > .wasp/out/web-app/Dockerfile
+
+      - name: Build and push server image
+        uses: docker/build-push-action@v7
+        with:
+          context: .wasp/out
+          file: .wasp/out/Dockerfile
+          push: true
+          tags: ${{ steps.meta-server.outputs.tags }}
+          labels: ${{ steps.meta-server.outputs.labels }}
+
+      - name: Build and push client image
+        uses: docker/build-push-action@v7
+        with:
+          context: .wasp/out/web-app
+          file: .wasp/out/web-app/Dockerfile
+          push: true
+          tags: ${{ steps.meta-client.outputs.tags }}
+          labels: ${{ steps.meta-client.outputs.labels }}
+
+      - name: Trigger Coolify deploys
+        env:
+          COOLIFY_SERVER_WEBHOOK: ${{ secrets.COOLIFY_SERVER_WEBHOOK }}
+          COOLIFY_CLIENT_WEBHOOK: ${{ secrets.COOLIFY_CLIENT_WEBHOOK }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          curl --fail-with-body --silent --show-error "$COOLIFY_SERVER_WEBHOOK" --header "Authorization: Bearer $COOLIFY_TOKEN"
+          curl --fail-with-body --silent --show-error "$COOLIFY_CLIENT_WEBHOOK" --header "Authorization: Bearer $COOLIFY_TOKEN"
