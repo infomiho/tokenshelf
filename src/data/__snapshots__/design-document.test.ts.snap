@@ -1,0 +1,166 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`DesignSystemDocument > renders byte-identical LF-only DESIGN.md with fixed ordering 1`] = `
+"---
+version: alpha
+name: "Apex Velocity"
+colors:
+  primary: "#d5001c"
+  primary-hover: "#ff1f3a"
+  on-primary: "#ffffff"
+  background: "#010205"
+  surface: "#19191a"
+  surface-raised: "#242426"
+  on-surface: "#fafbff"
+  on-surface-muted: "#b5b6bd"
+  outline: "#404044"
+  selection: "#1a44ea"
+  success: "#10c979"
+  warning: "#f08a2e"
+  error: "#fc4040"
+typography:
+  body:
+    fontFamily: "Roboto Condensed"
+    fontSource: "fontsource:roboto-condensed@5.3.0"
+    fontSize: 16px
+    fontWeight: 400
+    fontStyle: normal
+    fontStretch: normal
+    lineHeight: 1.5
+  label:
+    fontFamily: "Roboto Condensed"
+    fontSource: "fontsource:roboto-condensed@5.3.0"
+    fontSize: 13px
+    fontWeight: 600
+    fontStyle: normal
+    fontStretch: normal
+    lineHeight: 1.2
+  heading:
+    fontFamily: "Roboto Condensed"
+    fontSource: "fontsource:roboto-condensed@5.3.0"
+    fontSize: 24px
+    fontWeight: 700
+    fontStyle: normal
+    fontStretch: normal
+    lineHeight: 1.1
+  display:
+    fontFamily: "Roboto Condensed"
+    fontSource: "fontsource:roboto-condensed@5.3.0"
+    fontSize: 42px
+    fontWeight: 700
+    fontStyle: normal
+    fontStretch: normal
+    lineHeight: 1
+  code:
+    fontFamily: "Roboto Condensed"
+    fontSource: "fontsource:roboto-condensed@5.3.0"
+    fontSize: 13px
+    fontWeight: 400
+    fontStyle: normal
+    fontStretch: normal
+    lineHeight: 1.4
+rounded:
+  sm: 8px
+  md: 12px
+  lg: 16px
+  full: 256px
+spacing:
+  xs: 4px
+  sm: 8px
+  md: 16px
+  lg: 32px
+  xl: 48px
+components:
+  button-primary:
+    appearance: filled
+    backgroundColor: "#f7f7f7"
+    textColor: "#0e0e12"
+  button-primary-hover:
+    backgroundColor: "#dedede"
+  button-primary-disabled:
+    backgroundColor: "#303034"
+    textColor: "#8f8f96"
+  button-neutral:
+    appearance: filled
+    backgroundColor: "#303034"
+    textColor: "#f7f7f7"
+  button-neutral-hover:
+    backgroundColor: "#404044"
+  button-neutral-disabled:
+    backgroundColor: "#303034"
+    textColor: "#8f8f96"
+  button-ghost:
+    appearance: outlined
+    backgroundColor: "#121214"
+    textColor: "#fafbff"
+    borderColor: "#5a5a60"
+  button-ghost-hover:
+    backgroundColor: "#303034"
+  button-ghost-disabled:
+    backgroundColor: "#303034"
+    textColor: "#8f8f96"
+  button-soft:
+    appearance: filled
+    backgroundColor: "#303034"
+    textColor: "#f7f7f7"
+  button-soft-hover:
+    backgroundColor: "#404044"
+  button-soft-disabled:
+    backgroundColor: "#303034"
+    textColor: "#8f8f96"
+  button-link:
+    appearance: text
+    textDecoration: underline
+    textDecorationColor: "#5a5a60"
+    textColor: "#f7f7f7"
+  button-link-hover:
+    textColor: "#f7f7f7"
+  button-link-disabled:
+    textColor: "#8f8f96"
+  button-size-sm:
+    height: 40px
+    paddingInline: 16px
+    fontSize: 13px
+  button-size-md:
+    height: 48px
+    paddingInline: 20px
+    fontSize: 15px
+  button-size-lg:
+    height: 60px
+    paddingInline: 36px
+    fontSize: 16px
+  input:
+    backgroundColor: "#19191a"
+    textColor: "#fafbff"
+    rounded: "{rounded.md}"
+    height: 48px
+  card:
+    backgroundColor: "#121214"
+    textColor: "#fafbff"
+    rounded: "{rounded.lg}"
+---
+# Apex Velocity
+
+## Elevation & Depth
+
+- **Resting:** \`none\`
+- **Floating:** \`0 2px 8px 0 #00000029\`
+- **Overlay:** \`0 8px 24px -4px #00000052\`
+- **Inset:** \`inset 0 1px 2px 0 #00000052\`
+
+## Components
+
+Use neutral actions, cobalt focus rings, dark selected surfaces, rounded frames, and flat subtle borders. Keep red for brand emphasis rather than routine controls.
+
+## Do's and Don'ts
+
+- Use negative space before adding decoration.
+- Reserve saturated red for brand emphasis and critical feedback.
+- Pair status color with text. Preserve visible focus indicators and meet a 44px minimum touch target.
+
+## Provenance
+
+- [Porsche Design System](https://designsystem.porsche.com/)
+- License: Apache-2.0 code; Porsche assets restricted
+"
+`;

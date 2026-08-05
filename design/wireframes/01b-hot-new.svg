@@ -1,0 +1,213 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800"
+     font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- 01b Hot & New tabs · card grid · desktop 1280x800 -->
+  <rect x="0" y="0" width="1280" height="800" />
+
+  <!-- navbar -->
+  <rect width="1280" height="64" />
+  <rect x="24" y="16" width="32" height="32" rx="4" fill="#E3E9E5" />
+  <text x="72" y="38" font-size="14" font-weight="700" stroke="none" fill="#000">Tokenshelf</text>
+  <g transform="translate(480,12)">
+    <rect width="320" height="40" rx="20" />
+    <circle cx="20" cy="20" r="6" />
+    <line x1="24" y1="24" x2="30" y2="30" />
+    <text x="40" y="25" font-size="14" stroke="none" fill="#666">Search systems, vibes, fonts…</text>
+  </g>
+  <g transform="translate(1096,12)">
+    <rect width="144" height="40" rx="4" fill="#2D6A4F" />
+    <text x="72" y="25" font-size="14" text-anchor="middle" stroke="none" fill="#fff">Submit a system</text>
+  </g>
+
+  <!-- list tabs -->
+  <text x="40" y="96" font-size="14" stroke="none" fill="#666">Top picks</text>
+  <text x="144" y="96" font-size="14" font-weight="600" stroke="none" fill="#000">Hot</text>
+  <text x="192" y="96" font-size="14" stroke="none" fill="#666">New</text>
+  <line x1="40" y1="108" x2="1240" y2="108" stroke="#666" />
+  <line x1="144" y1="108" x2="176" y2="108" stroke-width="3" />
+
+  <!-- filter chips -->
+  <g transform="translate(40,128)">
+    <rect width="56" height="32" rx="16" fill="#2D6A4F" />
+    <text x="28" y="21" font-size="14" text-anchor="middle" stroke="none" fill="#fff">All</text>
+  </g>
+  <g transform="translate(104,128)">
+    <rect width="80" height="32" rx="16" />
+    <text x="40" y="21" font-size="14" text-anchor="middle" stroke="none" fill="#000">Minimal</text>
+  </g>
+  <g transform="translate(192,128)">
+    <rect width="80" height="32" rx="16" />
+    <text x="40" y="21" font-size="14" text-anchor="middle" stroke="none" fill="#000">Playful</text>
+  </g>
+  <g transform="translate(280,128)">
+    <rect width="88" height="32" rx="16" />
+    <text x="44" y="21" font-size="14" text-anchor="middle" stroke="none" fill="#000">Brutalist</text>
+  </g>
+  <g transform="translate(376,128)">
+    <rect width="88" height="32" rx="16" />
+    <text x="44" y="21" font-size="14" text-anchor="middle" stroke="none" fill="#000">Editorial</text>
+  </g>
+  <g transform="translate(472,128)">
+    <rect width="88" height="32" rx="16" />
+    <text x="44" y="21" font-size="14" text-anchor="middle" stroke="none" fill="#000">Terminal</text>
+  </g>
+  <g transform="translate(568,128)">
+    <rect width="64" height="32" rx="16" />
+    <text x="32" y="21" font-size="14" text-anchor="middle" stroke="none" fill="#000">Soft</text>
+  </g>
+
+  <!-- card row 1 -->
+  <g transform="translate(40,184)">
+    <rect width="384" height="224" rx="6" />
+    <rect width="384" height="144" fill="#F1F5F2" />
+    <rect x="16" y="16" width="24" height="24" fill="#000" />
+    <rect x="48" y="16" width="24" height="24" fill="#fff" />
+    <rect x="80" y="16" width="24" height="24" fill="#E3E9E5" />
+    <rect x="112" y="16" width="24" height="24" fill="#fff" />
+    <rect x="144" y="16" width="24" height="24" fill="#000" />
+    <text x="296" y="44" font-size="28" font-weight="700" stroke="none" fill="#000">Aa</text>
+    <g transform="translate(16,88)">
+      <rect width="96" height="32" rx="4" fill="#2D6A4F" />
+      <text x="48" y="21" font-size="12" text-anchor="middle" stroke="none" fill="#fff">Button</text>
+    </g>
+    <g transform="translate(128,88)">
+      <rect width="144" height="32" rx="4" />
+      <text x="12" y="21" font-size="12" stroke="none" fill="#666">Input</text>
+    </g>
+    <line x1="0" y1="144" x2="384" y2="144" />
+    <text x="16" y="176" font-size="14" font-weight="600" stroke="none" fill="#000">Formisch</text>
+    <text x="368" y="176" font-size="12" text-anchor="end" stroke="none" fill="#666">312 today</text>
+    <text x="16" y="200" font-size="12" stroke="none" fill="#666">Minimal · Technical · Forms</text>
+  </g>
+
+  <g transform="translate(448,184)">
+    <rect width="384" height="224" rx="6" />
+    <rect width="384" height="144" fill="#F1F5F2" />
+    <rect x="16" y="16" width="24" height="24" fill="#000" />
+    <rect x="48" y="16" width="24" height="24" fill="#000" />
+    <rect x="80" y="16" width="24" height="24" fill="#E3E9E5" />
+    <rect x="112" y="16" width="24" height="24" fill="#fff" />
+    <rect x="144" y="16" width="24" height="24" fill="#000" />
+    <text x="296" y="44" font-size="28" font-weight="700" stroke="none" fill="#000">Aa</text>
+    <g transform="translate(16,88)">
+      <rect width="96" height="32" rx="4" fill="#2D6A4F" />
+      <text x="48" y="21" font-size="12" text-anchor="middle" stroke="none" fill="#fff">Button</text>
+    </g>
+    <g transform="translate(128,88)">
+      <rect width="144" height="32" rx="4" />
+      <text x="12" y="21" font-size="12" stroke="none" fill="#666">Input</text>
+    </g>
+    <line x1="0" y1="144" x2="384" y2="144" />
+    <text x="16" y="176" font-size="14" font-weight="600" stroke="none" fill="#000">Nightshade</text>
+    <text x="368" y="176" font-size="12" text-anchor="end" stroke="none" fill="#666">288 today</text>
+    <text x="16" y="200" font-size="12" stroke="none" fill="#666">Dark · Terminal · Mono</text>
+  </g>
+
+  <g transform="translate(856,184)">
+    <rect width="384" height="224" rx="6" />
+    <rect width="384" height="144" fill="#F1F5F2" />
+    <rect x="16" y="16" width="24" height="24" fill="#E3E9E5" />
+    <rect x="48" y="16" width="24" height="24" fill="#fff" />
+    <rect x="80" y="16" width="24" height="24" fill="#000" />
+    <rect x="112" y="16" width="24" height="24" fill="#fff" />
+    <rect x="144" y="16" width="24" height="24" fill="#E3E9E5" />
+    <text x="296" y="44" font-size="28" font-weight="700" stroke="none" fill="#000">Aa</text>
+    <g transform="translate(16,88)">
+      <rect width="96" height="32" rx="16" fill="#2D6A4F" />
+      <text x="48" y="21" font-size="12" text-anchor="middle" stroke="none" fill="#fff">Button</text>
+    </g>
+    <g transform="translate(128,88)">
+      <rect width="144" height="32" rx="16" />
+      <text x="12" y="21" font-size="12" stroke="none" fill="#666">Input</text>
+    </g>
+    <line x1="0" y1="144" x2="384" y2="144" />
+    <text x="16" y="176" font-size="14" font-weight="600" stroke="none" fill="#000">Paper Trail</text>
+    <text x="368" y="176" font-size="12" text-anchor="end" stroke="none" fill="#666">240 today</text>
+    <text x="16" y="200" font-size="12" stroke="none" fill="#666">Editorial · Serif · Warm</text>
+  </g>
+
+  <!-- card row 2 -->
+  <g transform="translate(40,432)">
+    <rect width="384" height="224" rx="6" />
+    <rect width="384" height="144" fill="#F1F5F2" />
+    <rect x="16" y="16" width="24" height="24" fill="#fff" />
+    <rect x="48" y="16" width="24" height="24" fill="#E3E9E5" />
+    <rect x="80" y="16" width="24" height="24" fill="#000" />
+    <rect x="112" y="16" width="24" height="24" fill="#E3E9E5" />
+    <rect x="144" y="16" width="24" height="24" fill="#fff" />
+    <text x="296" y="44" font-size="28" font-weight="700" stroke="none" fill="#000">Aa</text>
+    <g transform="translate(16,88)">
+      <rect width="96" height="32" rx="16" fill="#2D6A4F" />
+      <text x="48" y="21" font-size="12" text-anchor="middle" stroke="none" fill="#fff">Button</text>
+    </g>
+    <g transform="translate(128,88)">
+      <rect width="144" height="32" rx="16" />
+      <text x="12" y="21" font-size="12" stroke="none" fill="#666">Input</text>
+    </g>
+    <line x1="0" y1="144" x2="384" y2="144" />
+    <text x="16" y="176" font-size="14" font-weight="600" stroke="none" fill="#000">Bubblegum</text>
+    <text x="368" y="176" font-size="12" text-anchor="end" stroke="none" fill="#666">190 today</text>
+    <text x="16" y="200" font-size="12" stroke="none" fill="#666">Playful · Rounded · Bright</text>
+  </g>
+
+  <g transform="translate(448,432)">
+    <rect width="384" height="224" rx="6" />
+    <rect width="384" height="144" fill="#F1F5F2" />
+    <rect x="16" y="16" width="24" height="24" fill="#000" />
+    <rect x="48" y="16" width="24" height="24" fill="#fff" />
+    <rect x="80" y="16" width="24" height="24" fill="#E3E9E5" />
+    <rect x="112" y="16" width="24" height="24" fill="#fff" />
+    <rect x="144" y="16" width="24" height="24" fill="#000" />
+    <text x="296" y="44" font-size="28" font-weight="700" stroke="none" fill="#000">Aa</text>
+    <g transform="translate(16,88)">
+      <rect width="96" height="32" rx="4" fill="#2D6A4F" />
+      <text x="48" y="21" font-size="12" text-anchor="middle" stroke="none" fill="#fff">Button</text>
+    </g>
+    <g transform="translate(128,88)">
+      <rect width="144" height="32" rx="4" />
+      <text x="12" y="21" font-size="12" stroke="none" fill="#666">Input</text>
+    </g>
+    <line x1="0" y1="144" x2="384" y2="144" />
+    <text x="16" y="176" font-size="14" font-weight="600" stroke="none" fill="#000">Ledger</text>
+    <text x="368" y="176" font-size="12" text-anchor="end" stroke="none" fill="#666">145 today</text>
+    <text x="16" y="200" font-size="12" stroke="none" fill="#666">Corporate · Dense · Tables</text>
+  </g>
+
+  <g transform="translate(856,432)">
+    <rect width="384" height="224" rx="6" />
+    <rect width="384" height="144" fill="#F1F5F2" />
+    <rect x="16" y="16" width="24" height="24" fill="#000" />
+    <rect x="48" y="16" width="24" height="24" fill="#000" />
+    <rect x="80" y="16" width="24" height="24" fill="#fff" />
+    <rect x="112" y="16" width="24" height="24" fill="#000" />
+    <rect x="144" y="16" width="24" height="24" fill="#E3E9E5" />
+    <text x="296" y="44" font-size="28" font-weight="700" stroke="none" fill="#000">Aa</text>
+    <g transform="translate(16,88)">
+      <rect width="96" height="32" fill="#2D6A4F" />
+      <text x="48" y="21" font-size="12" text-anchor="middle" stroke="none" fill="#fff">Button</text>
+    </g>
+    <g transform="translate(128,88)">
+      <rect width="144" height="32" />
+      <text x="12" y="21" font-size="12" stroke="none" fill="#666">Input</text>
+    </g>
+    <line x1="0" y1="144" x2="384" y2="144" />
+    <text x="16" y="176" font-size="14" font-weight="600" stroke="none" fill="#000">Brut 07</text>
+    <text x="368" y="176" font-size="12" text-anchor="end" stroke="none" fill="#666">98 today</text>
+    <text x="16" y="200" font-size="12" stroke="none" fill="#666">Brutalist · Raw · Loud</text>
+  </g>
+
+  <!-- annotations -->
+  <g data-region="annotations">
+    <g transform="translate(24,92)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+    </g>
+    <g transform="translate(36,188)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+    </g>
+    <g transform="translate(436,356)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">3</text>
+    </g>
+  </g>
+</svg>

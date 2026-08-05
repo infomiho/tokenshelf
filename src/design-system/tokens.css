@@ -1,0 +1,115 @@
+:root {
+  /* Color */
+  --paper: oklch(98.5% 0.003 100);
+  --surface: oklch(100% 0 0);
+  --surface-subtle: oklch(96.8% 0.003 100);
+  --ink: oklch(20% 0.006 100);
+  --muted: oklch(50% 0.006 100);
+  --line: oklch(90.5% 0.004 100);
+  --feature: oklch(18% 0.008 100);
+  --on-feature: oklch(98.5% 0.003 100);
+  --on-feature-hover: oklch(90% 0.004 100);
+  --on-feature-muted: oklch(76% 0.006 100);
+  --feature-line: oklch(100% 0 0 / 0.16);
+  --brand: oklch(48% 0.2 350);
+  --brand-soft: oklch(95% 0.035 350);
+  --positive: oklch(45% 0.11 150);
+  --positive-soft: oklch(94% 0.035 150);
+  --caution: oklch(47% 0.105 80);
+  --caution-soft: oklch(94% 0.055 85);
+  --negative: oklch(48% 0.18 28);
+  --negative-soft: oklch(95% 0.035 28);
+
+  /* Control sizing */
+  --control-height-compact: 2.25rem;
+  --control-height-default: 2.75rem;
+  --control-height-touch: 3rem;
+  --control-check-size: 1.25rem;
+  --badge-height: 1.5rem;
+
+  /* Shape */
+  --radius-control: 0.5rem;
+  --radius-inset: calc(var(--radius-control) - 0.25rem);
+  --radius-card: 0.75rem;
+  --radius-hero: 0.875rem;
+  --radius-technical: 0.125rem;
+  --radius-round: 999px;
+
+  /* Layout */
+  --layout-max: 90rem;
+  --layout-content-max: 64rem;
+  --layout-prose-max: 40rem;
+  --layout-gutter: clamp(1.25rem, 4vw, 3rem);
+
+  /* Typography */
+  --font-ui:
+    "Geist Variable", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-heading: var(--font-ui);
+  --font-brand: "Satoshi", var(--font-ui);
+  --font-code: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-size-label: 0.6875rem;
+  --font-size-caption: 0.75rem;
+  --font-size-body-sm: 0.875rem;
+  --font-size-body: 1rem;
+  --font-size-body-lg: 1.0625rem;
+  --line-height-tight: 1.08;
+  --line-height-body: 1.5;
+  --line-height-relaxed: 1.65;
+  --weight-body: 450;
+  --weight-label: 560;
+  --weight-heading: 640;
+
+  /* Motion */
+  --duration-instant: 80ms;
+  --duration-fast: 140ms;
+  --duration-default: 180ms;
+  --duration-slow: 280ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Focus and elevation */
+  --focus-color: var(--brand);
+  --focus-width: 2px;
+  --focus-offset: 3px;
+  --elevation-raised: 0 1px 2px rgb(18 18 18 / 0.06);
+  --elevation-floating: 0 0.25rem 1rem rgb(18 18 18 / 0.1);
+  --elevation-overlay: 0 1.5rem 4rem rgb(18 18 18 / 0.2);
+  --shadow-floating: var(--elevation-floating);
+  --shadow-overlay: var(--elevation-overlay);
+
+  --z-overlay: 50;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-feature: var(--feature);
+  --color-on-feature: var(--on-feature);
+  --color-on-feature-hover: var(--on-feature-hover);
+  --color-on-feature-muted: var(--on-feature-muted);
+  --color-feature-line: var(--feature-line);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-positive: var(--positive);
+  --color-positive-soft: var(--positive-soft);
+  --color-caution: var(--caution);
+  --color-caution-soft: var(--caution-soft);
+  --color-negative: var(--negative);
+  --color-negative-soft: var(--negative-soft);
+  --font-sans: var(--font-ui);
+  --font-display: var(--font-heading);
+  --font-mono: var(--font-code);
+  --radius-ui: var(--radius-control);
+  --radius-ui-inset: var(--radius-inset);
+  --radius-panel: var(--radius-card);
+  --shadow-raised: var(--elevation-raised);
+  --shadow-floating: var(--elevation-floating);
+  --shadow-overlay: var(--elevation-overlay);
+  --ease-ui-standard: var(--ease-standard);
+  --ease-ui-out: var(--ease-out);
+}

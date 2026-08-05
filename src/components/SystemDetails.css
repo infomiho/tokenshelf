@@ -1,0 +1,127 @@
+@layer components {
+  .system-details {
+    container: system-details / inline-size;
+  }
+
+  .details-type-grid,
+  .details-foundation-grid,
+  .details-principles-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .details-color-grid,
+  .details-secondary-color-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .color-swatch {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: var(--ink);
+    text-align: start;
+  }
+
+  .color-swatch-sample {
+    display: flex;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    border: 1px solid rgb(0 0 0 / 0.1);
+    border-radius: var(--radius-technical);
+    padding: 0.75rem;
+  }
+
+  .color-swatch strong {
+    font-size: 0.75rem;
+    font-weight: var(--weight-label);
+    line-height: 1rem;
+  }
+
+  .color-swatch-meta {
+    display: flex;
+    min-width: 0;
+    align-items: end;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .color-swatch code {
+    overflow: hidden;
+    color: currentColor;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    opacity: 0.78;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .color-swatch-action {
+    flex: 0 0 auto;
+    color: currentColor;
+    font-size: 0.6875rem;
+    font-weight: var(--weight-label);
+    line-height: 1rem;
+    opacity: 0;
+    transition: opacity var(--duration-fast) ease-out;
+  }
+
+  .color-swatch:hover .color-swatch-action,
+  .color-swatch:focus-visible .color-swatch-action,
+  .color-swatch[data-copied] .color-swatch-action {
+    opacity: 1;
+  }
+}
+
+@container system-details (min-width: 24rem) {
+  .details-color-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container system-details (min-width: 32rem) {
+  .details-type-grid,
+  .details-principles-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .details-secondary-color-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container system-details (min-width: 48rem) {
+  .details-color-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .details-type-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .details-foundation-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .details-secondary-color-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@container system-details (min-width: 64rem) {
+  .details-color-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .details-type-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}

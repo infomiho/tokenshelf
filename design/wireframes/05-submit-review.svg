@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800"
+     font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- 05 Review & publish · minimal · desktop 1280x800 -->
+  <rect x="0" y="0" width="1280" height="800" />
+
+  <!-- navbar -->
+  <rect width="1280" height="64" />
+  <rect x="24" y="16" width="32" height="32" rx="4" fill="#E3E9E5" />
+  <text x="72" y="38" font-size="14" font-weight="700" stroke="none" fill="#000">Tokenshelf</text>
+
+  <!-- back + title -->
+  <text x="40" y="100" font-size="14" stroke="none" fill="#666">← Drafts</text>
+  <text x="40" y="148" font-size="28" font-weight="700" stroke="none" fill="#000">Review &amp; publish</text>
+
+  <!-- standard preview panel -->
+  <g transform="translate(40,176)">
+    <rect width="736" height="424" rx="6" />
+    <text x="24" y="40" font-size="20" font-weight="600" stroke="none" fill="#000">How it appears in the library</text>
+
+    <!-- library card mini -->
+    <g transform="translate(24,64)">
+      <rect width="352" height="208" rx="6" />
+      <rect width="352" height="128" fill="#F1F5F2" />
+      <rect x="16" y="16" width="24" height="24" fill="#000" />
+      <rect x="48" y="16" width="24" height="24" fill="#fff" />
+      <rect x="80" y="16" width="24" height="24" fill="#E3E9E5" />
+      <rect x="112" y="16" width="24" height="24" fill="#fff" />
+      <text x="272" y="44" font-size="28" font-weight="700" stroke="none" fill="#000">Aa</text>
+      <g transform="translate(16,80)">
+        <rect width="88" height="32" rx="4" fill="#2D6A4F" />
+        <text x="44" y="21" font-size="12" text-anchor="middle" stroke="none" fill="#fff">Button</text>
+      </g>
+      <g transform="translate(120,80)">
+        <rect width="128" height="32" rx="4" />
+        <text x="12" y="21" font-size="12" stroke="none" fill="#666">Input</text>
+      </g>
+      <line x1="0" y1="128" x2="352" y2="128" />
+      <text x="16" y="160" font-size="14" font-weight="600" stroke="none" fill="#000">Formisch</text>
+      <text x="336" y="160" font-size="12" text-anchor="end" stroke="none" fill="#666">0 copies · New</text>
+      <text x="16" y="184" font-size="12" stroke="none" fill="#666">Minimal · Technical · Forms</text>
+    </g>
+    <text x="24" y="296" font-size="12" stroke="none" fill="#666">Library card</text>
+
+    <!-- components strip -->
+    <text x="24" y="328" font-size="12" stroke="none" fill="#666">Components rendered with your tokens</text>
+    <rect x="24" y="340" width="688" height="64" fill="#F1F5F2" />
+    <g transform="translate(48,352)">
+      <rect width="112" height="40" rx="4" fill="#2D6A4F" />
+      <text x="56" y="25" font-size="14" text-anchor="middle" stroke="none" fill="#fff">Primary</text>
+    </g>
+    <g transform="translate(176,352)">
+      <rect width="112" height="40" rx="4" />
+      <text x="56" y="25" font-size="14" text-anchor="middle" stroke="none" fill="#000">Secondary</text>
+    </g>
+    <g transform="translate(304,352)">
+      <rect width="176" height="40" rx="4" />
+      <text x="12" y="25" font-size="14" stroke="none" fill="#666">Input value</text>
+    </g>
+    <g transform="translate(504,356)">
+      <rect width="80" height="32" rx="16" />
+      <text x="40" y="21" font-size="12" text-anchor="middle" stroke="none" fill="#000">Tag</text>
+    </g>
+  </g>
+
+  <!-- checks card -->
+  <g transform="translate(808,176)">
+    <rect width="432" height="232" rx="6" />
+    <text x="24" y="36" font-size="20" font-weight="600" stroke="none" fill="#000">Checks</text>
+    <g transform="translate(24,56)">
+      <rect width="20" height="20" rx="2" fill="#2D6A4F" />
+      <polyline points="4,11 9,16 16,6" stroke="#fff" fill="none" />
+    </g>
+    <text x="56" y="71" font-size="14" stroke="none" fill="#000">Format: valid standard spec v1</text>
+    <g transform="translate(24,88)">
+      <rect width="20" height="20" rx="2" fill="#2D6A4F" />
+      <polyline points="4,11 9,16 16,6" stroke="#fff" fill="none" />
+    </g>
+    <text x="56" y="103" font-size="14" stroke="none" fill="#000">Sections: colors, type, space, motion</text>
+    <g transform="translate(24,120)">
+      <rect width="20" height="20" rx="2" fill="#2D6A4F" />
+      <polyline points="4,11 9,16 16,6" stroke="#fff" fill="none" />
+    </g>
+    <text x="56" y="135" font-size="14" stroke="none" fill="#000">Contrast: AA passes on all text pairs</text>
+    <g transform="translate(24,152)">
+      <rect width="20" height="20" rx="2" />
+      <text x="10" y="15" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#000">!</text>
+    </g>
+    <text x="56" y="167" font-size="14" stroke="none" fill="#000">Dark mode: not declared</text>
+    <g transform="translate(24,184)">
+      <rect width="20" height="20" rx="2" fill="#2D6A4F" />
+      <polyline points="4,11 9,16 16,6" stroke="#fff" fill="none" />
+    </g>
+    <text x="56" y="199" font-size="14" stroke="none" fill="#000">Safety: no prompt injection found</text>
+  </g>
+
+  <!-- rights + publish -->
+  <g transform="translate(808,440)">
+    <rect width="20" height="20" rx="2" fill="#2D6A4F" />
+    <polyline points="4,11 9,16 16,6" stroke="#fff" fill="none" />
+  </g>
+  <text x="840" y="455" font-size="14" stroke="none" fill="#000">I have rights to share these tokens</text>
+  <g transform="translate(808,480)">
+    <rect width="432" height="48" rx="4" fill="#2D6A4F" />
+    <text x="216" y="30" font-size="14" text-anchor="middle" stroke="none" fill="#fff">Publish to library</text>
+  </g>
+  <g transform="translate(808,544)">
+    <rect width="208" height="40" rx="4" />
+    <text x="104" y="25" font-size="14" text-anchor="middle" stroke="none" fill="#000">Fix with your agent</text>
+  </g>
+  <text x="1032" y="560" font-size="12" stroke="none" fill="#666">Copies a fix prompt for flagged checks;</text>
+  <text x="1032" y="576" font-size="12" stroke="none" fill="#666">a re-POST updates this draft.</text>
+
+  <!-- annotations -->
+  <g data-region="annotations">
+    <g transform="translate(24,240)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+    </g>
+    <g transform="translate(792,208)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+    </g>
+    <g transform="translate(792,464)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">3</text>
+    </g>
+  </g>
+</svg>

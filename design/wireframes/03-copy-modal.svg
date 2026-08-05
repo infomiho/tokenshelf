@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800"
+     font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- 03 Copy-for-agent modal · minimal · desktop 1280x800 -->
+  <rect x="0" y="0" width="1280" height="800" />
+
+  <!-- simplified underlying detail page -->
+  <rect width="1280" height="64" />
+  <rect x="24" y="16" width="32" height="32" rx="4" fill="#E3E9E5" />
+  <rect x="40" y="112" width="320" height="32" fill="#E3E9E5" />
+  <rect x="40" y="168" width="784" height="200" fill="#E3E9E5" />
+  <rect x="40" y="392" width="784" height="160" fill="#E3E9E5" />
+  <rect x="40" y="576" width="784" height="176" fill="#E3E9E5" />
+  <rect x="856" y="112" width="384" height="196" fill="#E3E9E5" />
+
+  <!-- backdrop -->
+  <rect x="0" y="0" width="1280" height="800" fill="#000" fill-opacity="0.4" stroke="none" />
+
+  <!-- modal -->
+  <rect x="280" y="160" width="720" height="480" rx="6" />
+  <text x="304" y="204" font-size="20" font-weight="600" stroke="none" fill="#000">Copy Formisch for your agent</text>
+  <text x="960" y="204" font-size="20" stroke="none" fill="#666">×</text>
+  <line x1="280" y1="224" x2="1000" y2="224" />
+
+  <!-- format tabs -->
+  <text x="304" y="260" font-size="14" font-weight="600" stroke="none" fill="#000">DESIGN.md</text>
+  <text x="416" y="260" font-size="14" stroke="none" fill="#666">CSS variables</text>
+  <text x="536" y="260" font-size="14" stroke="none" fill="#666">JSON tokens</text>
+  <line x1="304" y1="272" x2="976" y2="272" stroke="#666" />
+  <line x1="304" y1="272" x2="384" y2="272" stroke-width="3" />
+
+  <!-- payload preview -->
+  <rect x="304" y="296" width="672" height="208" fill="#F1F5F2" />
+  <text x="320" y="324" font-size="12" font-weight="600" stroke="none" fill="#000"># Formisch: friendly precision for technical forms</text>
+  <text x="320" y="348" font-size="12" stroke="none" fill="#000">Style all UI with this design system:</text>
+  <text x="320" y="372" font-size="12" stroke="none" fill="#000">- Type: Lexend 400/500 · scale 12/14/16/20/28</text>
+  <text x="320" y="392" font-size="12" stroke="none" fill="#000">- Color: accent #38BDF8 on slate #0F172A · radius 6px</text>
+  <text x="320" y="412" font-size="12" stroke="none" fill="#000">- Spacing: 4px base unit · borders 1px #E2E8F0</text>
+  <line x1="320" y1="436" x2="880" y2="436" stroke="#666" />
+  <line x1="320" y1="452" x2="920" y2="452" stroke="#666" />
+  <line x1="320" y1="468" x2="680" y2="468" stroke="#666" />
+
+  <text x="304" y="532" font-size="12" stroke="none" fill="#666">Paste into CLAUDE.md / AGENTS.md, or drop into your prompt.</text>
+  <line x1="280" y1="552" x2="1000" y2="552" />
+
+  <!-- footer action -->
+  <g transform="translate(840,576)">
+    <rect width="136" height="40" rx="4" fill="#2D6A4F" />
+    <text x="68" y="25" font-size="14" text-anchor="middle" stroke="none" fill="#fff">Copy to clipboard</text>
+  </g>
+
+  <!-- annotations -->
+  <g data-region="annotations">
+    <g transform="translate(272,256)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+    </g>
+    <g transform="translate(272,304)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+    </g>
+    <g transform="translate(272,528)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">3</text>
+    </g>
+  </g>
+</svg>

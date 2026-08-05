@@ -1,0 +1,142 @@
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/satoshi-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/satoshi-black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    min-width: 320px;
+    background: var(--paper);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-optical-sizing: auto;
+    font-weight: var(--weight-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  button,
+  summary {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: var(--focus-width) solid var(--focus-color);
+    outline-offset: var(--focus-offset);
+  }
+
+  ::selection {
+    background: var(--brand-soft);
+    color: var(--ink);
+  }
+}
+
+@layer components {
+  .eyebrow,
+  .meta-label {
+    font-family: var(--font-code);
+    font-size: var(--font-size-label);
+    font-weight: var(--weight-label);
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .eyebrow {
+    color: var(--muted);
+    letter-spacing: 0.12em;
+  }
+
+  .meta-label {
+    letter-spacing: 0.1em;
+  }
+
+  .page-title {
+    max-width: 42rem;
+    font-family: var(--font-brand);
+    font-size: clamp(2.5rem, 4.5vw, 3.75rem);
+    font-weight: 900;
+    letter-spacing: -0.055em;
+    line-height: 0.98;
+    text-wrap: balance;
+  }
+
+  .page-lede {
+    max-width: var(--layout-prose-max);
+    margin-block-start: 1.25rem;
+    color: var(--muted);
+    font-size: var(--font-size-body-lg);
+    line-height: var(--line-height-relaxed);
+    text-wrap: pretty;
+  }
+
+  .section-title,
+  .feature-title,
+  .card-title {
+    font-family: var(--font-heading);
+    font-weight: var(--weight-heading);
+    text-wrap: balance;
+  }
+
+  .section-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    letter-spacing: -0.04em;
+    line-height: var(--line-height-tight);
+  }
+
+  .feature-title {
+    font-size: clamp(2.25rem, 4vw, 3rem);
+    letter-spacing: -0.055em;
+    line-height: 0.98;
+  }
+
+  .card-title {
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @layer base {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0s !important;
+    }
+  }
+}

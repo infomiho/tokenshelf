@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800"
+     font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- 02 System detail · minimal · desktop 1280x800 -->
+  <rect x="0" y="0" width="1280" height="800" />
+
+  <!-- navbar -->
+  <rect width="1280" height="64" />
+  <rect x="24" y="16" width="32" height="32" rx="4" fill="#E3E9E5" />
+  <text x="72" y="38" font-size="14" font-weight="700" stroke="none" fill="#000">Tokenshelf</text>
+  <g transform="translate(480,12)">
+    <rect width="320" height="40" rx="20" />
+    <circle cx="20" cy="20" r="6" />
+    <line x1="24" y1="24" x2="30" y2="30" />
+    <text x="40" y="25" font-size="14" stroke="none" fill="#666">Search systems, vibes, fonts…</text>
+  </g>
+  <g transform="translate(1096,12)">
+    <rect width="144" height="40" rx="4" fill="#2D6A4F" />
+    <text x="72" y="25" font-size="14" text-anchor="middle" stroke="none" fill="#fff">Submit a system</text>
+  </g>
+
+  <!-- back + title block -->
+  <text x="40" y="100" font-size="14" stroke="none" fill="#666">← Browse</text>
+  <text x="40" y="148" font-size="28" font-weight="700" stroke="none" fill="#000">Formisch</text>
+  <text x="40" y="176" font-size="14" stroke="none" fill="#666">Friendly precision for technical forms.</text>
+  <text x="40" y="200" font-size="12" stroke="none" fill="#666">by @heyrico · from an X post</text>
+
+  <g transform="translate(40,216)">
+    <rect width="72" height="24" rx="12" />
+    <text x="36" y="16" font-size="12" text-anchor="middle" stroke="none" fill="#000">Minimal</text>
+  </g>
+  <g transform="translate(120,216)">
+    <rect width="80" height="24" rx="12" />
+    <text x="40" y="16" font-size="12" text-anchor="middle" stroke="none" fill="#000">Technical</text>
+  </g>
+  <g transform="translate(208,216)">
+    <rect width="56" height="24" rx="12" />
+    <text x="28" y="16" font-size="12" text-anchor="middle" stroke="none" fill="#000">Light</text>
+  </g>
+
+  <!-- colors -->
+  <text x="40" y="284" font-size="20" font-weight="600" stroke="none" fill="#000">Colors</text>
+  <rect x="40" y="300" width="56" height="56" fill="#000" />
+  <rect x="112" y="300" width="56" height="56" fill="#E3E9E5" />
+  <rect x="184" y="300" width="56" height="56" fill="#fff" />
+  <rect x="256" y="300" width="56" height="56" fill="#F1F5F2" />
+  <rect x="328" y="300" width="56" height="56" fill="#000" />
+  <rect x="400" y="300" width="56" height="56" fill="#E3E9E5" />
+  <text x="68" y="372" font-size="12" text-anchor="middle" stroke="none" fill="#666">#0F172A</text>
+  <text x="140" y="372" font-size="12" text-anchor="middle" stroke="none" fill="#666">#475569</text>
+  <text x="212" y="372" font-size="12" text-anchor="middle" stroke="none" fill="#666">#F8FAFC</text>
+  <text x="284" y="372" font-size="12" text-anchor="middle" stroke="none" fill="#666">#E2E8F0</text>
+  <text x="356" y="372" font-size="12" text-anchor="middle" stroke="none" fill="#666">#0284C7</text>
+  <text x="428" y="372" font-size="12" text-anchor="middle" stroke="none" fill="#666">#38BDF8</text>
+  <line x1="40" y1="392" x2="824" y2="392" stroke="#666" />
+
+  <!-- typography -->
+  <text x="40" y="424" font-size="20" font-weight="600" stroke="none" fill="#000">Typography</text>
+  <text x="40" y="464" font-size="28" font-weight="700" stroke="none" fill="#000">Aa Bb 0123 · Lexend</text>
+  <text x="40" y="488" font-size="12" stroke="none" fill="#666">Lexend 400 / 500 / 600 · scale 12 · 14 · 16 · 20 · 28 · 40</text>
+  <line x1="40" y1="508" x2="824" y2="508" stroke="#666" />
+
+  <!-- spacing & radius -->
+  <text x="40" y="540" font-size="20" font-weight="600" stroke="none" fill="#000">Spacing &amp; radius</text>
+  <rect x="40" y="556" width="8" height="16" fill="#E3E9E5" />
+  <rect x="64" y="556" width="16" height="16" fill="#E3E9E5" />
+  <rect x="96" y="556" width="24" height="16" fill="#E3E9E5" />
+  <rect x="136" y="556" width="40" height="16" fill="#E3E9E5" />
+  <rect x="192" y="556" width="64" height="16" fill="#E3E9E5" />
+  <text x="40" y="592" font-size="12" stroke="none" fill="#666">4px base unit</text>
+  <rect x="400" y="556" width="64" height="40" rx="2" />
+  <rect x="480" y="556" width="64" height="40" rx="8" />
+  <rect x="560" y="556" width="64" height="40" rx="16" />
+  <text x="400" y="616" font-size="12" stroke="none" fill="#666">radius 2 · 8 · 16</text>
+  <line x1="40" y1="636" x2="824" y2="636" stroke="#666" />
+
+  <!-- components -->
+  <text x="40" y="668" font-size="20" font-weight="600" stroke="none" fill="#000">Components</text>
+  <g transform="translate(40,684)">
+    <rect width="112" height="40" rx="4" fill="#2D6A4F" />
+    <text x="56" y="25" font-size="14" text-anchor="middle" stroke="none" fill="#fff">Primary</text>
+  </g>
+  <g transform="translate(168,684)">
+    <rect width="112" height="40" rx="4" />
+    <text x="56" y="25" font-size="14" text-anchor="middle" stroke="none" fill="#000">Secondary</text>
+  </g>
+  <g transform="translate(296,684)">
+    <rect width="192" height="40" rx="4" />
+    <text x="12" y="25" font-size="14" stroke="none" fill="#666">Input value</text>
+  </g>
+  <g transform="translate(512,688)">
+    <rect width="80" height="32" rx="16" />
+    <text x="40" y="21" font-size="12" text-anchor="middle" stroke="none" fill="#000">Tag</text>
+  </g>
+  <text x="40" y="760" font-size="12" stroke="none" fill="#666">Motion: 150–250 ms · ease-out</text>
+
+  <!-- right rail -->
+  <g transform="translate(856,132)">
+    <rect width="384" height="196" rx="6" />
+    <text x="24" y="40" font-size="20" font-weight="600" stroke="none" fill="#000">Hand it to your agent</text>
+    <g transform="translate(24,60)">
+      <rect width="336" height="48" rx="4" fill="#2D6A4F" />
+      <text x="168" y="30" font-size="14" text-anchor="middle" stroke="none" fill="#fff">Copy for your agent</text>
+    </g>
+    <g transform="translate(24,132)">
+      <rect width="96" height="40" rx="4" />
+      <polygon points="16,28 24,12 32,28" fill="#000" stroke="none" />
+      <text x="44" y="25" font-size="14" stroke="none" fill="#000">234</text>
+    </g>
+    <text x="136" y="157" font-size="12" stroke="none" fill="#666">1,247 copies</text>
+  </g>
+
+  <!-- annotations -->
+  <g data-region="annotations">
+    <g transform="translate(20,196)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+    </g>
+    <g transform="translate(20,280)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+    </g>
+    <g transform="translate(840,216)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">3</text>
+    </g>
+    <g transform="translate(840,284)">
+      <circle r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" />
+      <text y="4" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">4</text>
+    </g>
+  </g>
+</svg>

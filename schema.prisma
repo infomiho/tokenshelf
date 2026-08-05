@@ -1,0 +1,165 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum SubmissionLifecycle {
+  OPEN
+  PUBLISHED
+  WITHDRAWN
+}
+
+enum DesignSystemLifecycle {
+  PUBLISHED
+  WITHDRAWN
+}
+
+model User {
+  id                  String          @id @default(uuid())
+  displayName         String?
+  githubHandle        String?         @unique
+  avatarUrl           String?
+  submissions         Submission[]
+  designSystems       DesignSystem[]
+  votes               Vote[]
+  claimedGuestSessions GuestSession[] @relation("ClaimedGuestSessions")
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+}
+
+model GuestSession {
+  id            String       @id @default(uuid())
+  tokenHash     String       @unique
+  submissions   Submission[]
+  createdAt     DateTime     @default(now())
+  lastUsedAt    DateTime     @default(now())
+  claimedAt     DateTime?
+  claimedById   String?
+  claimedBy     User?        @relation("ClaimedGuestSessions", fields: [claimedById], references: [id], onDelete: SetNull)
+
+  @@index([lastUsedAt])
+}
+
+model Submission {
+  id                 String                  @id @default(uuid())
+  ownerId            String?
+  owner              User?                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  guestSessionId     String?
+  guestSession       GuestSession?           @relation(fields: [guestSessionId], references: [id], onDelete: Cascade)
+  lifecycle          SubmissionLifecycle     @default(OPEN)
+  sessionGeneration  Int                     @default(0)
+  draft              SubmissionDraft?
+  agentSessions      SubmissionAgentSession[]
+  publishedSystem    DesignSystem?            @relation("SubmissionPublication")
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+
+  @@index([ownerId, updatedAt])
+  @@index([guestSessionId, updatedAt])
+  @@index([lifecycle, updatedAt])
+}
+
+model SubmissionDraft {
+  submissionId   String     @id
+  submission     Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  revision       Int        @default(0)
+  document       Json
+  assessment     Json
+  designMd       String?
+  renderer       Json?
+  updatedBy      String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model SubmissionAgentSession {
+  id          String     @id @default(uuid())
+  submissionId String
+  submission  Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  capabilityHash String   @unique
+  generation  Int
+  expiresAt   DateTime
+  lastUsedAt  DateTime?
+  createdAt   DateTime   @default(now())
+
+  @@index([submissionId, expiresAt])
+}
+
+model DesignSystem {
+  id                String                @id @default(uuid())
+  slug              String                @unique
+  ownerId           String
+  owner             User                  @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  name              String
+  summary           String
+  tags              String[]
+  inspiration       Json?
+  document          Json
+  designMd          String
+  renderer          Json
+  assessment        Json
+  validatorVersion  String
+  sourceSubmissionId String               @unique
+  sourceSubmission  Submission            @relation("SubmissionPublication", fields: [sourceSubmissionId], references: [id], onDelete: Restrict)
+  sourceRevision    Int
+  rightsAttestation Boolean
+  rightsStatementVersion String
+  rightsAcceptedAt  DateTime
+  lifecycle         DesignSystemLifecycle @default(PUBLISHED)
+  publishedAt       DateTime              @default(now())
+  withdrawnAt       DateTime?
+  votes             Vote[]
+  copyMetrics       DailyCopyMetric[]
+  copyReceipts      CopyReceipt[]
+  dailyPicks        DailyPick[]
+
+  @@index([lifecycle, publishedAt])
+}
+
+model Vote {
+  userId        String
+  designSystemId String
+  voteDate      DateTime     @db.Date
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  designSystem  DesignSystem @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+
+  @@id([userId, designSystemId, voteDate])
+  @@index([designSystemId, voteDate])
+}
+
+model DailyCopyMetric {
+  designSystemId String
+  metricDate     DateTime     @db.Date
+  count          Int          @default(0)
+  designSystem   DesignSystem @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
+
+  @@id([designSystemId, metricDate])
+}
+
+model CopyReceipt {
+  designSystemId String
+  receiptDate    DateTime     @db.Date
+  actorHash      String
+  designSystem   DesignSystem @relation(fields: [designSystemId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@id([designSystemId, receiptDate, actorHash])
+  @@index([receiptDate])
+}
+
+model DailyPick {
+  featuredDate   DateTime     @id @db.Date
+  competitionDate DateTime    @unique @db.Date
+  winnerId       String
+  winner         DesignSystem @relation(fields: [winnerId], references: [id], onDelete: Restrict)
+  voteSnapshot   Int
+  ruleVersion    String
+  createdAt      DateTime     @default(now())
+
+  @@index([winnerId])
+}
