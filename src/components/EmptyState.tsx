@@ -7,11 +7,13 @@ export function EmptyState({
   title,
   description,
   action,
+  headingLevel: Heading = "h2",
   className = "",
 }: {
   title: string;
   description?: string;
   action?: ReactNode;
+  headingLevel?: "h1" | "h2";
   className?: string;
 }) {
   const titleId = useId();
@@ -23,9 +25,9 @@ export function EmptyState({
       aria-labelledby={titleId}
     >
       <div className="flex flex-col items-start justify-center p-7 sm:p-10">
-        <h2 id={titleId} className={typographyClassName("cardTitle", "text-2xl")}>
+        <Heading id={titleId} className={typographyClassName("cardTitle", "text-2xl")}>
           {title}
-        </h2>
+        </Heading>
         {description && (
           <p className="mt-3 max-w-md text-sm leading-6 text-on-feature-muted">{description}</p>
         )}

@@ -2,7 +2,10 @@ import { app, page, route } from "@wasp.sh/spec";
 import Root from "./src/Root" with { type: "ref" };
 import { userSignupFields } from "./src/auth/github" with { type: "ref" };
 import { serverMiddleware } from "./src/server/rate-limits" with { type: "ref" };
-import seedCatalog from "./src/server/seed" with { type: "ref" };
+import {
+  seedDevelopmentCatalog,
+  seedProductionCatalog,
+} from "./src/server/seed" with { type: "ref" };
 import { agentSpec } from "./src/server/agent.wasp";
 import { analyticsJobsSpec } from "./src/server/analytics-jobs.wasp";
 import { catalogSpec } from "./src/catalog/catalog.wasp";
@@ -15,7 +18,7 @@ export default app({
   title: "Tokenshelf",
   client: { rootComponent: Root },
   server: { middlewareConfigFn: serverMiddleware },
-  db: { seeds: [seedCatalog] },
+  db: { seeds: [seedDevelopmentCatalog, seedProductionCatalog] },
   auth: {
     userEntity: "User",
     methods: { gitHub: { userSignupFields } },

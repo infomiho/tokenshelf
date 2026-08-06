@@ -9,7 +9,7 @@ const meta = {
   args: {
     copied: false,
     copyError: false,
-    onCopy: fn(),
+    onCopy: fn(async () => {}),
   },
 } satisfies Meta<typeof CopyPromptControl>;
 
@@ -33,8 +33,8 @@ function InteractiveCopyPrompt(props: CopyPromptControlProps) {
     <CopyPromptControl
       {...props}
       copied={copied}
-      onCopy={() => {
-        props.onCopy();
+      onCopy={async () => {
+        await props.onCopy();
         setCopied(true);
       }}
     />

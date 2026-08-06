@@ -1,19 +1,20 @@
-import type { PrismaClient } from "wasp/server";
+import type { DbSeedFn, PrismaClient } from "wasp/server";
 import { catalogFixtures } from "../data/catalogFixtures";
 import { assessDesignSystemDocument, designSystemModel } from "../data/design-document";
 import { utcDate } from "./security";
 
-export default async function seedCatalog(prisma: PrismaClient) {
+async function seedCatalogSystems(prisma: PrismaClient) {
   const owner = await prisma.user.upsert({
     where: { id: "tokenshelf-fixture-owner" },
     create: {
       id: "tokenshelf-fixture-owner",
       displayName: "Tokenshelf",
-      githubHandle: "tokenshelf",
     },
-    update: { githubHandle: "tokenshelf" },
+    update: { displayName: "Tokenshelf", githubHandle: null },
   });
   const today = utcDate();
+  const systems: { id: string }[] = [];
+
   for (const [index, fixture] of catalogFixtures.entries()) {
     const sourceSubmissionId = `fixture-submission-${fixture.id}`;
     const assessment = assessDesignSystemDocument(fixture.document);
@@ -59,7 +60,7 @@ export default async function seedCatalog(prisma: PrismaClient) {
       },
     });
     const system = await prisma.designSystem.upsert({
-      where: { slug: fixture.id },
+      where: { sourceSubmissionId },
       create: {
         slug: fixture.id,
         ownerId: owner.id,
@@ -84,6 +85,8 @@ export default async function seedCatalog(prisma: PrismaClient) {
         ),
       },
       update: {
+        slug: fixture.id,
+        ownerId: owner.id,
         name: fixture.name,
         summary: fixture.description,
         tags: fixture.tags,
@@ -95,19 +98,33 @@ export default async function seedCatalog(prisma: PrismaClient) {
         validatorVersion: `${designSystemModel.id}@${designSystemModel.version}`,
       },
     });
-    if (index < 4) {
-      const featuredDate = new Date(today.getTime() - index * 24 * 60 * 60 * 1_000);
-      await prisma.dailyPick.upsert({
-        where: { featuredDate },
-        create: {
-          featuredDate,
-          competitionDate: new Date(featuredDate.getTime() - 24 * 60 * 60 * 1_000),
-          winnerId: system.id,
-          voteSnapshot: 0,
-          ruleVersion: "fixture-v1",
-        },
-        update: { winnerId: system.id, voteSnapshot: 0, ruleVersion: "fixture-v1" },
-      });
-    }
+    systems.push(system);
   }
+
+  return { systems, today };
 }
+
+export const seedProductionCatalog: DbSeedFn = async (prisma) => {
+  await seedCatalogSystems(prisma);
+};
+
+export const seedDevelopmentCatalog: DbSeedFn = async (prisma) => {
+  const { systems, today } = await seedCatalogSystems(prisma);
+  const fixturePicks = systems.slice(0, 4).map((system, index) => {
+    const featuredDate = new Date(today.getTime() - index * 24 * 60 * 60 * 1_000);
+    return prisma.dailyPick.create({
+      data: {
+        featuredDate,
+        competitionDate: new Date(featuredDate.getTime() - 24 * 60 * 60 * 1_000),
+        winnerId: system.id,
+        voteSnapshot: 0,
+        ruleVersion: "fixture-v1",
+      },
+    });
+  });
+
+  await prisma.$transaction([
+    prisma.dailyPick.deleteMany({ where: { ruleVersion: "fixture-v1" } }),
+    ...fixturePicks,
+  ]);
+};

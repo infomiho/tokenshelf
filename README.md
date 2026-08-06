@@ -34,3 +34,17 @@ wasp start
 ```
 
 Tokenshelf will be available at [http://localhost:3000](http://localhost:3000).
+
+## Seed data
+
+Seed the shared catalog systems plus local demo picks:
+
+```sh
+wasp db seed seedDevelopmentCatalog
+```
+
+Seed only the shared Tokenshelf-authored systems in production:
+
+```sh
+DATABASE_URL=your-production-database-url wasp db seed seedProductionCatalog
+```

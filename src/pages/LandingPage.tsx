@@ -3,6 +3,7 @@ import { getCatalogHome, useQuery } from "wasp/client/operations";
 import { AppShell } from "../components/AppShell";
 import { LoadingPage } from "../components/LoadingPage";
 import { DailyPickFeature } from "../components/DailyPickFeature";
+import { EmptyState } from "../components/EmptyState";
 import { SubmissionBanner } from "../components/SubmissionBanner";
 import { SystemCard } from "../components/SystemCard";
 import { PageMessage } from "../components/PageMessage";
@@ -54,17 +55,44 @@ function LandingContent() {
   const previousPicks = catalog.data?.previousPicks ?? [];
 
   if (!dailyPick) {
+    const hasPublishedSystems = catalog.data?.hasPublishedSystems ?? false;
     return (
       <AppShell>
-        <PageMessage
-          title="No systems yet"
-          description="Published design systems will appear here. Start a submission to add the first one."
-          action={
-            <Link to="/submit/:submissionId?" params={{}} className={actionLinkClassName()}>
-              Start a submission
-            </Link>
-          }
-        />
+        <PageContainer className="pb-16 pt-6 sm:pt-10">
+          <EmptyState
+            headingLevel="h1"
+            title={
+              hasPublishedSystems
+                ? "Today’s pick is still being decided"
+                : "The shelf is ready for its first system"
+            }
+            description={
+              hasPublishedSystems
+                ? "Vote in today’s race or browse the newest systems while the next winner is chosen."
+                : "Submit an original design system to start the first daily race."
+            }
+            action={
+              hasPublishedSystems ? (
+                <div className="flex flex-wrap gap-3">
+                  <Link to="/hot" className={actionLinkClassName("onDark")}>
+                    View today&apos;s race
+                  </Link>
+                  <Link to="/new" className={actionLinkClassName("onDarkSecondary")}>
+                    Browse new systems
+                  </Link>
+                </div>
+              ) : (
+                <Link
+                  to="/submit/:submissionId?"
+                  params={{}}
+                  className={actionLinkClassName("onDark")}
+                >
+                  Submit a system
+                </Link>
+              )
+            }
+          />
+        </PageContainer>
       </AppShell>
     );
   }

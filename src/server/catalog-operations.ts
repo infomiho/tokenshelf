@@ -73,6 +73,7 @@ type CatalogHomeView = {
   systems: CatalogSystemView[];
   dailyPick: CatalogSystemView | null;
   previousPicks: CatalogSystemView[];
+  hasPublishedSystems: boolean;
 };
 
 type PublicUserProfileView = {
@@ -83,14 +84,22 @@ type PublicUserProfileView = {
 };
 
 export const getCatalogHome: GetCatalogHome<void, CatalogHomeView> = async () => {
-  const picks = await prisma.dailyPick.findMany({
-    where: { winner: { lifecycle: "PUBLISHED" } },
-    orderBy: { featuredDate: "desc" },
-    take: 5,
-    select: { winnerId: true, winner: { select: publicSystemSelection } },
-  });
+  const [picks, publishedSystemCount] = await prisma.$transaction([
+    prisma.dailyPick.findMany({
+      where: { winner: { lifecycle: "PUBLISHED" } },
+      orderBy: { featuredDate: "desc" },
+      take: 5,
+      select: { winnerId: true, winner: { select: publicSystemSelection } },
+    }),
+    prisma.designSystem.count({ where: { lifecycle: "PUBLISHED" } }),
+  ]);
   const systems = picks.map(({ winner }) => toCatalogSystem(winner));
-  return { systems, dailyPick: systems[0] ?? null, previousPicks: systems.slice(1) };
+  return {
+    systems,
+    dailyPick: systems[0] ?? null,
+    previousPicks: systems.slice(1),
+    hasPublishedSystems: publishedSystemCount > 0,
+  };
 };
 
 type ListInput = {

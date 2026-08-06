@@ -15,7 +15,9 @@ const meta = {
     voteError: null,
     onVoteChange: fn(),
     designMdUrl: "https://example.com/systems/apex-velocity/DESIGN.md",
-    copyPromptControl: <CopyPromptControl copied={false} copyError={false} onCopy={fn()} />,
+    copyPromptControl: (
+      <CopyPromptControl copied={false} copyError={false} onCopy={fn(async () => {})} />
+    ),
   },
   parameters: {
     viewport: { defaultViewport: "responsive" },

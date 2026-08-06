@@ -17,7 +17,7 @@ import { serveDesignMd } from "../server/design-md-api" with { type: "ref" };
 const catalogEntities = ["DesignSystem", "Vote", "DailyCopyMetric", "DailyPick"];
 
 export const catalogSpec: Spec = [
-  route("RootRoute", "/", page(LandingPage), { prerender: true }),
+  route("RootRoute", "/", page(LandingPage), { prerender: true, lazy: false }),
   route("HotRoute", "/hot", page(HotPage)),
   route("NewRoute", "/new", page(NewPage)),
   route("SystemRoute", "/systems/:systemId", page(SystemPage)),

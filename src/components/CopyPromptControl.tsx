@@ -5,7 +5,7 @@ import { Button, type ButtonVariant } from "../design-system/components";
 export type CopyPromptControlProps = {
   copied: boolean;
   copyError: boolean;
-  onCopy: () => void;
+  onCopy: () => Promise<void>;
   variant?: ButtonVariant;
   className?: string;
 };
