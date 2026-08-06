@@ -7,7 +7,7 @@ import {
 } from "../../design-system/components";
 import { AgentMarks } from "../AgentMarks";
 import { DesignSourcesVisual } from "../DesignSourcesVisual";
-import { LogoMark } from "../LogoMark";
+import { LogoMark } from "../../design-system/components";
 
 const steps = [
   {

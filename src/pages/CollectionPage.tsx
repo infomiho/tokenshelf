@@ -8,6 +8,7 @@ import { PageMessage } from "../components/PageMessage";
 import {
   actionLinkClassName,
   Button,
+  LoadingIndicator,
   PageContainer,
   typographyClassName,
 } from "../design-system/components";
@@ -29,6 +30,7 @@ export function CollectionPage({ mode }: { mode: "hot" | "new" }) {
       }),
     getNextPageParam: (lastPage) =>
       lastPage.page * lastPage.pageSize < lastPage.total ? lastPage.page + 1 : undefined,
+    keepPreviousData: true,
   });
   const tags = useQuery(getTagSuggestions);
   const systems = catalog.data?.pages.flatMap(({ items }) => items) ?? [];
@@ -88,18 +90,23 @@ export function CollectionPage({ mode }: { mode: "hot" | "new" }) {
         </p>
         <div>
           {catalog.isLoading ? (
-            <p className="mt-14 border-t border-line pt-8 text-sm text-muted" role="status">
-              Loading systems
-            </p>
+            <div className="mt-14 border-t border-line pt-8">
+              <LoadingIndicator label="Loading systems" />
+            </div>
           ) : systems.length > 0 ? (
             <>
               <div className="mt-8 flex items-center justify-between gap-4">
                 <h2 className={typographyClassName("sectionTitle", "text-xl")}>
                   {systemCountLabel}
                 </h2>
-                <span className={typographyClassName("metaLabel", "text-muted")}>
-                  {mode === "hot" ? "Sorted by votes" : "Newest first"}
-                </span>
+                <div className="flex items-center gap-3">
+                  {catalog.isFetching && !catalog.isFetchingNextPage && (
+                    <LoadingIndicator label="Updating systems" size="compact" />
+                  )}
+                  <span className={typographyClassName("metaLabel", "text-muted")}>
+                    {mode === "hot" ? "Sorted by votes" : "Newest first"}
+                  </span>
+                </div>
               </div>
               <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {systems.map((system) => (
@@ -110,14 +117,17 @@ export function CollectionPage({ mode }: { mode: "hot" | "new" }) {
                 <div className="mt-8 flex justify-center">
                   <Button
                     variant="secondary"
+                    className="min-w-32"
                     disabled={catalog.isFetchingNextPage}
                     onClick={() => {
                       void catalog.fetchNextPage();
                     }}
                   >
-                    {catalog.isFetchingNextPage
-                      ? "Loading systems"
-                      : `Load ${Math.min(pageSize, total - systems.length)} more`}
+                    {catalog.isFetchingNextPage ? (
+                      <LoadingIndicator label="Loading more systems" size="compact" />
+                    ) : (
+                      `Load ${Math.min(pageSize, total - systems.length)} more`
+                    )}
                   </Button>
                 </div>
               )}

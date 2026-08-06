@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button } from "../design-system/components";
-import { LogoMark } from "./LogoMark";
+import { LogoMark } from "../design-system/components";
 import { PageMessage } from "./PageMessage";
 
 const meta = {

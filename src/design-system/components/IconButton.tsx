@@ -18,7 +18,7 @@ export function IconButton({
     <Button
       aria-label={label}
       size={size}
-      className={`${squareControlSizeClassName(size)} shrink-0 px-0 ${className}`}
+      className={`${squareControlSizeClassName(size)} shrink-0 !px-0 ${className}`}
       {...props}
     >
       {children}

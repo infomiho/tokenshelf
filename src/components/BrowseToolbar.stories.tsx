@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { fn } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 import { BrowseToolbar } from "./BrowseToolbar";
 
 const tagSuggestions = [
@@ -27,4 +27,14 @@ function InteractiveToolbar() {
   return <BrowseToolbar query={query} onQueryChange={setQuery} tagSuggestions={tagSuggestions} />;
 }
 
-export const Default: Story = { render: () => <InteractiveToolbar /> };
+export const Default: Story = {
+  render: () => <InteractiveToolbar />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: "Search systems" });
+    await userEvent.type(input, "Developer tools");
+    await userEvent.click(canvas.getByRole("button", { name: "Clear search" }));
+    await expect(input).toHaveValue("");
+    await expect(input).toHaveFocus();
+  },
+};

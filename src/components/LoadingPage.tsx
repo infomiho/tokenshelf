@@ -1,5 +1,5 @@
 import { AppShell } from "./AppShell";
-import { LoadingIndicator } from "./LoadingIndicator";
+import { LoadingIndicator } from "../design-system/components";
 
 export function LoadingPage({ label }: { label: string }) {
   return (

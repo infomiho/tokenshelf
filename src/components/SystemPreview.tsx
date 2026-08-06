@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import type { PreviewRenderer } from "../data/catalog";
 import { Button } from "../design-system/components";
 import { usePreviewFonts } from "../hooks/usePreviewFonts";
-import { LogoMark } from "./LogoMark";
+import { LogoMark } from "../design-system/components";
 import { SystemComponentSpecimen } from "./SystemComponentSpecimen";
 import "./SystemPreview.css";
 

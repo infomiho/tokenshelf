@@ -1,6 +1,6 @@
 import type { SubmissionRecord, SubmissionStage } from "../../data/submissions";
 import { Panel, typographyClassName } from "../../design-system/components";
-import { LogoMark } from "../LogoMark";
+import { LogoMark } from "../../design-system/components";
 import { SystemDetails } from "../SystemDetails";
 import { SystemPreview } from "../SystemPreview";
 import { AgentPromptPanel } from "./AgentPromptPanel";

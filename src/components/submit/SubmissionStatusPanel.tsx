@@ -22,7 +22,7 @@ export function SubmissionStatusPanel({
       <Link
         to="/systems/:systemId"
         params={{ systemId: submission.system.id }}
-        className={buttonClassName("primary", "mt-6 w-full")}
+        className={buttonClassName("primary", "w-full")}
       >
         View system
       </Link>

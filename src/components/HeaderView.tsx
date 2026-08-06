@@ -14,7 +14,7 @@ import {
   menuItemClassName,
   PageContainer,
 } from "../design-system/components";
-import { LogoMark } from "./LogoMark";
+import { LogoMark } from "../design-system/components";
 
 export type HeaderNavigationItem = {
   to: "/" | "/hot" | "/new";

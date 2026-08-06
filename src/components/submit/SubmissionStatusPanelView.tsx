@@ -1,17 +1,12 @@
 import { CheckIcon } from "@phosphor-icons/react/dist/csr/Check";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/csr/CheckCircle";
 import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
 import { UploadSimpleIcon } from "@phosphor-icons/react/dist/csr/UploadSimple";
 import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import type { ReactNode } from "react";
 import type { SubmissionRecord } from "../../data/submissions";
-import {
-  Button,
-  Checkbox,
-  StatusBadge,
-  typographyClassName,
-  type StatusBadgeTone,
-} from "../../design-system/components";
+import { Button, Checkbox, StatusIcon, typographyClassName } from "../../design-system/components";
 import { formatValidationMessage, groupValidationChecks } from "../../lib/validation-checks";
 
 type SubmissionStatusPanelViewProps = {
@@ -44,7 +39,28 @@ export function SubmissionStatusPanelView({
         <h2 id="submission-status-title" className={typographyClassName("cardTitle", "text-xl")}>
           {submission.system.name} is published
         </h2>
-        {publishedActions}
+        <p className="mt-2 text-sm leading-6 text-muted">
+          This design system is live in the Tokenshelf catalog.
+        </p>
+        <dl className="mt-5 grid grid-cols-2 divide-x divide-line border-y border-line">
+          <div className="py-4 pe-4">
+            <dt className={typographyClassName("metaLabel", "text-muted")}>Status</dt>
+            <dd className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-positive">
+              <CheckCircleIcon className="size-4" weight="fill" aria-hidden="true" />
+              Published
+            </dd>
+          </div>
+          <div className="min-w-0 py-4 ps-4">
+            <dt className={typographyClassName("metaLabel", "text-muted")}>Last submitted</dt>
+            <dd className="mt-2 flex min-w-0 items-center gap-1.5 text-sm text-muted">
+              <ClockIcon className="size-4 shrink-0" aria-hidden="true" />
+              <time className="truncate" dateTime={submission.updatedAt.toISOString()}>
+                {submission.submittedAt}
+              </time>
+            </dd>
+          </div>
+        </dl>
+        {publishedActions && <div className="mt-6">{publishedActions}</div>}
       </section>
     );
   }
@@ -58,9 +74,7 @@ export function SubmissionStatusPanelView({
         {isValid ? "Ready to publish" : "Fixes needed"}
       </h2>
       {!isValid && (
-        <p className="mt-2 text-sm leading-6 text-muted">
-          Your agent has received this feedback and is working on the fixes.
-        </p>
+        <p className="mt-2 text-sm leading-6 text-muted">Your agent is addressing the feedback.</p>
       )}
       <div className="mt-2 flex items-center text-xs text-muted">
         <span className="inline-flex items-center gap-1.5">
@@ -120,19 +134,17 @@ export function SubmissionStatusPanelView({
 
 function CheckStatus({ status }: { status: "pass" | "warning" | "fail" }) {
   const label = status === "pass" ? "Passed" : status === "warning" ? "Warning" : "Failed";
-  const tone: StatusBadgeTone =
-    status === "pass" ? "positive" : status === "warning" ? "caution" : "negative";
+  const tone = status === "pass" ? "positive" : status === "warning" ? "caution" : "negative";
 
   return (
-    <StatusBadge tone={tone} className="mt-0.5 shrink-0 gap-1.5">
+    <StatusIcon className="mt-0.5 shrink-0" label={label} tone={tone}>
       {status === "pass" ? (
-        <CheckIcon className="size-3" weight="bold" aria-hidden="true" />
+        <CheckIcon className="size-3.5" weight="bold" aria-hidden="true" />
       ) : status === "warning" ? (
-        <WarningIcon className="size-3" weight="bold" aria-hidden="true" />
+        <WarningIcon className="size-3.5" weight="bold" aria-hidden="true" />
       ) : (
-        <XIcon className="size-3" weight="bold" aria-hidden="true" />
+        <XIcon className="size-3.5" weight="bold" aria-hidden="true" />
       )}
-      {label}
-    </StatusBadge>
+    </StatusIcon>
   );
 }

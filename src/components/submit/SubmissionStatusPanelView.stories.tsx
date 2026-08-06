@@ -80,6 +80,6 @@ export const Valid: Story = {
 export const Published: Story = {
   args: {
     submission: submission("published", passedPublicationChecks),
-    publishedActions: <Button>View published system</Button>,
+    publishedActions: <Button className="w-full">View published system</Button>,
   },
 };

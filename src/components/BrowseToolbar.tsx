@@ -1,6 +1,8 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlass";
+import { XIcon } from "@phosphor-icons/react/dist/csr/X";
+import { useRef } from "react";
 import type { TagSuggestion } from "../data/catalog";
-import { Button, TextField } from "../design-system/components";
+import { Button, IconButton, TextField } from "../design-system/components";
 import { normalizeTagKey } from "../lib/tags";
 
 type BrowseToolbarProps = {
@@ -10,6 +12,7 @@ type BrowseToolbarProps = {
 };
 
 export function BrowseToolbar({ query, onQueryChange, tagSuggestions }: BrowseToolbarProps) {
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const normalizedQuery = normalizeTagKey(query);
   const suggestions = tagSuggestions
     .filter(({ label }) => !normalizedQuery || normalizeTagKey(label).includes(normalizedQuery))
@@ -19,17 +22,32 @@ export function BrowseToolbar({ query, onQueryChange, tagSuggestions }: BrowseTo
     <div>
       <div className="relative w-full max-w-md">
         <MagnifyingGlassIcon
-          className="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-muted"
+          className="pointer-events-none absolute start-3 top-1/2 z-10 size-4 -translate-y-1/2 text-muted"
           aria-hidden="true"
         />
         <TextField
+          ref={searchInputRef}
           label="Search systems"
           value={query}
           onValueChange={onQueryChange}
           className="gap-0 [&>label:first-child]:sr-only"
-          inputClassName="rounded-[var(--radius-round)] pl-9"
+          inputClassName="rounded-[var(--radius-round)] pe-11 ps-9"
           placeholder="Search names, descriptions, or tags"
         />
+        {query && (
+          <IconButton
+            label="Clear search"
+            variant="quiet"
+            size="compact"
+            className="absolute end-1 top-1/2 z-10 -translate-y-1/2 rounded-full text-muted hover:bg-transparent hover:text-ink"
+            onClick={() => {
+              onQueryChange("");
+              searchInputRef.current?.focus();
+            }}
+          >
+            <XIcon className="size-4" weight="bold" aria-hidden="true" />
+          </IconButton>
+        )}
       </div>
       {suggestions.length > 0 && (
         <div

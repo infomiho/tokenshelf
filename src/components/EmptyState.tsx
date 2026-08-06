@@ -1,7 +1,7 @@
 import { useId, type ReactNode } from "react";
 import { Panel, typographyClassName } from "../design-system/components";
 import { AgentMarks } from "./AgentMarks";
-import { LogoMark } from "./LogoMark";
+import { LogoMark } from "../design-system/components";
 
 export function EmptyState({
   title,

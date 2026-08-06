@@ -1,7 +1,7 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/csr/ArrowLeft";
 import { Link } from "wasp/client/router";
 import { actionLinkClassName } from "../design-system/components";
-import { LogoMark } from "./LogoMark";
+import { LogoMark } from "../design-system/components";
 
 export function NotFoundContent() {
   return (

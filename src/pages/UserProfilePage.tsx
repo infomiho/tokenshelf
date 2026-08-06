@@ -3,7 +3,7 @@ import { getUserProfile, useQuery } from "wasp/client/operations";
 import { useParams } from "react-router";
 import { AppShell } from "../components/AppShell";
 import { LoadingPage } from "../components/LoadingPage";
-import { LogoMark } from "../components/LogoMark";
+import { LogoMark } from "../design-system/components";
 import { NotFoundContent } from "../components/NotFoundContent";
 import { SystemCard } from "../components/SystemCard";
 import { EmptyState } from "../components/EmptyState";
