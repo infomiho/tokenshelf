@@ -25,6 +25,9 @@ jobs:
       contents: read
       packages: write
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -78,8 +81,8 @@ jobs:
       - name: Build and push server image
         uses: docker/build-push-action@v7
         with:
-          context: .wasp/out
-          file: .wasp/out/Dockerfile
+          context: app/.wasp/out
+          file: app/.wasp/out/Dockerfile
           push: true
           tags: ${{ steps.meta-server.outputs.tags }}
           labels: ${{ steps.meta-server.outputs.labels }}
@@ -87,8 +90,8 @@ jobs:
       - name: Build and push client image
         uses: docker/build-push-action@v7
         with:
-          context: .wasp/out/web-app
-          file: .wasp/out/web-app/Dockerfile
+          context: app/.wasp/out/web-app
+          file: app/.wasp/out/web-app/Dockerfile
           push: true
           tags: ${{ steps.meta-client.outputs.tags }}
           labels: ${{ steps.meta-client.outputs.labels }}
