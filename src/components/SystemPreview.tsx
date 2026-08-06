@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import type { DesignSystem } from "../data/catalog";
+import type { PreviewRenderer } from "../data/catalog";
 import { Button } from "../design-system/components";
 import { usePreviewFonts } from "../hooks/usePreviewFonts";
 import { LogoMark } from "./LogoMark";
@@ -9,7 +9,7 @@ import "./SystemPreview.css";
 export type SystemPreviewProjection = "card" | "detail" | "hero";
 
 type SystemPreviewProps = {
-  system: DesignSystem;
+  system: { renderer: PreviewRenderer };
   projection?: SystemPreviewProjection;
   decorative?: boolean;
 };

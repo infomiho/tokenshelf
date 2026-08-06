@@ -2,46 +2,137 @@ import { HttpError, prisma } from "wasp/server";
 import type {
   GetCatalogHome,
   GetSystem,
+  GetTagSuggestions,
   GetUserProfile,
   GetViewerVotes,
   ListSystems,
   SetVote,
 } from "wasp/server/operations";
-import type { DesignSystem } from "../data/catalog";
-import type { Inspiration } from "../data/catalog";
+import type {
+  DesignSystem,
+  Inspiration,
+  PreviewRenderer,
+  SystemCardData,
+  TagSuggestion,
+} from "../data/catalog";
 import type { DesignSystemDocument, RendererIR } from "../data/design-document";
+import { normalizeTagKey, normalizeTags } from "../lib/tags";
 import { normalizePublicUsername } from "../lib/usernames";
 import { utcDate } from "./security";
 
-const publicSystemSelection = {
-  id: true,
-  slug: true,
-  name: true,
-  summary: true,
-  tags: true,
-  owner: {
-    select: { displayName: true, githubHandle: true, avatarUrl: true },
-  },
-  inspiration: true,
-  document: true,
-  designMd: true,
-  renderer: true,
-  publishedAt: true,
-  copyMetrics: { select: { metricDate: true, count: true } },
-  votes: { where: { voteDate: utcDate() }, select: { userId: true } },
-  dailyPicks: {
-    orderBy: { featuredDate: "desc" as const },
-    take: 1,
-    select: { featuredDate: true },
-  },
-} as const;
+const createSystemDetailSelection = () =>
+  ({
+    id: true,
+    slug: true,
+    name: true,
+    summary: true,
+    tags: true,
+    owner: {
+      select: { displayName: true, githubHandle: true, avatarUrl: true },
+    },
+    inspiration: true,
+    document: true,
+    designMd: true,
+    renderer: true,
+    publishedAt: true,
+    copyMetrics: { select: { metricDate: true, count: true } },
+    votes: { where: { voteDate: utcDate() }, select: { userId: true } },
+    dailyPicks: {
+      orderBy: { featuredDate: "desc" as const },
+      take: 1,
+      select: { featuredDate: true },
+    },
+  }) as const;
+
+const createSystemCardSelection = () =>
+  ({
+    id: true,
+    slug: true,
+    name: true,
+    summary: true,
+    tags: true,
+    renderer: true,
+    publishedAt: true,
+    _count: { select: { votes: { where: { voteDate: utcDate() } } } },
+    dailyPicks: {
+      orderBy: { featuredDate: "desc" as const },
+      take: 1,
+      select: { featuredDate: true },
+    },
+  }) as const;
 
 type StoredSystem = Awaited<ReturnType<typeof loadSystems>>[number];
+type StoredSystemCard = Awaited<ReturnType<typeof loadSystemCardRecords>>[number];
 
 const loadSystems = (
   where: Record<string, unknown>,
-  options: { orderBy?: Record<string, unknown>; skip?: number; take?: number } = {},
-) => prisma.designSystem.findMany({ where, select: publicSystemSelection, ...options });
+  options: {
+    orderBy?: Record<string, unknown> | Record<string, unknown>[];
+    skip?: number;
+    take?: number;
+  } = {},
+) => prisma.designSystem.findMany({ where, select: createSystemDetailSelection(), ...options });
+
+const loadSystemCardRecords = (
+  where: Record<string, unknown>,
+  options: {
+    orderBy?: Record<string, unknown> | Record<string, unknown>[];
+    skip?: number;
+    take?: number;
+  } = {},
+) => prisma.designSystem.findMany({ where, select: createSystemCardSelection(), ...options });
+
+function toPreviewRenderer(value: unknown): PreviewRenderer {
+  const renderer = value as RendererIR;
+  return {
+    name: renderer.name,
+    colors: renderer.colors,
+    fonts: renderer.fonts,
+    typography: renderer.typography,
+    geometry: renderer.geometry,
+    elevation: renderer.elevation,
+    componentStyles: renderer.componentStyles,
+    actions: renderer.actions,
+    treatments: renderer.treatments,
+  };
+}
+
+async function toSystemCards(systems: StoredSystemCard[]): Promise<SystemCardData[]> {
+  const systemIds = systems.map(({ id }) => id);
+  if (!systemIds.length) return [];
+
+  const [copyTotals, todayCopyMetrics] = await prisma.$transaction([
+    prisma.dailyCopyMetric.groupBy({
+      by: ["designSystemId"],
+      where: { designSystemId: { in: systemIds } },
+      _sum: { count: true },
+    }),
+    prisma.dailyCopyMetric.findMany({
+      where: { designSystemId: { in: systemIds }, metricDate: utcDate() },
+      select: { designSystemId: true, count: true },
+    }),
+  ]);
+  const copiesBySystem = new Map(
+    copyTotals.map(({ designSystemId, _sum }) => [designSystemId, _sum.count ?? 0]),
+  );
+  const todayCopiesBySystem = new Map(
+    todayCopyMetrics.map(({ designSystemId, count }) => [designSystemId, count]),
+  );
+
+  return systems.map((system) => ({
+    id: system.slug,
+    databaseId: system.id,
+    name: system.name,
+    description: system.summary,
+    tags: system.tags,
+    copies: copiesBySystem.get(system.id) ?? 0,
+    todayCopies: todayCopiesBySystem.get(system.id) ?? 0,
+    votes: system._count.votes,
+    pickedOn: system.dailyPicks[0]?.featuredDate.toISOString().slice(0, 10),
+    publishedAt: system.publishedAt,
+    renderer: toPreviewRenderer(system.renderer),
+  }));
+}
 
 const toCatalogSystem = (system: StoredSystem, viewerId?: string) => ({
   id: system.slug,
@@ -70,9 +161,8 @@ const toCatalogSystem = (system: StoredSystem, viewerId?: string) => ({
 
 type CatalogSystemView = DesignSystem & { databaseId: string; voted: boolean; publishedAt: Date };
 type CatalogHomeView = {
-  systems: CatalogSystemView[];
-  dailyPick: CatalogSystemView | null;
-  previousPicks: CatalogSystemView[];
+  dailyPick: SystemCardData | null;
+  previousPicks: SystemCardData[];
   hasPublishedSystems: boolean;
 };
 
@@ -80,7 +170,7 @@ type PublicUserProfileView = {
   name: string;
   username: string;
   avatarUrl: string | null;
-  systems: CatalogSystemView[];
+  systems: SystemCardData[];
 };
 
 export const getCatalogHome: GetCatalogHome<void, CatalogHomeView> = async () => {
@@ -89,13 +179,12 @@ export const getCatalogHome: GetCatalogHome<void, CatalogHomeView> = async () =>
       where: { winner: { lifecycle: "PUBLISHED" } },
       orderBy: { featuredDate: "desc" },
       take: 5,
-      select: { winnerId: true, winner: { select: publicSystemSelection } },
+      select: { winnerId: true, winner: { select: createSystemCardSelection() } },
     }),
     prisma.designSystem.count({ where: { lifecycle: "PUBLISHED" } }),
   ]);
-  const systems = picks.map(({ winner }) => toCatalogSystem(winner));
+  const systems = await toSystemCards(picks.map(({ winner }) => winner));
   return {
-    systems,
     dailyPick: systems[0] ?? null,
     previousPicks: systems.slice(1),
     hasPublishedSystems: publishedSystemCount > 0,
@@ -105,61 +194,104 @@ export const getCatalogHome: GetCatalogHome<void, CatalogHomeView> = async () =>
 type ListInput = {
   mode: "hot" | "new";
   query?: string;
-  vibe?: string;
   page?: number;
   pageSize?: number;
 };
-type SystemPageView = { items: CatalogSystemView[]; page: number; pageSize: number; total: number };
+type SystemPageView = { items: SystemCardData[]; page: number; pageSize: number; total: number };
 
 export const listSystems: ListSystems<ListInput, SystemPageView> = async (args) => {
   const page = Math.max(1, args.page ?? 1);
   const pageSize = Math.min(50, Math.max(1, args.pageSize ?? 18));
-  const query = args.query?.trim();
-  const where = {
-    lifecycle: "PUBLISHED" as const,
-    ...(args.vibe && args.vibe !== "All" ? { tags: { has: args.vibe } } : {}),
-    ...(query
-      ? {
-          OR: [
-            { name: { contains: query, mode: "insensitive" as const } },
-            { summary: { contains: query, mode: "insensitive" as const } },
-            { tags: { has: query } },
-          ],
-        }
-      : {}),
-  };
-  const total = await prisma.designSystem.count({ where });
-  if (args.mode === "new") {
-    const systems = await loadSystems(where, {
-      orderBy: { publishedAt: "desc" },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-    });
-    return { items: systems.map((system) => toCatalogSystem(system)), page, pageSize, total };
+  const query = normalizeTagKey(args.query ?? "");
+
+  if (!query && args.mode === "new") {
+    const where = { lifecycle: "PUBLISHED" as const };
+    const [total, systems] = await prisma.$transaction([
+      prisma.designSystem.count({ where }),
+      loadSystemCardRecords(where, {
+        orderBy: [{ publishedAt: "desc" }, { id: "asc" }],
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+    ]);
+    return { items: await toSystemCards(systems), page, pageSize, total };
   }
 
-  const candidates = await prisma.designSystem.findMany({
-    where,
-    select: { id: true, publishedAt: true },
+  const candidates = (
+    await prisma.designSystem.findMany({
+      where: { lifecycle: "PUBLISHED" },
+      select: { id: true, name: true, summary: true, tags: true, publishedAt: true },
+    })
+  ).filter(
+    (system) =>
+      !query ||
+      normalizeTagKey([system.name, system.summary, ...system.tags].join(" ")).includes(query),
+  );
+  const total = candidates.length;
+  let orderedIds: string[];
+
+  if (args.mode === "new") {
+    orderedIds = candidates
+      .sort(
+        (left, right) =>
+          right.publishedAt.getTime() - left.publishedAt.getTime() ||
+          left.id.localeCompare(right.id),
+      )
+      .slice((page - 1) * pageSize, page * pageSize)
+      .map(({ id }) => id);
+  } else {
+    const voteCounts = await prisma.vote.groupBy({
+      by: ["designSystemId"],
+      where: { voteDate: utcDate(), designSystemId: { in: candidates.map(({ id }) => id) } },
+      _count: { _all: true },
+    });
+    const counts = new Map(voteCounts.map((row) => [row.designSystemId, row._count._all]));
+    orderedIds = candidates
+      .sort(
+        (left, right) =>
+          (counts.get(right.id) ?? 0) - (counts.get(left.id) ?? 0) ||
+          left.publishedAt.getTime() - right.publishedAt.getTime() ||
+          left.id.localeCompare(right.id),
+      )
+      .slice((page - 1) * pageSize, page * pageSize)
+      .map(({ id }) => id);
+  }
+
+  const systems = await toSystemCards(
+    await loadSystemCardRecords({ id: { in: orderedIds }, lifecycle: "PUBLISHED" }),
+  );
+  const byId = new Map(systems.map((system) => [system.databaseId, system]));
+  return {
+    items: orderedIds.flatMap((id) => byId.get(id) ?? []),
+    page,
+    pageSize,
+    total,
+  };
+};
+
+export const getTagSuggestions: GetTagSuggestions<void, TagSuggestion[]> = async (
+  _args,
+  context,
+) => {
+  const systems = await context.entities.DesignSystem.findMany({
+    where: { lifecycle: "PUBLISHED" },
+    select: { tags: true },
   });
-  const voteCounts = await prisma.vote.groupBy({
-    by: ["designSystemId"],
-    where: { voteDate: utcDate(), designSystemId: { in: candidates.map(({ id }) => id) } },
-    _count: { _all: true },
-  });
-  const counts = new Map(voteCounts.map((row) => [row.designSystemId, row._count._all]));
-  const orderedIds = candidates
-    .sort(
-      (left, right) =>
-        (counts.get(right.id) ?? 0) - (counts.get(left.id) ?? 0) ||
-        left.publishedAt.getTime() - right.publishedAt.getTime() ||
-        left.id.localeCompare(right.id),
-    )
-    .slice((page - 1) * pageSize, page * pageSize)
-    .map(({ id }) => id);
-  const systems = await loadSystems({ id: { in: orderedIds } });
-  const byId = new Map(systems.map((system) => [system.id, toCatalogSystem(system)]));
-  return { items: orderedIds.flatMap((id) => byId.get(id) ?? []), page, pageSize, total };
+  const suggestions = new Map<string, TagSuggestion>();
+
+  for (const { tags } of systems) {
+    for (const label of normalizeTags(tags)) {
+      const key = normalizeTagKey(label);
+      const suggestion = suggestions.get(key) ?? { label, count: 0 };
+      if (label.localeCompare(suggestion.label) < 0) suggestion.label = label;
+      suggestion.count += 1;
+      suggestions.set(key, suggestion);
+    }
+  }
+
+  return [...suggestions.values()].sort(
+    (left, right) => right.count - left.count || left.label.localeCompare(right.label),
+  );
 };
 
 export const getSystem: GetSystem<{ systemId: string }, CatalogSystemView> = async (args) => {
@@ -186,7 +318,7 @@ export const getUserProfile: GetUserProfile<
       designSystems: {
         where: { lifecycle: "PUBLISHED" },
         orderBy: { publishedAt: "desc" },
-        select: publicSystemSelection,
+        select: createSystemCardSelection(),
       },
     },
   });
@@ -195,7 +327,7 @@ export const getUserProfile: GetUserProfile<
     name: user.displayName?.trim() || user.githubHandle,
     username: user.githubHandle,
     avatarUrl: user.avatarUrl,
-    systems: user.designSystems.map((system) => toCatalogSystem(system)),
+    systems: await toSystemCards(user.designSystems),
   };
 };
 

@@ -1,4 +1,5 @@
 import type { Diagnostic, WorkModel } from "@infomiho/agent-work-protocol";
+import { normalizeTags } from "../lib/tags";
 import { contrastRatio } from "../utils/color";
 
 export const colorRoles = [
@@ -277,7 +278,7 @@ export const designSystemDocumentSchema = objectSchema(
     identity: objectSchema(["name", "summary", "tags"], {
       name: boundedString(60),
       summary: boundedString(280),
-      tags: { type: "array", maxItems: 12, items: boundedString(40) },
+      tags: { type: "array", maxItems: 5, items: boundedString(40) },
     }),
     principles: { type: "array", maxItems: 8, items: boundedString(240) },
     foundations: objectSchema(["colors", "typography", "spacing", "radii", "elevation"], {
@@ -324,12 +325,26 @@ const decoder = {
     version: 1 as const,
     vendor: "tokenshelf",
     validate(value: unknown) {
+      const normalizedValue = normalizeDocumentTags(value);
       const issues: Array<{ message: string; path?: Array<string | number> }> = [];
-      validateSchema(designSystemDocumentSchema, value, [], issues);
-      return issues.length ? { issues } : { value: value as DesignSystemDocument };
+      validateSchema(designSystemDocumentSchema, normalizedValue, [], issues);
+      return issues.length ? { issues } : { value: normalizedValue as DesignSystemDocument };
     },
   },
 };
+
+function normalizeDocumentTags(value: unknown) {
+  if (!isRecord(value) || !isRecord(value.identity) || !Array.isArray(value.identity.tags))
+    return value;
+  if (!value.identity.tags.every((tag): tag is string => typeof tag === "string")) return value;
+  return {
+    ...value,
+    identity: {
+      ...value.identity,
+      tags: normalizeTags(value.identity.tags),
+    },
+  };
+}
 
 const diagnosticDefinitions = [
   { code: "identity.name.required", title: "Name required", description: "Add a system name." },

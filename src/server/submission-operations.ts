@@ -225,24 +225,28 @@ export const publishSubmission: PublishSubmission<
         throw new HttpError(409, "Submission cannot be published.");
       if (submission.draft.revision !== args.expectedRevision)
         throw new HttpError(409, "The draft changed. Refresh and try again.");
-      const assessment = await designSystemModel.assess(
+      const decoded = await designSystemModel.schema.decoder["~standard"].validate(
         submission.draft.document as DesignSystemDocument,
       );
+      if (decoded.issues)
+        throw new HttpError(422, "Resolve all errors before publishing.", {
+          diagnostics: decoded.issues,
+        });
+      const assessment = await designSystemModel.assess(decoded.value);
       const artifacts = assessment.artifacts!;
       if (assessment.diagnostics.some(({ severity }) => severity === "error"))
         throw new HttpError(422, "Resolve all errors before publishing.", {
           diagnostics: assessment.diagnostics,
         });
-      const document = submission.draft.document as DesignSystemDocument;
-      const slug = await uniqueSlug(transaction, document.identity.name);
+      const slug = await uniqueSlug(transaction, decoded.value.identity.name);
       const system = await transaction.designSystem.create({
         data: {
           slug,
           ownerId: context.user!.id,
-          name: document.identity.name,
-          summary: document.identity.summary,
-          tags: document.identity.tags,
-          document,
+          name: decoded.value.identity.name,
+          summary: decoded.value.identity.summary,
+          tags: decoded.value.identity.tags,
+          document: decoded.value,
           designMd: artifacts.designMd,
           renderer: artifacts.renderer,
           assessment: wireAssessment(assessment.diagnostics),

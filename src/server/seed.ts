@@ -1,6 +1,6 @@
 import type { DbSeedFn, PrismaClient } from "wasp/server";
 import { catalogFixtures } from "../data/catalogFixtures";
-import { assessDesignSystemDocument, designSystemModel } from "../data/design-document";
+import { designSystemModel } from "../data/design-document";
 import { utcDate } from "./security";
 
 async function seedCatalogSystems(prisma: PrismaClient) {
@@ -17,7 +17,19 @@ async function seedCatalogSystems(prisma: PrismaClient) {
 
   for (const [index, fixture] of catalogFixtures.entries()) {
     const sourceSubmissionId = `fixture-submission-${fixture.id}`;
-    const assessment = assessDesignSystemDocument(fixture.document);
+    const decoded = await designSystemModel.schema.decoder["~standard"].validate(fixture.document);
+    if (decoded.issues)
+      throw new Error(`Invalid catalog fixture ${fixture.id}: ${JSON.stringify(decoded.issues)}`);
+    const document = decoded.value;
+    const assessment = await designSystemModel.assess(document);
+    if (
+      !assessment.artifacts ||
+      assessment.diagnostics.some(({ severity }) => severity === "error")
+    )
+      throw new Error(
+        `Invalid catalog fixture ${fixture.id}: ${JSON.stringify(assessment.diagnostics)}`,
+      );
+    const { designMd, renderer } = assessment.artifacts;
     await prisma.submission.upsert({
       where: { id: sourceSubmissionId },
       create: {
@@ -27,10 +39,10 @@ async function seedCatalogSystems(prisma: PrismaClient) {
         draft: {
           create: {
             revision: 1,
-            document: fixture.document,
+            document,
             assessment: { outcome: "pass", diagnostics: assessment.diagnostics },
-            designMd: fixture.designMd,
-            renderer: fixture.renderer,
+            designMd,
+            renderer,
             updatedBy: "seed",
           },
         },
@@ -42,17 +54,17 @@ async function seedCatalogSystems(prisma: PrismaClient) {
           upsert: {
             create: {
               revision: 1,
-              document: fixture.document,
+              document,
               assessment: { outcome: "pass", diagnostics: assessment.diagnostics },
-              designMd: fixture.designMd,
-              renderer: fixture.renderer,
+              designMd,
+              renderer,
               updatedBy: "seed",
             },
             update: {
-              document: fixture.document,
+              document,
               assessment: { outcome: "pass", diagnostics: assessment.diagnostics },
-              designMd: fixture.designMd,
-              renderer: fixture.renderer,
+              designMd,
+              renderer,
               updatedBy: "seed",
             },
           },
@@ -64,13 +76,13 @@ async function seedCatalogSystems(prisma: PrismaClient) {
       create: {
         slug: fixture.id,
         ownerId: owner.id,
-        name: fixture.name,
-        summary: fixture.description,
-        tags: fixture.tags,
+        name: document.identity.name,
+        summary: document.identity.summary,
+        tags: document.identity.tags,
         inspiration: fixture.inspiration,
-        document: fixture.document,
-        designMd: fixture.designMd,
-        renderer: fixture.renderer,
+        document,
+        designMd,
+        renderer,
         assessment: { outcome: "pass", diagnostics: assessment.diagnostics },
         validatorVersion: `${designSystemModel.id}@${designSystemModel.version}`,
         sourceSubmissionId,
@@ -87,13 +99,13 @@ async function seedCatalogSystems(prisma: PrismaClient) {
       update: {
         slug: fixture.id,
         ownerId: owner.id,
-        name: fixture.name,
-        summary: fixture.description,
-        tags: fixture.tags,
+        name: document.identity.name,
+        summary: document.identity.summary,
+        tags: document.identity.tags,
         inspiration: fixture.inspiration,
-        document: fixture.document,
-        designMd: fixture.designMd,
-        renderer: fixture.renderer,
+        document,
+        designMd,
+        renderer,
         assessment: { outcome: "pass", diagnostics: assessment.diagnostics },
         validatorVersion: `${designSystemModel.id}@${designSystemModel.version}`,
       },

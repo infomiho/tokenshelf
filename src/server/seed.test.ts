@@ -35,6 +35,12 @@ describe("catalog seeds", () => {
         where: { sourceSubmissionId: `fixture-submission-${catalogFixtures[0].id}` },
       }),
     );
+    const submission = prisma.submission.upsert.mock.calls[0][0].create.draft.create;
+    const system = prisma.designSystem.upsert.mock.calls[0][0].create;
+    expect(system.document).toEqual(submission.document);
+    expect(system.tags).toEqual(submission.document.identity.tags);
+    expect(system.designMd).toBe(submission.designMd);
+    expect(system.renderer).toEqual(submission.renderer);
     expect(prisma.dailyPick.deleteMany).not.toHaveBeenCalled();
     expect(prisma.dailyPick.create).not.toHaveBeenCalled();
   });

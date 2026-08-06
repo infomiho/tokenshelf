@@ -11,7 +11,7 @@ export function CopyPromptButton({
   variant = "primary",
   className = "",
 }: {
-  system: DesignSystem;
+  system: Pick<DesignSystem, "id" | "databaseId">;
   variant?: ButtonVariant;
   className?: string;
 }) {

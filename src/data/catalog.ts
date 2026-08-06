@@ -1,5 +1,18 @@
 import type { DesignDocument, RendererIR } from "./design-document";
 
+export type PreviewRenderer = Pick<
+  RendererIR,
+  | "name"
+  | "colors"
+  | "fonts"
+  | "typography"
+  | "geometry"
+  | "elevation"
+  | "componentStyles"
+  | "actions"
+  | "treatments"
+>;
+
 export type Inspiration = {
   company: string;
   system: string;
@@ -34,13 +47,21 @@ export type DesignSystem = {
   renderer: RendererIR;
 };
 
-export const vibeOptions = [
-  "All",
-  "Enterprise",
-  "Developer tools",
-  "Data",
-  "Commerce",
-  "Friendly",
-  "Minimal",
-] as const;
-export type Vibe = (typeof vibeOptions)[number];
+export type SystemCardData = Pick<
+  DesignSystem,
+  | "id"
+  | "databaseId"
+  | "name"
+  | "description"
+  | "tags"
+  | "copies"
+  | "todayCopies"
+  | "votes"
+  | "pickedOn"
+  | "publishedAt"
+> & {
+  databaseId: string;
+  renderer: PreviewRenderer;
+};
+
+export type TagSuggestion = { label: string; count: number };

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import type { RendererIR } from "../data/design-document";
+import type { PreviewRenderer } from "../data/catalog";
 import { loadRendererFonts, rendererFontKey } from "../lib/font-loader";
 
 export type PreviewFontStatus = "idle" | "loading" | "slow" | "loaded" | "failed";
 
-export function usePreviewFonts(renderer: RendererIR, mode: "eager" | "visible") {
+export function usePreviewFonts(renderer: PreviewRenderer, mode: "eager" | "visible") {
   const elementRef = useRef<HTMLDivElement>(null);
   const [requested, setRequested] = useState(mode === "eager");
   const [retry, setRetry] = useState(0);

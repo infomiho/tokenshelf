@@ -7,6 +7,7 @@ import { UserProfilePage } from "../pages/UserProfilePage" with { type: "ref" };
 import {
   getCatalogHome,
   getSystem,
+  getTagSuggestions,
   getUserProfile,
   getViewerVotes,
   listSystems,
@@ -27,6 +28,7 @@ export const catalogSpec: Spec = [
     auth: false,
   }),
   query(getCatalogHome, { entities: catalogEntities, auth: false }),
+  query(getTagSuggestions, { entities: ["DesignSystem"], auth: false }),
   query(listSystems, { entities: catalogEntities, auth: false }),
   query(getSystem, { entities: catalogEntities, auth: false }),
   query(getUserProfile, { entities: ["User", ...catalogEntities], auth: false }),

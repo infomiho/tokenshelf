@@ -14,8 +14,8 @@ import {
   spaceRoles,
   typographyRoles,
   type ActionsDocument,
-  type RendererIR,
 } from "../data/design-document";
+import type { PreviewRenderer } from "../data/catalog";
 import type { SystemPreviewProjection } from "./SystemPreview";
 
 type RendererStyle = CSSProperties & Record<`--preview-${string}`, string>;
@@ -25,7 +25,7 @@ export function SystemComponentSpecimen({
   projection,
   decorative = false,
 }: {
-  renderer: RendererIR;
+  renderer: PreviewRenderer;
   projection: SystemPreviewProjection;
   decorative?: boolean;
 }) {
@@ -45,7 +45,7 @@ export function SystemComponentSpecimen({
   );
 }
 
-function ComponentGallery({ renderer }: { renderer: RendererIR }) {
+function ComponentGallery({ renderer }: { renderer: PreviewRenderer }) {
   const instanceId = useId();
   const [activeNavbarItem, setActiveNavbarItem] = useState("Projects");
   const [activeView, setActiveView] = useState("Overview");
@@ -362,7 +362,7 @@ function DisclosurePanel() {
   );
 }
 
-function createRendererStyle(renderer: RendererIR): RendererStyle {
+function createRendererStyle(renderer: PreviewRenderer): RendererStyle {
   return {
     ...Object.fromEntries(
       colorRoles.map((role) => [`--preview-color-${role}`, renderer.colors[role]]),

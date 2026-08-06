@@ -266,12 +266,23 @@ describe("DesignSystemDocument", () => {
 
   it("rejects oversized arrays and control characters structurally or by assessment", async () => {
     const document = structuredClone(catalogFixtures[0].document);
-    document.identity.tags = Array.from({ length: 13 }, (_, index) => `tag-${index}`);
+    document.identity.tags = Array.from({ length: 6 }, (_, index) => `tag-${index}`);
     const decoded = await designSystemModel.schema.decoder["~standard"].validate(document);
     expect(decoded.issues).toContainEqual(expect.objectContaining({ path: ["identity", "tags"] }));
     document.identity.tags = ["bad\u0007tag"];
     expect(assessDesignSystemDocument(document).diagnostics).toContainEqual(
       expect.objectContaining({ code: "content.unsafe", pointer: "/identity/tags/0" }),
+    );
+  });
+
+  it("normalizes tags before enforcing structural limits", async () => {
+    const document = structuredClone(catalogFixtures[0].document);
+    document.identity.tags = ["\uFB03".repeat(14)];
+
+    const decoded = await designSystemModel.schema.decoder["~standard"].validate(document);
+
+    expect(decoded.issues).toContainEqual(
+      expect.objectContaining({ path: ["identity", "tags", 0] }),
     );
   });
 });

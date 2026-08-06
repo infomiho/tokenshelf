@@ -1,5 +1,5 @@
 import { Link } from "wasp/client/router";
-import type { DesignSystem } from "../data/catalog";
+import type { SystemCardData } from "../data/catalog";
 import { panelClassName } from "../design-system/components";
 import { formatCount } from "../lib/counts";
 import { SystemPreview } from "./SystemPreview";
@@ -8,7 +8,7 @@ export function SystemCard({
   system,
   stat = "copies",
 }: {
-  system: DesignSystem;
+  system: SystemCardData;
   stat?: "copies" | "today" | "votes";
 }) {
   return (
@@ -29,7 +29,7 @@ function SystemCardContent({
   system,
   stat,
 }: {
-  system: DesignSystem;
+  system: SystemCardData;
   stat: "copies" | "today" | "votes";
 }) {
   return (

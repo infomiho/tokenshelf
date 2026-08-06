@@ -1,4 +1,5 @@
 import { Dialog } from "@base-ui/react/dialog";
+import { CheckIcon } from "@phosphor-icons/react/dist/csr/Check";
 import {
   buttonClassName,
   dialogSurfaceClassName,
@@ -55,7 +56,12 @@ export function SubmitOnboardingDialogView({
                     ) : index === 1 ? (
                       <DesignSourcesVisual />
                     ) : (
-                      <LogoMark className="size-12 text-brand" />
+                      <span className="relative">
+                        <LogoMark className="size-12 text-brand" />
+                        <span className="absolute -bottom-1 -right-2 grid size-6 place-items-center rounded-full bg-positive text-white ring-[3px] ring-surface">
+                          <CheckIcon className="size-4" weight="bold" />
+                        </span>
+                      </span>
                     )}
                   </span>
                   <div>

@@ -1,8 +1,8 @@
 import { Link } from "wasp/client/router";
-import { listSystems, useQuery } from "wasp/client/operations";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { getTagSuggestions, listSystems, useQuery } from "wasp/client/operations";
 import { AppShell } from "../components/AppShell";
 import { BrowseToolbar } from "../components/BrowseToolbar";
-import { LoadingPage } from "../components/LoadingPage";
 import { SystemCard } from "../components/SystemCard";
 import { PageMessage } from "../components/PageMessage";
 import {
@@ -12,13 +12,31 @@ import {
   typographyClassName,
 } from "../design-system/components";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
-import { useSystemFilters } from "../hooks/useSystemFilters";
+import { useSystemSearch } from "../hooks/useSystemSearch";
+
+const pageSize = 24;
 
 export function CollectionPage({ mode }: { mode: "hot" | "new" }) {
-  const catalog = useQuery(listSystems, { mode, pageSize: 50 });
-  const systems = catalog.data?.items ?? [];
-  const filters = useSystemFilters(systems);
-  const sortedSystems = filters.filteredSystems;
+  const search = useSystemSearch();
+  const catalog = useInfiniteQuery({
+    queryKey: [...listSystems.queryCacheKey, mode, search.deferredQuery],
+    queryFn: ({ pageParam = 1 }) =>
+      listSystems({
+        mode,
+        query: search.deferredQuery || undefined,
+        page: pageParam,
+        pageSize,
+      }),
+    getNextPageParam: (lastPage) =>
+      lastPage.page * lastPage.pageSize < lastPage.total ? lastPage.page + 1 : undefined,
+  });
+  const tags = useQuery(getTagSuggestions);
+  const systems = catalog.data?.pages.flatMap(({ items }) => items) ?? [];
+  const total = catalog.data?.pages[0]?.total ?? 0;
+  const systemCountLabel =
+    systems.length === total
+      ? `${total} ${total === 1 ? "system" : "systems"}`
+      : `${systems.length} of ${total} systems`;
   const title = mode === "hot" ? "Today's race" : "Fresh on the shelf";
   const description =
     mode === "hot"
@@ -26,8 +44,7 @@ export function CollectionPage({ mode }: { mode: "hot" | "new" }) {
       : "Every published system starts here, ordered by arrival.";
   useDocumentTitle(`${mode === "hot" ? "Hot" : "New"} | Tokenshelf`);
 
-  if (catalog.isLoading) return <LoadingPage label="Loading design systems" />;
-  if (catalog.error) {
+  if (catalog.error && !catalog.data) {
     return (
       <AppShell>
         <PageMessage
@@ -57,46 +74,65 @@ export function CollectionPage({ mode }: { mode: "hot" | "new" }) {
           </p>
         </div>
         <BrowseToolbar
-          query={filters.query}
-          onQueryChange={filters.setQuery}
-          vibe={filters.vibe}
-          onVibeChange={filters.setVibe}
+          query={search.query}
+          onQueryChange={search.setQuery}
+          tagSuggestions={tags.data ?? []}
         />
         <p className="sr-only" aria-live="polite">
-          {sortedSystems.length > 0
-            ? `${sortedSystems.length} ${sortedSystems.length === 1 ? "system" : "systems"} shown.`
-            : `No systems match ${filters.query || filters.vibe}.`}
+          {!catalog.isFetching &&
+            (systems.length > 0
+              ? `${systemCountLabel} shown.`
+              : search.deferredQuery
+                ? `No systems match ${search.deferredQuery}.`
+                : "No systems yet.")}
         </p>
         <div>
-          {sortedSystems.length > 0 ? (
+          {catalog.isLoading ? (
+            <p className="mt-14 border-t border-line pt-8 text-sm text-muted" role="status">
+              Loading systems
+            </p>
+          ) : systems.length > 0 ? (
             <>
               <div className="mt-8 flex items-center justify-between gap-4">
                 <h2 className={typographyClassName("sectionTitle", "text-xl")}>
-                  {sortedSystems.length} {sortedSystems.length === 1 ? "system" : "systems"}
+                  {systemCountLabel}
                 </h2>
                 <span className={typographyClassName("metaLabel", "text-muted")}>
                   {mode === "hot" ? "Sorted by votes" : "Newest first"}
                 </span>
               </div>
               <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {sortedSystems.map((system) => (
+                {systems.map((system) => (
                   <SystemCard key={system.id} system={system} stat="votes" />
                 ))}
               </div>
+              {catalog.hasNextPage && (
+                <div className="mt-8 flex justify-center">
+                  <Button
+                    variant="secondary"
+                    disabled={catalog.isFetchingNextPage}
+                    onClick={() => {
+                      void catalog.fetchNextPage();
+                    }}
+                  >
+                    {catalog.isFetchingNextPage
+                      ? "Loading systems"
+                      : `Load ${Math.min(pageSize, total - systems.length)} more`}
+                  </Button>
+                </div>
+              )}
             </>
           ) : (
             <div className="mt-14 border-t border-line pt-8">
               <h2 className={typographyClassName("sectionTitle", "text-2xl")}>
-                {filters.isFiltering
-                  ? `No systems match “${filters.query || filters.vibe}”.`
-                  : "No systems yet"}
+                {search.isFiltering ? `No systems match “${search.query}”.` : "No systems yet"}
               </h2>
-              {filters.isFiltering ? (
+              {search.isFiltering ? (
                 <Button
                   variant="quiet"
                   size="compact"
                   className="mt-3 underline underline-offset-4"
-                  onClick={filters.clearFilters}
+                  onClick={search.clearFilters}
                 >
                   Clear filters
                 </Button>

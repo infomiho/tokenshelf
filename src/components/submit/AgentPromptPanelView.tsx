@@ -17,7 +17,7 @@ const buildAgentPrompt = (
 Open this temporary capability session with an HTTP or web-fetch tool:
 ${sessionUrl}
 
-Follow its instructions to update the DesignSystemDocument from the source. Resolve its diagnostics, then stop; I will publish.`;
+Follow its instructions to update the design system. Resolve its diagnostics.`;
 
 type AgentPromptPanelViewProps = {
   agentSessionUrl: string | null;
