@@ -53,13 +53,13 @@ export function SystemActionsView({
           </ToggleButton>
           <span className="px-1 text-sm font-medium tabular-nums text-muted">{copiesLabel}</span>
         </div>
-        <div className="order-first flex w-full gap-2 sm:order-none sm:w-auto">
+        <div className="order-first flex w-full flex-col gap-2 sm:order-none sm:w-auto sm:flex-row">
           <ActionLink
             href={designMdUrl}
             target="_blank"
             rel="noreferrer"
             variant="quiet"
-            className="shrink-0 gap-1 px-2 underline decoration-line underline-offset-4 hover:decoration-brand"
+            className="w-full shrink-0 gap-1 whitespace-nowrap px-2 underline decoration-line underline-offset-4 hover:decoration-brand sm:w-auto"
           >
             View DESIGN.md
             <ArrowSquareOutIcon className="size-4" aria-hidden="true" />

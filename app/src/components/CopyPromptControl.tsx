@@ -13,7 +13,7 @@ export type CopyPromptControlProps = {
 type CopyPromptState = "idle" | "copied" | "error";
 
 const copyPromptStateClassName = (active: boolean) =>
-  `col-start-1 row-start-1 inline-flex items-center justify-self-center gap-2 ${active ? "visible" : "invisible"}`;
+  `col-start-1 row-start-1 inline-flex items-center justify-self-center gap-2 whitespace-nowrap ${active ? "visible" : "invisible"}`;
 
 export function CopyPromptControl({
   copied,

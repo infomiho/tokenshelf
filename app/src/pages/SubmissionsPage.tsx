@@ -50,13 +50,13 @@ function SubmissionsContent() {
   return (
     <AppShell>
       <PageContainer width="content" className="pb-24 pt-8">
-        <div className="flex items-end justify-between gap-4">
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
           <h1 className={typographyClassName("sectionTitle")}>Your design systems</h1>
           {submissions.length > 0 && (
             <Link
               to="/submit/:submissionId?"
               params={{}}
-              className={actionLinkClassName("primary")}
+              className={actionLinkClassName("primary", "whitespace-nowrap")}
             >
               New submission
             </Link>
