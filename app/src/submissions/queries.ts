@@ -38,6 +38,7 @@ export const getSubmissionWorkspace: GetSubmissionWorkspace<
   SubmissionWorkspaceView
 > = async (args, context) => {
   const submission = await ownedSubmission(args, context.user?.id);
+  if (submission.lifecycle === "WITHDRAWN") throw new HttpError(404, "Submission not found.");
   if (!submission.draft) throw new HttpError(404, "Draft not found.");
   return toWorkspace(submission);
 };
@@ -79,7 +80,7 @@ export const listMySubmissions: ListMySubmissions<void, SubmissionWorkspaceView[
 ) => {
   if (!context.user) throw new HttpError(401, "Sign in to view submissions.");
   const submissions = await prisma.submission.findMany({
-    where: { ownerId: context.user.id },
+    where: { ownerId: context.user.id, lifecycle: { not: "WITHDRAWN" } },
     include: {
       draft: true,
       publishedSystem: true,

@@ -26,7 +26,6 @@ export default defineConfig({
         ],
         test: {
           name: "storybook",
-          fileParallelism: false,
           browser: {
             enabled: true,
             provider: playwright({}),

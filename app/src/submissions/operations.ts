@@ -4,7 +4,9 @@ import type {
   ClaimGuestSubmissions,
   CreateSubmission,
   PublishSubmission,
+  ReopenSubmission,
   RotateAgentCapability,
+  WithdrawSubmission,
 } from "wasp/server/operations";
 import {
   assessDesignSystemDocument,
@@ -15,6 +17,7 @@ import { validateDesignSystemDocument } from "../domain/design-system/validation
 import { hashCredential, randomCredential } from "../infrastructure/security";
 import { canAccessSubmission } from "./submission-access";
 import { createPublicationSlug } from "./publication-slug";
+import { retrySerializationConflict } from "./serialization";
 
 type GuestInput = { guestToken?: string };
 type AgentSessionResult = { capability: string; sessionUrl: string; expiresAt: Date };
@@ -204,6 +207,87 @@ export const rotateAgentCapability: RotateAgentCapability<SubmissionAccess, Agen
   context,
 ) => rotateCapabilityFor(args, context.user?.id);
 
+type OwnedSubmissionInput = { submissionId: string };
+
+export const reopenSubmission: ReopenSubmission<OwnedSubmissionInput, AgentSessionResult> = async (
+  args,
+  context,
+) => {
+  if (!context.user) throw new HttpError(401, "Sign in to edit this design system.");
+  const minted = mintCapability(serverUrl());
+  const reopen = () =>
+    prisma.$transaction(
+      async (transaction) => {
+        const submission = await transaction.submission.findUnique({
+          where: { id: args.submissionId },
+          include: { publishedSystem: true },
+        });
+        if (!submission || submission.ownerId !== context.user!.id)
+          throw new HttpError(404, "Design system not found.");
+        if (
+          submission.lifecycle !== "PUBLISHED" ||
+          submission.publishedSystem?.lifecycle !== "PUBLISHED"
+        )
+          throw new HttpError(409, "Design system cannot be edited.");
+
+        const generation = submission.sessionGeneration + 1;
+        await transaction.submissionAgentSession.create({
+          data: {
+            submissionId: submission.id,
+            capabilityHash: minted.capabilityHash,
+            generation,
+            expiresAt: minted.expiresAt,
+          },
+        });
+        await transaction.submission.update({
+          where: { id: submission.id },
+          data: { lifecycle: "OPEN", sessionGeneration: generation },
+        });
+        return {
+          capability: minted.capability,
+          sessionUrl: minted.sessionUrl,
+          expiresAt: minted.expiresAt,
+        };
+      },
+      { isolationLevel: "Serializable" },
+    );
+  return retrySerializationConflict(reopen);
+};
+
+export const withdrawSubmission: WithdrawSubmission<
+  OwnedSubmissionInput,
+  { withdrawn: true }
+> = async (args, context) => {
+  if (!context.user) throw new HttpError(401, "Sign in to delete this design system.");
+  const withdraw = () =>
+    prisma.$transaction(
+      async (transaction) => {
+        const submission = await transaction.submission.findUnique({
+          where: { id: args.submissionId },
+          include: { publishedSystem: true },
+        });
+        if (!submission || submission.ownerId !== context.user!.id)
+          throw new HttpError(404, "Design system not found.");
+        if (submission.lifecycle === "WITHDRAWN") return { withdrawn: true } as const;
+
+        const withdrawnAt = new Date();
+        if (submission.publishedSystem) {
+          await transaction.designSystem.update({
+            where: { id: submission.publishedSystem.id },
+            data: { lifecycle: "WITHDRAWN", withdrawnAt },
+          });
+        }
+        await transaction.submission.update({
+          where: { id: submission.id },
+          data: { lifecycle: "WITHDRAWN", sessionGeneration: { increment: 1 } },
+        });
+        return { withdrawn: true } as const;
+      },
+      { isolationLevel: "Serializable" },
+    );
+  return retrySerializationConflict(withdraw);
+};
+
 type PublishInput = { submissionId: string; expectedRevision: number; rightsAttestation: boolean };
 
 export const publishSubmission: PublishSubmission<
@@ -212,36 +296,35 @@ export const publishSubmission: PublishSubmission<
 > = async (args, context) => {
   if (!context.user) throw new HttpError(401, "Sign in to publish.");
   if (!args.rightsAttestation) throw new HttpError(422, "Rights attestation is required.");
-  return prisma.$transaction(
-    async (transaction) => {
-      const submission = await transaction.submission.findUnique({
-        where: { id: args.submissionId },
-        include: { draft: true, publishedSystem: true },
-      });
-      if (!submission || submission.ownerId !== context.user!.id)
-        throw new HttpError(404, "Submission not found.");
-      if (submission.publishedSystem)
-        return { id: submission.publishedSystem.id, slug: submission.publishedSystem.slug };
-      if (submission.lifecycle !== "OPEN" || !submission.draft)
-        throw new HttpError(409, "Submission cannot be published.");
-      if (submission.draft.revision !== args.expectedRevision)
-        throw new HttpError(409, "The draft changed. Refresh and try again.");
-      const validation = await validateDesignSystemDocument(submission.draft.document);
-      if (validation.kind === "structural-failure")
-        throw new HttpError(422, "Resolve all errors before publishing.", {
-          diagnostics: validation.issues,
+  const publish = () =>
+    prisma.$transaction(
+      async (transaction) => {
+        const submission = await transaction.submission.findUnique({
+          where: { id: args.submissionId },
+          include: { draft: true, publishedSystem: true },
         });
-      const { document, assessment } = validation;
-      const artifacts = assessment.artifacts!;
-      if (assessment.diagnostics.some(({ severity }) => severity === "error"))
-        throw new HttpError(422, "Resolve all errors before publishing.", {
-          diagnostics: assessment.diagnostics,
-        });
-      const slug = createPublicationSlug(document.identity.name);
-      const system = await transaction.designSystem.create({
-        data: {
-          slug,
-          ownerId: context.user!.id,
+        if (!submission || submission.ownerId !== context.user!.id)
+          throw new HttpError(404, "Submission not found.");
+        if (submission.publishedSystem && submission.lifecycle === "PUBLISHED")
+          return { id: submission.publishedSystem.id, slug: submission.publishedSystem.slug };
+        if (submission.lifecycle !== "OPEN" || !submission.draft)
+          throw new HttpError(409, "Submission cannot be published.");
+        if (submission.publishedSystem && submission.publishedSystem.lifecycle !== "PUBLISHED")
+          throw new HttpError(409, "Submission cannot be published.");
+        if (submission.draft.revision !== args.expectedRevision)
+          throw new HttpError(409, "The draft changed. Refresh and try again.");
+        const validation = await validateDesignSystemDocument(submission.draft.document);
+        if (validation.kind === "structural-failure")
+          throw new HttpError(422, "Resolve all errors before publishing.", {
+            diagnostics: validation.issues,
+          });
+        const { document, assessment } = validation;
+        const artifacts = assessment.artifacts!;
+        if (assessment.diagnostics.some(({ severity }) => severity === "error"))
+          throw new HttpError(422, "Resolve all errors before publishing.", {
+            diagnostics: assessment.diagnostics,
+          });
+        const publication = {
           name: document.identity.name,
           summary: document.identity.summary,
           tags: document.identity.tags,
@@ -250,21 +333,33 @@ export const publishSubmission: PublishSubmission<
           renderer: artifacts.renderer,
           assessment: wireAssessment(assessment.diagnostics),
           validatorVersion: `${designSystemModel.id}@${designSystemModel.version}`,
-          sourceSubmissionId: submission.id,
           sourceRevision: submission.draft.revision,
           rightsAttestation: true,
           rightsStatementVersion: "submission-rights-v1",
           rightsAcceptedAt: new Date(),
-        },
-      });
-      await transaction.submission.update({
-        where: { id: submission.id },
-        data: { lifecycle: "PUBLISHED", sessionGeneration: { increment: 1 } },
-      });
-      return { id: system.id, slug: system.slug };
-    },
-    { isolationLevel: "Serializable" },
-  );
+        };
+        const system = submission.publishedSystem
+          ? await transaction.designSystem.update({
+              where: { id: submission.publishedSystem.id },
+              data: publication,
+            })
+          : await transaction.designSystem.create({
+              data: {
+                ...publication,
+                slug: createPublicationSlug(document.identity.name),
+                ownerId: context.user!.id,
+                sourceSubmissionId: submission.id,
+              },
+            });
+        await transaction.submission.update({
+          where: { id: submission.id },
+          data: { lifecycle: "PUBLISHED", sessionGeneration: { increment: 1 } },
+        });
+        return { id: system.id, slug: system.slug };
+      },
+      { isolationLevel: "Serializable" },
+    );
+  return retrySerializationConflict(publish);
 };
 
 type SubmissionStore = Pick<typeof prisma, "submission" | "guestSession">;
@@ -288,18 +383,6 @@ async function requireOwnedOpenSubmission(
   )
     return submission;
   throw new HttpError(403, "You cannot change this submission.");
-}
-
-const isSerializationConflict = (error: unknown) =>
-  typeof error === "object" && error !== null && "code" in error && error.code === "P2034";
-
-async function retrySerializationConflict<T>(run: () => Promise<T>) {
-  try {
-    return await run();
-  } catch (error) {
-    if (!isSerializationConflict(error)) throw error;
-    return run();
-  }
 }
 
 const wireAssessment = (

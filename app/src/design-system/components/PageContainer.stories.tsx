@@ -47,7 +47,7 @@ export const Widths: Story = {
 };
 
 export const NarrowViewport: Story = {
-  parameters: { viewport: { defaultViewport: "mobile1" } },
+  globals: { viewport: "mobile1" },
   render: () => (
     <PageContainer className="py-6">
       <div className="rounded-[var(--radius-card)] border border-line bg-surface p-5">

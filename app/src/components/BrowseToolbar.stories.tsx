@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useState } from "react";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { useState, type ComponentProps } from "react";
+import { expect, fn } from "storybook/test";
 import { BrowseToolbar } from "./BrowseToolbar";
 
 const tagSuggestions = [
@@ -22,15 +22,24 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function InteractiveToolbar() {
-  const [query, setQuery] = useState("");
-  return <BrowseToolbar query={query} onQueryChange={setQuery} tagSuggestions={tagSuggestions} />;
+function InteractiveToolbar(args: ComponentProps<typeof BrowseToolbar>) {
+  const [localQuery, setLocalQuery] = useState<string>();
+
+  return (
+    <BrowseToolbar
+      {...args}
+      query={localQuery ?? args.query}
+      onQueryChange={(query) => {
+        setLocalQuery(query);
+        args.onQueryChange(query);
+      }}
+    />
+  );
 }
 
 export const Default: Story = {
-  render: () => <InteractiveToolbar />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
+  render: (args) => <InteractiveToolbar {...args} />,
+  play: async ({ canvas, userEvent }) => {
     const input = canvas.getByRole("textbox", { name: "Search systems" });
     await userEvent.type(input, "Developer tools");
     await userEvent.click(canvas.getByRole("button", { name: "Clear search" }));

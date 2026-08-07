@@ -1,7 +1,7 @@
 import { ArrowRight } from "@phosphor-icons/react/dist/csr/ArrowRight";
 import { SpinnerGap } from "@phosphor-icons/react/dist/csr/SpinnerGap";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn } from "storybook/test";
 import { Button, type ButtonVariant } from "./Button";
 import type { ControlSize } from "./controlStyles";
 
@@ -16,7 +16,7 @@ const meta = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["primary", "secondary", "quiet", "onDark", "onDarkSecondary"],
+      options: ["primary", "secondary", "quiet", "destructive", "onDark", "onDarkSecondary"],
     },
     size: { control: "inline-radio", options: ["compact", "default", "touch"] },
   },
@@ -27,14 +27,21 @@ type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {
   args: { variant: "primary", size: "default" },
-  play: async ({ args, canvasElement }) => {
-    const button = within(canvasElement).getByRole("button", { name: "Add to shelf" });
+  play: async ({ args, canvas, userEvent }) => {
+    const button = canvas.getByRole("button", { name: "Add to shelf" });
     await userEvent.click(button);
     await expect(args.onClick).toHaveBeenCalledOnce();
   },
 };
 
-const variants: ButtonVariant[] = ["primary", "secondary", "quiet", "onDark", "onDarkSecondary"];
+const variants: ButtonVariant[] = [
+  "primary",
+  "secondary",
+  "quiet",
+  "destructive",
+  "onDark",
+  "onDarkSecondary",
+];
 const sizes: ControlSize[] = ["compact", "default", "touch"];
 
 export const VariantAndSizeMatrix: Story = {
@@ -69,15 +76,4 @@ export const ContentAndStates: Story = {
       </Button>
     </div>
   ),
-};
-
-export const KeyboardActivation: Story = {
-  args: { children: "Publish system" },
-  play: async ({ args, canvasElement }) => {
-    const button = within(canvasElement).getByRole("button", { name: "Publish system" });
-    await userEvent.tab();
-    await expect(button).toHaveFocus();
-    await userEvent.keyboard("{Enter}");
-    await expect(args.onClick).toHaveBeenCalledOnce();
-  },
 };

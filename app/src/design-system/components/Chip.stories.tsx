@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn } from "storybook/test";
 import { Chip } from "./Chip";
 
 const meta = {
@@ -17,8 +17,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {
-  play: async ({ args, canvasElement }) => {
-    const chip = within(canvasElement).getByRole("button", { name: "Editorial" });
+  play: async ({ args, canvas, userEvent }) => {
+    const chip = canvas.getByRole("button", { name: "Editorial" });
     await userEvent.click(chip);
     await expect(chip).toHaveAttribute("aria-pressed", "true");
     await expect(args.onPressedChange).toHaveBeenCalledOnce();
@@ -43,8 +43,8 @@ export const FilterStates: Story = {
 
 export const KeyboardToggle: Story = {
   args: { children: "High contrast", value: "high-contrast" },
-  play: async ({ args, canvasElement }) => {
-    const chip = within(canvasElement).getByRole("button", { name: "High contrast" });
+  play: async ({ args, canvas, userEvent }) => {
+    const chip = canvas.getByRole("button", { name: "High contrast" });
     await userEvent.tab();
     await expect(chip).toHaveFocus();
     await userEvent.keyboard(" ");

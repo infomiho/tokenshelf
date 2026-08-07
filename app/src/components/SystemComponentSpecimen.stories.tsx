@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, within } from "storybook/test";
 import { catalogFixtures } from "../data/catalogFixtures";
 import { SystemComponentSpecimen } from "./SystemComponentSpecimen";
 import "./SystemPreview.css";
@@ -35,10 +35,8 @@ export const MultipleInstances: Story = {
       <SystemComponentSpecimen {...args} renderer={secondTimberline} />
     </div>
   ),
-  play: async ({ canvasElement }) => {
-    const previews = [
-      ...canvasElement.querySelectorAll<HTMLElement>("[data-renderer-root=system]"),
-    ];
+  play: async ({ canvas, userEvent }) => {
+    const previews = canvas.getAllByRole("region", { name: /detail preview$/i });
     const firstPreview = within(previews[0]!);
     const secondPreview = within(previews[1]!);
     const firstField = firstPreview.getByLabelText("Project name");

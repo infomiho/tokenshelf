@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn } from "storybook/test";
 import { Checkbox } from "./Checkbox";
 
 const meta = {
@@ -20,8 +20,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {
   args: { description: "Adds the canonical JSON document to the export." },
-  play: async ({ args, canvasElement }) => {
-    const checkbox = within(canvasElement).getByRole("checkbox", {
+  play: async ({ args, canvas, userEvent }) => {
+    const checkbox = canvas.getByRole("checkbox", {
       name: "Include source tokens",
     });
     await userEvent.click(checkbox);
@@ -49,8 +49,8 @@ export const SizesAndStates: Story = {
 
 export const KeyboardToggle: Story = {
   args: { label: "Notify me when published" },
-  play: async ({ args, canvasElement }) => {
-    const checkbox = within(canvasElement).getByRole("checkbox", {
+  play: async ({ args, canvas, userEvent }) => {
+    const checkbox = canvas.getByRole("checkbox", {
       name: "Notify me when published",
     });
     await userEvent.tab();
@@ -63,8 +63,8 @@ export const KeyboardToggle: Story = {
 
 export const Indeterminate: Story = {
   args: { label: "Some systems selected", indeterminate: true },
-  play: async ({ canvasElement }) => {
-    const checkbox = within(canvasElement).getByRole("checkbox", {
+  play: async ({ canvas }) => {
+    const checkbox = canvas.getByRole("checkbox", {
       name: "Some systems selected",
     });
     await expect(checkbox).toHaveAttribute("aria-checked", "mixed");

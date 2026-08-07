@@ -8,8 +8,10 @@ import {
   getSubmissionWorkspace,
   listMySubmissions,
   publishSubmission,
+  reopenSubmission,
   rotateAgentCapability,
   useQuery,
+  withdrawSubmission,
 } from "wasp/client/operations";
 import { authReturnKey } from "../auth/auth-storage";
 import { toUserProfile, type AuthProfile } from "../auth/useCurrentUser";
@@ -37,6 +39,8 @@ export type SubmissionContextValue = {
   signOut: () => void;
   publish: () => Promise<void>;
   rotateCapability: () => Promise<void>;
+  editSubmission: (submissionId: string) => Promise<void>;
+  deleteSubmission: (submissionId: string) => Promise<void>;
 };
 
 export function useSubmissionController(): SubmissionContextValue {
@@ -75,18 +79,26 @@ export function useSubmissionController(): SubmissionContextValue {
   useEffect(() => {
     const workspace = workspaceQuery.data as Workspace | undefined;
     const sync = syncQuery.data as SubmissionSync | undefined;
+    if (sync?.lifecycle === "WITHDRAWN") {
+      navigate("/submissions", { replace: true });
+      return;
+    }
     if (
       workspace &&
       sync &&
       (sync.revision !== workspace.revision ||
+        sync.lifecycle !== workspace.lifecycle ||
         sync.capability.status !== workspace.capability.status)
     )
       void workspaceQuery.refetch();
   }, [
     (syncQuery.data as SubmissionSync | undefined)?.revision,
+    (syncQuery.data as SubmissionSync | undefined)?.lifecycle,
     (syncQuery.data as SubmissionSync | undefined)?.capability.status,
     (workspaceQuery.data as Workspace | undefined)?.revision,
+    (workspaceQuery.data as Workspace | undefined)?.lifecycle,
     (workspaceQuery.data as Workspace | undefined)?.capability.status,
+    navigate,
   ]);
 
   useEffect(() => {
@@ -193,6 +205,20 @@ export function useSubmissionController(): SubmissionContextValue {
     }
   }
 
+  async function editOwnedSubmission(targetSubmissionId: string) {
+    const target = ownedWorkspaces.find(({ id }) => id === targetSubmissionId);
+    if (!target) throw new Error("Design system not found.");
+    if (target.lifecycle === "PUBLISHED") {
+      const result = await reopenSubmission({ submissionId: targetSubmissionId });
+      window.sessionStorage.setItem(`${agentSessionKey}.${targetSubmissionId}`, result.sessionUrl);
+    }
+    navigate(`/submit/${targetSubmissionId}`);
+  }
+
+  async function deleteOwnedSubmission(targetSubmissionId: string) {
+    await withdrawSubmission({ submissionId: targetSubmissionId });
+  }
+
   function signIn(intent?: "publish") {
     window.sessionStorage.setItem(authReturnKey, location.pathname + location.search);
     if (intent) window.sessionStorage.setItem(authIntentKey, intent);
@@ -231,6 +257,8 @@ export function useSubmissionController(): SubmissionContextValue {
     },
     publish,
     rotateCapability,
+    editSubmission: editOwnedSubmission,
+    deleteSubmission: deleteOwnedSubmission,
   };
 }
 
@@ -246,7 +274,11 @@ type Workspace = {
   capability: { status: "active" | "expired" | "revoked"; expiresAt: Date | null };
 };
 
-type SubmissionSync = { revision: number | null; capability: Workspace["capability"] };
+type SubmissionSync = {
+  lifecycle: Workspace["lifecycle"];
+  revision: number | null;
+  capability: Workspace["capability"];
+};
 
 function deriveStage(workspace?: Workspace): SubmissionStage {
   if (!workspace || workspace.revision === 0) return "waiting";

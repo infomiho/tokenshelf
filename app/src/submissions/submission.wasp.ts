@@ -5,7 +5,9 @@ import {
   claimGuestSubmissions,
   createSubmission,
   publishSubmission,
+  reopenSubmission,
   rotateAgentCapability,
+  withdrawSubmission,
 } from "./operations" with { type: "ref" };
 import {
   getSubmissionSync,
@@ -29,5 +31,7 @@ export const submissionSpec: Spec = [
   action(createSubmission, { entities: submissionEntities }),
   action(claimGuestSubmissions, { entities: submissionEntities }),
   action(rotateAgentCapability, { entities: submissionEntities }),
+  action(reopenSubmission, { entities: [...submissionEntities, "DesignSystem"] }),
+  action(withdrawSubmission, { entities: [...submissionEntities, "DesignSystem"] }),
   action(publishSubmission, { entities: [...submissionEntities, "DesignSystem"] }),
 ];

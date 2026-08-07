@@ -12,7 +12,7 @@ export function createCatalogApiHandlers(catalog: CatalogService) {
     const parsedLimit = typeof req.query.limit === "string" ? Number(req.query.limit) : undefined;
     const limit = Number.isSafeInteger(parsedLimit) ? parsedLimit : undefined;
     const result = await catalog.search({ query, sort, limit });
-    res.set("Cache-Control", "public, max-age=60, s-maxage=300").status(200).json(result);
+    res.set("Cache-Control", "no-store").status(200).json(result);
   };
 
   const designMd = async (req: Request, res: Response) => {
@@ -22,7 +22,7 @@ export function createCatalogApiHandlers(catalog: CatalogService) {
       return;
     }
     res
-      .set("Cache-Control", "public, max-age=300, s-maxage=3600")
+      .set("Cache-Control", "no-store")
       .set("Content-Disposition", 'inline; filename="DESIGN.md"')
       .status(200)
       .type("text/markdown")
@@ -35,10 +35,7 @@ export function createCatalogApiHandlers(catalog: CatalogService) {
       res.status(404).json({ error: "Design system not found." });
       return;
     }
-    res
-      .set("Cache-Control", "public, max-age=300, s-maxage=3600")
-      .status(200)
-      .json(system.document);
+    res.set("Cache-Control", "no-store").status(200).json(system.document);
   };
 
   const schema = (_req: Request, res: Response) => {

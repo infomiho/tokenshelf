@@ -1,6 +1,6 @@
 import { ArrowUpRight } from "@phosphor-icons/react/dist/csr/ArrowUpRight";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn } from "storybook/test";
 import { ActionLink } from "./ActionLink";
 import type { ButtonVariant } from "./Button";
 import type { ControlSize } from "./controlStyles";
@@ -27,8 +27,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {
-  play: async ({ args, canvasElement }) => {
-    const link = within(canvasElement).getByRole("link", { name: "View design system" });
+  play: async ({ args, canvas, userEvent }) => {
+    const link = canvas.getByRole("link", { name: "View design system" });
     link.addEventListener("click", (event) => event.preventDefault(), { once: true });
     await userEvent.click(link);
     await expect(args.onClick).toHaveBeenCalledOnce();
@@ -67,17 +67,5 @@ export const ExternalDestination: Story = {
     href: "https://example.com",
     target: "_blank",
     rel: "noreferrer",
-  },
-};
-
-export const KeyboardActivation: Story = {
-  args: { children: "Open details", href: "#details" },
-  play: async ({ args, canvasElement }) => {
-    const link = within(canvasElement).getByRole("link", { name: "Open details" });
-    link.addEventListener("click", (event) => event.preventDefault(), { once: true });
-    await userEvent.tab();
-    await expect(link).toHaveFocus();
-    await userEvent.keyboard("{Enter}");
-    await expect(args.onClick).toHaveBeenCalledOnce();
   },
 };

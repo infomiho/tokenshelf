@@ -19,9 +19,6 @@ const meta = {
       <CopyPromptControl copied={false} copyError={false} onCopy={fn(async () => {})} />
     ),
   },
-  parameters: {
-    viewport: { defaultViewport: "responsive" },
-  },
 } satisfies Meta<typeof SystemActionsView>;
 
 export default meta;
@@ -42,7 +39,7 @@ export const VoteError: Story = {
 };
 
 export const Mobile: Story = {
-  parameters: {
-    viewport: { defaultViewport: "mobile1" },
+  globals: {
+    viewport: "mobile1",
   },
 };

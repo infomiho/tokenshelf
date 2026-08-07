@@ -1,7 +1,13 @@
 import { Button as BaseButton, type ButtonProps as BaseButtonProps } from "@base-ui/react/button";
 import { controlSizeClassName, type ControlSize } from "./controlStyles";
 
-export type ButtonVariant = "primary" | "secondary" | "quiet" | "onDark" | "onDarkSecondary";
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "quiet"
+  | "destructive"
+  | "onDark"
+  | "onDarkSecondary";
 
 export type ButtonClassNameOptions = {
   pressScale?: boolean;
@@ -12,6 +18,7 @@ const variantClassNames: Record<ButtonVariant, string> = {
   primary: "bg-ink text-surface hover:bg-ink/85",
   secondary: "border border-line bg-surface text-ink hover:border-ink/35",
   quiet: "text-muted hover:bg-ink/5 hover:text-ink",
+  destructive: "bg-negative text-surface hover:bg-negative/85",
   onDark:
     "border border-transparent bg-on-feature text-feature hover:border-feature-line hover:bg-on-feature-hover",
   onDarkSecondary: "border border-feature-line text-on-feature hover:bg-on-feature/8",

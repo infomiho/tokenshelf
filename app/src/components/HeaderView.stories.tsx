@@ -27,7 +27,6 @@ const meta = {
   },
   parameters: {
     layout: "fullscreen",
-    viewport: { defaultViewport: "responsive" },
   },
 } satisfies Meta<typeof HeaderView>;
 
@@ -49,7 +48,7 @@ export const SignedIn: Story = {
 };
 
 export const Mobile: Story = {
-  parameters: {
-    viewport: { defaultViewport: "mobile1" },
+  globals: {
+    viewport: "mobile1",
   },
 };

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn } from "storybook/test";
 import { CopyPromptControl, type CopyPromptControlProps } from "./CopyPromptControl";
 
 const meta = {
@@ -27,15 +27,15 @@ export const Error: Story = {
 };
 
 function InteractiveCopyPrompt(props: CopyPromptControlProps) {
-  const [copied, setCopied] = useState(false);
+  const [hasCopied, setHasCopied] = useState(false);
 
   return (
     <CopyPromptControl
       {...props}
-      copied={copied}
+      copied={props.copied || hasCopied}
       onCopy={async () => {
         await props.onCopy();
-        setCopied(true);
+        setHasCopied(true);
       }}
     />
   );
@@ -43,8 +43,7 @@ function InteractiveCopyPrompt(props: CopyPromptControlProps) {
 
 export const CopyInteraction: Story = {
   render: (args) => <InteractiveCopyPrompt {...args} />,
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ args, canvas, userEvent }) => {
     const copyButton = canvas.getByRole("button", { name: "Copy agent prompt" });
     const initialWidth = copyButton.getBoundingClientRect().width;
     await userEvent.click(copyButton);

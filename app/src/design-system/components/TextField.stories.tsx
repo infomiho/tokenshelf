@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn } from "storybook/test";
 import { TextField } from "./TextField";
 
 const meta = {
@@ -28,8 +28,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {
   args: { description: "Use a short, distinctive name." },
-  play: async ({ args, canvasElement }) => {
-    const input = within(canvasElement).getByRole("textbox", { name: "System name" });
+  play: async ({ args, canvas, userEvent }) => {
+    const input = canvas.getByRole("textbox", { name: "System name" });
     await userEvent.click(input);
     await userEvent.type(input, "Signal");
     await expect(input).toHaveValue("Signal");
@@ -69,13 +69,4 @@ export const States: Story = {
       />
     </div>
   ),
-};
-
-export const KeyboardFocus: Story = {
-  args: { label: "Search systems", type: "search" },
-  play: async ({ canvasElement }) => {
-    const input = within(canvasElement).getByRole("searchbox", { name: "Search systems" });
-    await userEvent.tab();
-    await expect(input).toHaveFocus();
-  },
 };

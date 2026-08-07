@@ -9,6 +9,7 @@ import { prisma } from "wasp/server";
 import type { DesignSystemDocument } from "../domain/design-system";
 import { designSystemModel } from "../domain/design-system/model";
 import { canAccessSubmission, decideAgentAuthority } from "./submission-access";
+import { retrySerializationConflict } from "./serialization";
 
 export type SubmissionAuthority =
   | { kind: "agent"; sessionId: string; generation: number }
@@ -73,49 +74,54 @@ export const submissionRevisionStore: RevisionStore<DesignSystemDocument, Submis
       command.target.version !== designSystemModel.version
     )
       return { kind: "target-not-found" };
-    return prisma.$transaction(async (transaction) => {
-      const submission = await transaction.submission.findUnique({
-        where: { id: command.target.document },
-      });
-      if (!submission || submission.lifecycle !== "OPEN")
-        return { kind: "target-not-found" } as const;
-      const rejection = await authorityRejection(
-        transaction,
-        submission,
-        command.authority,
-        command.now,
-      );
-      if (rejection) return rejection;
-      const assessment = await designSystemModel.assess(command.document);
-      const updated = await transaction.submissionDraft.updateMany({
-        where: { submissionId: submission.id, revision: command.expectedRevision },
-        data: {
-          revision: { increment: 1 },
-          document: command.document,
-          assessment: {
-            outcome: assessment.diagnostics.some(({ severity }) => severity === "error")
-              ? "fail"
-              : "pass",
-            diagnostics: assessment.diagnostics,
-          },
-          designMd: assessment.artifacts?.designMd,
-          renderer: assessment.artifacts?.renderer,
-          updatedBy: command.authority.kind,
+    const commit = () =>
+      prisma.$transaction(
+        async (transaction) => {
+          const submission = await transaction.submission.findUnique({
+            where: { id: command.target.document },
+          });
+          if (!submission || submission.lifecycle !== "OPEN")
+            return { kind: "target-not-found" } as const;
+          const rejection = await authorityRejection(
+            transaction,
+            submission,
+            command.authority,
+            command.now,
+          );
+          if (rejection) return rejection;
+          const assessment = await designSystemModel.assess(command.document);
+          const updated = await transaction.submissionDraft.updateMany({
+            where: { submissionId: submission.id, revision: command.expectedRevision },
+            data: {
+              revision: { increment: 1 },
+              document: command.document,
+              assessment: {
+                outcome: assessment.diagnostics.some(({ severity }) => severity === "error")
+                  ? "fail"
+                  : "pass",
+                diagnostics: assessment.diagnostics,
+              },
+              designMd: assessment.artifacts?.designMd,
+              renderer: assessment.artifacts?.renderer,
+              updatedBy: command.authority.kind,
+            },
+          });
+          if (updated.count === 0) {
+            const current = await transaction.submissionDraft.findUnique({
+              where: { submissionId: submission.id },
+              select: { revision: true },
+            });
+            return { kind: "conflict", currentRevision: current?.revision ?? null } as const;
+          }
+          await transaction.submission.update({
+            where: { id: submission.id },
+            data: { updatedAt: command.now },
+          });
+          return { kind: "committed", revision: command.expectedRevision + 1 } as const;
         },
-      });
-      if (updated.count === 0) {
-        const current = await transaction.submissionDraft.findUnique({
-          where: { submissionId: submission.id },
-          select: { revision: true },
-        });
-        return { kind: "conflict", currentRevision: current?.revision ?? null } as const;
-      }
-      await transaction.submission.update({
-        where: { id: submission.id },
-        data: { updatedAt: command.now },
-      });
-      return { kind: "committed", revision: command.expectedRevision + 1 } as const;
-    });
+        { isolationLevel: "Serializable" },
+      );
+    return retrySerializationConflict(commit);
   },
 };
 

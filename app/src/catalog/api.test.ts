@@ -56,7 +56,7 @@ describe("catalog HTTP API", () => {
     const response = await fetch(`${baseUrl}/v1/systems?q=developer&sort=new&limit=5`);
 
     expect(response.status).toBe(200);
-    expect(response.headers.get("cache-control")).toBe("public, max-age=60, s-maxage=300");
+    expect(response.headers.get("cache-control")).toBe("no-store");
     await expect(response.json()).resolves.toMatchObject({
       query: "developer",
       sort: "new",
@@ -86,6 +86,7 @@ describe("catalog HTTP API", () => {
     const response = await fetch(`http://127.0.0.1:${address.port}/v1/systems/tactile/DESIGN.md`);
 
     expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("no-store");
     expect(response.headers.get("content-type")).toContain("text/markdown");
     expect(response.headers.get("content-disposition")).toBe('inline; filename="DESIGN.md"');
     await expect(response.text()).resolves.toBe("# Tactile\n");
@@ -113,6 +114,7 @@ describe("catalog HTTP API", () => {
     const documentResponse = await fetch(`${baseUrl}/v1/systems/tactile/document.json`);
     const schemaResponse = await fetch(`${baseUrl}/v1/schemas/design-system-document/1`);
 
+    expect(documentResponse.headers.get("cache-control")).toBe("no-store");
     await expect(documentResponse.json()).resolves.toEqual(document);
     await expect(schemaResponse.json()).resolves.toMatchObject({
       type: "object",

@@ -2,7 +2,7 @@ import { Heart } from "@phosphor-icons/react/dist/csr/Heart";
 import { List } from "@phosphor-icons/react/dist/csr/List";
 import { SquaresFour } from "@phosphor-icons/react/dist/csr/SquaresFour";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn } from "storybook/test";
 import { ToggleButton } from "./ToggleButton";
 
 const meta = {
@@ -30,8 +30,8 @@ export const Playground: Story = {
       </>
     ),
   },
-  play: async ({ args, canvasElement }) => {
-    const toggle = within(canvasElement).getByRole("button", { name: "Favorite" });
+  play: async ({ args, canvas, userEvent }) => {
+    const toggle = canvas.getByRole("button", { name: "Favorite" });
     await expect(toggle).toHaveAttribute("aria-pressed", "false");
     await userEvent.click(toggle);
     await expect(toggle).toHaveAttribute("aria-pressed", "true");
@@ -76,8 +76,8 @@ export const ViewControls: Story = {
 
 export const KeyboardToggle: Story = {
   args: { children: "Show metadata" },
-  play: async ({ args, canvasElement }) => {
-    const toggle = within(canvasElement).getByRole("button", { name: "Show metadata" });
+  play: async ({ args, canvas, userEvent }) => {
+    const toggle = canvas.getByRole("button", { name: "Show metadata" });
     await userEvent.tab();
     await expect(toggle).toHaveFocus();
     await userEvent.keyboard(" ");

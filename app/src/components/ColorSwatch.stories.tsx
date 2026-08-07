@@ -1,25 +1,25 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState, type ComponentProps } from "react";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn } from "storybook/test";
 import { ColorSwatchView } from "./ColorSwatch";
 import "./SystemDetails.css";
 
 function ControlledColorSwatch({
   role,
   value,
-  copied: initialCopied,
+  copied,
   onCopy,
 }: ComponentProps<typeof ColorSwatchView>) {
-  const [copied, setCopied] = useState(initialCopied);
+  const [hasCopied, setHasCopied] = useState(false);
 
   return (
     <ColorSwatchView
       role={role}
       value={value}
-      copied={copied}
+      copied={copied || hasCopied}
       onCopy={(copiedValue) => {
         onCopy(copiedValue);
-        setCopied(true);
+        setHasCopied(true);
       }}
     />
   );
@@ -48,8 +48,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Brand: Story = {
   render: (args) => <ControlledColorSwatch {...args} />,
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
+  play: async ({ args, canvas, userEvent }) => {
     const swatch = canvas.getByRole("button", { name: "Copy brand color #ff5a36" });
     const initialSize = swatch.getBoundingClientRect();
 
@@ -64,7 +63,6 @@ export const Brand: Story = {
 };
 
 export const Light: Story = {
-  render: (args) => <ControlledColorSwatch {...args} />,
   args: {
     role: "surfaceSubtle",
     value: "#f4f1eb",
@@ -72,7 +70,6 @@ export const Light: Story = {
 };
 
 export const Dark: Story = {
-  render: (args) => <ControlledColorSwatch {...args} />,
   args: {
     role: "textStrong",
     value: "#161616",
