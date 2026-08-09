@@ -352,14 +352,16 @@ export const withdrawSubmission: WithdrawSubmission<
   return retrySerializationConflict(withdraw);
 };
 
-type PublishInput = { submissionId: string; expectedRevision: number; rightsAttestation: boolean };
+type PublishInputBase = { submissionId: string; expectedRevision: number };
+type PublishInput =
+  | (PublishInputBase & { publication: "create"; rightsAttestation: true })
+  | (PublishInputBase & { publication: "update" });
 
 export const publishSubmission: PublishSubmission<
   PublishInput,
   { id: string; slug: string }
 > = async (args, context) => {
   if (!context.user) throw new HttpError(401, "Sign in to publish.");
-  if (!args.rightsAttestation) throw new HttpError(422, "Rights attestation is required.");
   const publish = () =>
     prisma.$transaction(
       async (transaction) => {
@@ -378,6 +380,14 @@ export const publishSubmission: PublishSubmission<
           throw new HttpError(409, "Submission cannot be published.");
         if (submission.publishedSystem && submission.publishedSystem.lifecycle !== "PUBLISHED")
           throw new HttpError(409, "Submission cannot be published.");
+        if (submission.publishedSystem) {
+          if (args.publication !== "update")
+            throw new HttpError(409, "This design system has already been published.");
+        } else {
+          if (args.publication !== "create")
+            throw new HttpError(409, "Publish the design system before submitting updates.");
+          if (!args.rightsAttestation) throw new HttpError(422, "Rights attestation is required.");
+        }
         if (submission.draft.revision !== args.expectedRevision)
           throw new HttpError(409, "The draft changed. Refresh and try again.");
         const validation = await validateDesignSystemDocument(submission.draft.document);
@@ -401,9 +411,6 @@ export const publishSubmission: PublishSubmission<
           assessment: wireAssessment(assessment.diagnostics),
           validatorVersion: `${designSystemModel.id}@${designSystemModel.version}`,
           sourceRevision: submission.draft.revision,
-          rightsAttestation: true,
-          rightsStatementVersion: "submission-rights-v1",
-          rightsAcceptedAt: new Date(),
         };
         const system = submission.publishedSystem
           ? await transaction.designSystem.update({
@@ -416,6 +423,9 @@ export const publishSubmission: PublishSubmission<
                 slug: createPublicationSlug(document.identity.name),
                 ownerId: context.user!.id,
                 sourceSubmissionId: submission.id,
+                rightsAttestation: true,
+                rightsStatementVersion: "submission-rights-v1",
+                rightsAcceptedAt: new Date(),
               },
             });
         await transaction.submission.update({

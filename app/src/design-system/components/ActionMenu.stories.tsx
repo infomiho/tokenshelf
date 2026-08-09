@@ -1,7 +1,8 @@
 import { PencilSimpleIcon } from "@phosphor-icons/react/dist/csr/PencilSimple";
 import { TrashIcon } from "@phosphor-icons/react/dist/csr/Trash";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, within } from "storybook/test";
+import { useState, type ComponentProps } from "react";
+import { expect, waitFor, within } from "storybook/test";
 import { ActionMenu, ActionMenuItem } from "./ActionMenu";
 
 const meta = {
@@ -27,6 +28,35 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+function BusyTransition(args: ComponentProps<typeof ActionMenu>) {
+  const [busy, setBusy] = useState(false);
+
+  return (
+    <ActionMenu {...args} busy={busy} busyLabel="Opening Gridline">
+      <ActionMenuItem onClick={() => setBusy(true)}>
+        <PencilSimpleIcon className="size-4" aria-hidden="true" />
+        Edit
+      </ActionMenuItem>
+    </ActionMenu>
+  );
+}
+
+export const Busy: Story = {
+  render: (args) => <BusyTransition {...args} />,
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    const trigger = canvas.getByRole("button", { name: "Actions for Gridline" });
+    await userEvent.click(trigger);
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await page.findByRole("menuitem", { name: "Edit" }));
+
+    await waitFor(() => expect(trigger).toHaveFocus());
+    await expect(trigger).toHaveAttribute("aria-disabled", "true");
+    await expect(canvas.getByRole("status")).toHaveTextContent("Opening Gridline");
+    await userEvent.click(trigger);
+    await expect(page.queryByRole("menu")).not.toBeInTheDocument();
+  },
+};
 
 export const Default: Story = {
   play: async ({ canvas, canvasElement, userEvent }) => {

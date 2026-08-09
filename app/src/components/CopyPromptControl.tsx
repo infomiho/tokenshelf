@@ -4,25 +4,23 @@ import { Button, type ButtonVariant } from "../design-system/components";
 
 export type CopyPromptControlProps = {
   copied: boolean;
-  copyError: boolean;
   onCopy: () => Promise<void>;
   variant?: ButtonVariant;
   className?: string;
 };
 
-type CopyPromptState = "idle" | "copied" | "error";
+type CopyPromptState = "idle" | "copied";
 
 const copyPromptStateClassName = (active: boolean) =>
   `col-start-1 row-start-1 inline-flex items-center justify-self-center gap-2 whitespace-nowrap ${active ? "visible" : "invisible"}`;
 
 export function CopyPromptControl({
   copied,
-  copyError,
   onCopy,
   variant = "primary",
   className = "",
 }: CopyPromptControlProps) {
-  const state: CopyPromptState = copyError ? "error" : copied ? "copied" : "idle";
+  const state: CopyPromptState = copied ? "copied" : "idle";
   const statusMessage = state === "copied" ? "Agent prompt copied" : "";
 
   return (
@@ -37,20 +35,11 @@ export function CopyPromptControl({
             <CheckIcon className="size-4" aria-hidden="true" />
             Prompt copied
           </span>
-          <span className={copyPromptStateClassName(state === "error")}>
-            <CopySimpleIcon className="size-4" aria-hidden="true" />
-            Try again
-          </span>
         </span>
       </Button>
       <span className="sr-only" role="status">
         {statusMessage}
       </span>
-      {copyError && (
-        <p className="mt-2 text-sm text-negative" role="alert">
-          Unable to copy. Try again.
-        </p>
-      )}
     </div>
   );
 }

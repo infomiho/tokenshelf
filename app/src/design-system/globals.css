@@ -11,17 +11,17 @@
     animation: skeleton-pulse var(--skeleton-pulse-duration) ease-in-out 240ms infinite;
   }
 
-  .waiting-logo path {
+  .logo-mark-animated path {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    animation: waiting-logo-draw 3s cubic-bezier(0.23, 1, 0.32, 1) infinite both;
+    animation: logo-mark-draw 3s cubic-bezier(0.23, 1, 0.32, 1) infinite both;
   }
 
-  .waiting-logo path:nth-child(2) {
+  .logo-mark-animated path:nth-child(2) {
     animation-delay: 200ms;
   }
 
-  .waiting-logo path:nth-child(3) {
+  .logo-mark-animated path:nth-child(3) {
     animation-delay: 400ms;
   }
 }
@@ -32,7 +32,7 @@
   }
 }
 
-@keyframes waiting-logo-draw {
+@keyframes logo-mark-draw {
   0% {
     opacity: 0;
     stroke-dashoffset: 1;

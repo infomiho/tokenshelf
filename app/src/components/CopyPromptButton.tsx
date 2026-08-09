@@ -1,7 +1,7 @@
 import { config } from "wasp/client";
 import type { DesignSystem } from "../data/catalog";
 import { buildDesignPrompt } from "../data/design-prompt";
-import type { ButtonVariant } from "../design-system/components";
+import { useToast, type ButtonVariant } from "../design-system/components";
 import { useClipboard } from "../hooks/useClipboard";
 import { useRecordCopy } from "../hooks/useRecordCopy";
 import { CopyPromptControl } from "./CopyPromptControl";
@@ -15,14 +15,19 @@ export function CopyPromptButton({
   variant?: ButtonVariant;
   className?: string;
 }) {
-  const { copied, copyError, copy } = useClipboard();
+  const { copied, copy } = useClipboard();
   const recordCopy = useRecordCopy();
+  const toast = useToast();
   const designMdUrl = `${config.apiUrl.replace(/\/$/, "")}/v1/systems/${encodeURIComponent(system.id)}/DESIGN.md`;
   const prompt = buildDesignPrompt(designMdUrl);
 
   async function handleCopy(): Promise<void> {
+    toast.dismiss("clipboard-error");
     const wasCopied = await copy(prompt);
-    if (!wasCopied) return;
+    if (!wasCopied) {
+      toast.error("Unable to copy the agent prompt. Try again.", "clipboard-error");
+      return;
+    }
 
     await recordCopy(system.id);
   }
@@ -30,7 +35,6 @@ export function CopyPromptButton({
   return (
     <CopyPromptControl
       copied={copied}
-      copyError={copyError}
       onCopy={handleCopy}
       variant={variant}
       className={className}

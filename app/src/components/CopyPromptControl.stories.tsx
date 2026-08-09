@@ -8,7 +8,6 @@ const meta = {
   component: CopyPromptControl,
   args: {
     copied: false,
-    copyError: false,
     onCopy: fn(async () => {}),
   },
 } satisfies Meta<typeof CopyPromptControl>;
@@ -20,10 +19,6 @@ export const Default: Story = {};
 
 export const Copied: Story = {
   args: { copied: true },
-};
-
-export const Error: Story = {
-  args: { copyError: true },
 };
 
 function InteractiveCopyPrompt(props: CopyPromptControlProps) {

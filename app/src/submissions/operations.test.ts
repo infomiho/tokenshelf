@@ -231,7 +231,43 @@ describe("owned design-system lifecycle", () => {
     expect(mocks.designSystemUpdate).not.toHaveBeenCalled();
   });
 
-  it("republishes into the existing catalog record", async () => {
+  it("requires rights attestation for the first publication", async () => {
+    mocks.submissionFindUnique.mockResolvedValue({
+      id: "submission-id",
+      ownerId: "owner-id",
+      lifecycle: "OPEN",
+      draft: { revision: 1, document: {} },
+      publishedSystem: null,
+    });
+
+    await expect(
+      publishSubmission(
+        { submissionId: "submission-id", expectedRevision: 1, publication: "create" } as never,
+        context,
+      ),
+    ).rejects.toThrow("Rights attestation is required.");
+    expect(mocks.designSystemCreate).not.toHaveBeenCalled();
+  });
+
+  it("rejects an update command before the first publication", async () => {
+    mocks.submissionFindUnique.mockResolvedValue({
+      id: "submission-id",
+      ownerId: "owner-id",
+      lifecycle: "OPEN",
+      draft: { revision: 1, document: {} },
+      publishedSystem: null,
+    });
+
+    await expect(
+      publishSubmission(
+        { submissionId: "submission-id", expectedRevision: 1, publication: "update" },
+        context,
+      ),
+    ).rejects.toThrow("Publish the design system before submitting updates.");
+    expect(mocks.designSystemCreate).not.toHaveBeenCalled();
+  });
+
+  it("republishes without recording a second rights attestation", async () => {
     const fixture = catalogFixtures[0]!;
     mocks.submissionFindUnique.mockResolvedValue({
       id: "submission-id",
@@ -247,7 +283,7 @@ describe("owned design-system lifecycle", () => {
     mocks.designSystemUpdate.mockResolvedValue({ id: "system-id", slug: fixture.slug });
 
     const result = await publishSubmission(
-      { submissionId: "submission-id", expectedRevision: 7, rightsAttestation: true },
+      { submissionId: "submission-id", expectedRevision: 7, publication: "update" },
       context,
     );
 
@@ -256,6 +292,9 @@ describe("owned design-system lifecycle", () => {
       where: { id: "system-id" },
       data: expect.objectContaining({ sourceRevision: 7, name: fixture.document.identity.name }),
     });
+    const publicationUpdate = mocks.designSystemUpdate.mock.calls[0]![0].data;
+    expect(publicationUpdate).not.toHaveProperty("rightsAttestation");
+    expect(publicationUpdate).not.toHaveProperty("rightsAcceptedAt");
     expect(mocks.submissionUpdate).toHaveBeenCalledWith({
       where: { id: "submission-id" },
       data: { lifecycle: "PUBLISHED", sessionGeneration: { increment: 1 } },
@@ -276,7 +315,7 @@ describe("owned design-system lifecycle", () => {
     });
 
     const result = await publishSubmission(
-      { submissionId: "submission-id", expectedRevision: 7, rightsAttestation: true },
+      { submissionId: "submission-id", expectedRevision: 7, publication: "update" },
       context,
     );
 
@@ -299,7 +338,7 @@ describe("owned design-system lifecycle", () => {
 
     await expect(
       publishSubmission(
-        { submissionId: "submission-id", expectedRevision: 7, rightsAttestation: true },
+        { submissionId: "submission-id", expectedRevision: 7, publication: "update" },
         context,
       ),
     ).rejects.toThrow("The draft changed. Review the latest version.");

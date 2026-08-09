@@ -16,7 +16,7 @@ export function SystemActions({ system, slug }: SystemActionsProps) {
   const [signInOpen, setSignInOpen] = useState(false);
   const { user, signIn } = useCurrentUser();
   const isSignedIn = Boolean(user);
-  const { vote, voting, voteError } = useSystemVote({
+  const { vote, voting } = useSystemVote({
     system,
     slug,
     isSignedIn,
@@ -37,7 +37,6 @@ export function SystemActions({ system, slug }: SystemActionsProps) {
       <SystemActionsView
         system={system}
         voting={voting}
-        voteError={voteError}
         onVoteChange={handleVoteChange}
         designMdUrl={designMdUrl}
         copyPromptControl={

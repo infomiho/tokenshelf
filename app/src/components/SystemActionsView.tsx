@@ -8,7 +8,6 @@ import { formatCount } from "../lib/counts";
 type SystemActionsViewProps = {
   system: DesignSystem;
   voting: boolean;
-  voteError: string | null;
   onVoteChange: (voted: boolean) => void;
   designMdUrl: string;
   copyPromptControl: ReactNode;
@@ -17,7 +16,6 @@ type SystemActionsViewProps = {
 export function SystemActionsView({
   system,
   voting,
-  voteError,
   onVoteChange,
   designMdUrl,
   copyPromptControl,
@@ -28,50 +26,43 @@ export function SystemActionsView({
   const copiesLabel = formatCount(system.copies, "copy", "copies");
 
   return (
-    <>
-      <div
-        className={panelClassName({
-          className:
-            "mt-4 flex w-full flex-col gap-2 p-2 sm:flex-row sm:items-center sm:justify-between",
-        })}
-      >
-        <div className="flex flex-wrap items-center gap-3 px-1">
-          <ToggleButton
-            variant="brand"
-            disabled={voting}
-            pressed={system.voted}
-            onPressedChange={onVoteChange}
-            aria-label={voteAriaLabel}
-          >
-            <HeartIcon
-              className="size-4"
-              weight={system.voted ? "fill" : "regular"}
-              aria-hidden="true"
-            />
-            {system.voted ? "Liked" : "Like"}
-            <span className="tabular-nums">{system.votes.toLocaleString()}</span>
-          </ToggleButton>
-          <span className="px-1 text-sm font-medium tabular-nums text-muted">{copiesLabel}</span>
-        </div>
-        <div className="order-first flex w-full flex-col gap-2 sm:order-none sm:w-auto sm:flex-row">
-          <ActionLink
-            href={designMdUrl}
-            target="_blank"
-            rel="noreferrer"
-            variant="quiet"
-            className="w-full shrink-0 gap-1 whitespace-nowrap px-2 underline decoration-line underline-offset-4 hover:decoration-brand sm:w-auto"
-          >
-            View DESIGN.md
-            <ArrowSquareOutIcon className="size-4" aria-hidden="true" />
-          </ActionLink>
-          {copyPromptControl}
-        </div>
+    <div
+      className={panelClassName({
+        className:
+          "mt-4 flex w-full flex-col gap-2 p-2 sm:flex-row sm:items-center sm:justify-between",
+      })}
+    >
+      <div className="flex flex-wrap items-center gap-3 px-1">
+        <ToggleButton
+          variant="brand"
+          disabled={voting}
+          pressed={system.voted}
+          onPressedChange={onVoteChange}
+          aria-label={voteAriaLabel}
+        >
+          <HeartIcon
+            className="size-4"
+            weight={system.voted ? "fill" : "regular"}
+            aria-hidden="true"
+          />
+          {system.voted ? "Liked" : "Like"}
+          <span className="tabular-nums">{system.votes.toLocaleString()}</span>
+        </ToggleButton>
+        <span className="px-1 text-sm font-medium tabular-nums text-muted">{copiesLabel}</span>
       </div>
-      {voteError && (
-        <p className="mt-3 text-sm text-negative" role="alert">
-          {voteError}
-        </p>
-      )}
-    </>
+      <div className="order-first flex w-full flex-col gap-2 sm:order-none sm:w-auto sm:flex-row">
+        <ActionLink
+          href={designMdUrl}
+          target="_blank"
+          rel="noreferrer"
+          variant="quiet"
+          className="w-full shrink-0 gap-1 whitespace-nowrap px-2 underline decoration-line underline-offset-4 hover:decoration-brand sm:w-auto"
+        >
+          View DESIGN.md
+          <ArrowSquareOutIcon className="size-4" aria-hidden="true" />
+        </ActionLink>
+        {copyPromptControl}
+      </div>
+    </div>
   );
 }

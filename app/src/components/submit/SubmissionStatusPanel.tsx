@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type RefObject } from "react";
 import { Link } from "wasp/client/router";
 import type { SubmissionRecord } from "../../data/submissions";
 import type { PublicationOutcome } from "../../submissions/useSubmissionController";
@@ -10,25 +10,21 @@ export function SubmissionStatusPanel({
   onPublish,
   publishing,
   reviewingDraft,
-  publishError,
   publishConflict,
   publicationOutcome,
   onReviewLatestDraft,
-  onStopEditing,
-  stopping,
-  stopError,
+  onDiscardChanges,
+  discardButtonRef,
 }: {
   submission: SubmissionRecord;
   onPublish: () => void;
   publishing: boolean;
   reviewingDraft: boolean;
-  publishError: string | null;
   publishConflict: boolean;
   publicationOutcome: PublicationOutcome | null;
   onReviewLatestDraft: () => Promise<boolean>;
-  onStopEditing: () => Promise<boolean>;
-  stopping: boolean;
-  stopError: string | null;
+  onDiscardChanges: () => void;
+  discardButtonRef: RefObject<HTMLButtonElement | null>;
 }) {
   const [rightsConfirmed, setRightsConfirmed] = useState(false);
 
@@ -60,13 +56,11 @@ export function SubmissionStatusPanel({
       onPublish={onPublish}
       publishing={publishing}
       reviewingDraft={reviewingDraft}
-      publishError={publishError}
       publishConflict={publishConflict}
       publicationOutcome={publicationOutcome}
       onReviewLatestDraft={onReviewLatestDraft}
-      onStopEditing={onStopEditing}
-      stopping={stopping}
-      stopError={stopError}
+      onDiscardChanges={onDiscardChanges}
+      discardButtonRef={discardButtonRef}
       publishedActions={publishedActions}
       rightsConfirmed={rightsConfirmed}
       onRightsConfirmedChange={setRightsConfirmed}

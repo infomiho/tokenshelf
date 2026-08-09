@@ -1,6 +1,7 @@
+import type { RefObject } from "react";
 import type { SubmissionRecord, SubmissionStage } from "../../data/submissions";
 import type { PublicationOutcome } from "../../submissions/useSubmissionController";
-import { Panel, typographyClassName } from "../../design-system/components";
+import { Button, Panel, typographyClassName } from "../../design-system/components";
 import { LogoMark } from "../../design-system/components";
 import { SystemDetails } from "../SystemDetails";
 import { SystemPreview } from "../SystemPreview";
@@ -13,28 +14,49 @@ export function SubmissionSidebar({
   onPublish,
   publishing,
   reviewingDraft,
-  publishError,
   publishConflict,
   publicationOutcome,
   onReviewLatestDraft,
+  onDiscardChanges,
+  discardButtonRef,
   onStopEditing,
   stopping,
-  stopError,
 }: {
   submission: SubmissionRecord | null;
   stage: SubmissionStage;
   onPublish: () => void;
   publishing: boolean;
   reviewingDraft: boolean;
-  publishError: string | null;
   publishConflict: boolean;
   publicationOutcome: PublicationOutcome | null;
   onReviewLatestDraft: () => Promise<boolean>;
-  onStopEditing: () => Promise<boolean>;
+  onDiscardChanges: () => void;
+  discardButtonRef: RefObject<HTMLButtonElement | null>;
+  onStopEditing: () => Promise<unknown>;
   stopping: boolean;
-  stopError: string | null;
 }) {
   if (submission) {
+    const isUnchangedPublishedEdit = Boolean(
+      submission.publication?.isEditing && !submission.publication.hasDraftChanges,
+    );
+
+    if (isUnchangedPublishedEdit) {
+      return (
+        <div>
+          <AgentPromptPanel />
+          <Button
+            variant="quiet"
+            className="mt-3 w-full"
+            disabled={stopping}
+            aria-busy={stopping}
+            onClick={() => void onStopEditing()}
+          >
+            {stopping ? "Stopping..." : "Stop editing"}
+          </Button>
+        </div>
+      );
+    }
+
     return (
       <div className="lg:flex lg:h-[calc(100vh-7rem)] lg:max-h-[48rem] lg:min-h-[32rem] lg:flex-col">
         <SubmissionStatusPanel
@@ -42,16 +64,14 @@ export function SubmissionSidebar({
           onPublish={onPublish}
           publishing={publishing}
           reviewingDraft={reviewingDraft}
-          publishError={publishError}
           publishConflict={publishConflict}
           publicationOutcome={publicationOutcome}
           onReviewLatestDraft={onReviewLatestDraft}
-          onStopEditing={onStopEditing}
-          stopping={stopping}
-          stopError={stopError}
+          onDiscardChanges={onDiscardChanges}
+          discardButtonRef={discardButtonRef}
         />
         {stage !== "published" && !publicationOutcome && (
-          <div className="mt-8 shrink-0 border-t border-line pt-8 lg:mt-auto">
+          <div className="mt-8 shrink-0 lg:mt-auto lg:pt-8">
             <AgentPromptPanel collapsed />
           </div>
         )}
@@ -135,7 +155,7 @@ function WaitingDraftPreview() {
       </div>
       <div className="absolute inset-0 grid place-items-center bg-paper/60 p-6 backdrop-blur-[2px]">
         <div className="max-w-sm text-center" role="status" aria-live="polite">
-          <LogoMark className="waiting-logo mx-auto size-10 text-brand" />
+          <LogoMark animated className="mx-auto size-10 text-brand" />
           <h3 className={typographyClassName("cardTitle", "mt-5 text-2xl")}>
             Waiting for submission
           </h3>

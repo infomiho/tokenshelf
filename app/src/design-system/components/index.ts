@@ -17,5 +17,6 @@ export * from "./Skeleton";
 export * from "./StatusBadge";
 export * from "./StatusIcon";
 export * from "./TextField";
+export * from "./Toast";
 export * from "./ToggleButton";
 export * from "./Typography";

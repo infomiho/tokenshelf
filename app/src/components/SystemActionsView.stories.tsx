@@ -12,12 +12,9 @@ const meta = {
   args: {
     system,
     voting: false,
-    voteError: null,
     onVoteChange: fn(),
     designMdUrl: "https://example.com/systems/apex-velocity/DESIGN.md",
-    copyPromptControl: (
-      <CopyPromptControl copied={false} copyError={false} onCopy={fn(async () => {})} />
-    ),
+    copyPromptControl: <CopyPromptControl copied={false} onCopy={fn(async () => {})} />,
   },
 } satisfies Meta<typeof SystemActionsView>;
 
@@ -29,12 +26,6 @@ export const Default: Story = {};
 export const Liked: Story = {
   args: {
     system: { ...system, voted: true },
-  },
-};
-
-export const VoteError: Story = {
-  args: {
-    voteError: "Your like could not be saved. Try again.",
   },
 };
 

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 
 export function useClipboard(resetAfter = 1800) {
   const [copied, setCopied] = useState(false);
-  const [copyError, setCopyError] = useState(false);
   const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -12,7 +11,6 @@ export function useClipboard(resetAfter = 1800) {
   }, []);
 
   async function copy(text: string) {
-    setCopyError(false);
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -21,10 +19,9 @@ export function useClipboard(resetAfter = 1800) {
       return true;
     } catch {
       setCopied(false);
-      setCopyError(true);
       return false;
     }
   }
 
-  return { copied, copyError, copy };
+  return { copied, copy };
 }

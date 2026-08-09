@@ -56,13 +56,10 @@ const meta = {
     onPublish: fn(),
     publishing: false,
     reviewingDraft: false,
-    publishError: null,
     publishConflict: false,
     publicationOutcome: null,
     onReviewLatestDraft: fn(async () => true),
-    onStopEditing: fn(async () => true),
-    stopping: false,
-    stopError: null,
+    onDiscardChanges: fn(),
     rightsConfirmed: false,
     onRightsConfirmedChange: fn(),
   },
@@ -104,12 +101,16 @@ export const EditingPublishedSystem: Story = {
   },
 };
 
-export const NoChanges: Story = {
+export const EditingWithFixesNeeded: Story = {
   args: {
     submission: {
-      ...submission("valid", passedPublicationChecks),
-      publication: { slug: "tactile", isEditing: true, hasDraftChanges: false },
+      ...submission("feedback", feedbackChecks),
+      publication: { slug: "tactile", isEditing: true, hasDraftChanges: true },
     },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("button", { name: "Discard changes" })).toBeVisible();
+    await expect(canvas.queryByRole("button", { name: "Publish changes" })).not.toBeInTheDocument();
   },
 };
 

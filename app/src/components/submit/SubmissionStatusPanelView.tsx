@@ -4,7 +4,7 @@ import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
 import { UploadSimpleIcon } from "@phosphor-icons/react/dist/csr/UploadSimple";
 import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import { XIcon } from "@phosphor-icons/react/dist/csr/X";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import type { SubmissionRecord } from "../../data/submissions";
 import type { PublicationOutcome } from "../../submissions/useSubmissionController";
 import {
@@ -21,13 +21,11 @@ type SubmissionStatusPanelViewProps = {
   onPublish: () => void;
   publishing: boolean;
   reviewingDraft: boolean;
-  publishError: string | null;
   publishConflict: boolean;
   publicationOutcome: PublicationOutcome | null;
   onReviewLatestDraft: () => Promise<boolean>;
-  onStopEditing: () => Promise<boolean>;
-  stopping: boolean;
-  stopError: string | null;
+  onDiscardChanges: () => void;
+  discardButtonRef?: RefObject<HTMLButtonElement | null>;
   publishedActions?: ReactNode;
   rightsConfirmed: boolean;
   onRightsConfirmedChange: (confirmed: boolean) => void;
@@ -38,13 +36,11 @@ export function SubmissionStatusPanelView({
   onPublish,
   publishing,
   reviewingDraft,
-  publishError,
   publishConflict,
   publicationOutcome,
   onReviewLatestDraft,
-  onStopEditing,
-  stopping,
-  stopError,
+  onDiscardChanges,
+  discardButtonRef,
   publishedActions,
   rightsConfirmed,
   onRightsConfirmedChange,
@@ -52,7 +48,6 @@ export function SubmissionStatusPanelView({
   const isValid = submission.status === "valid";
   const isPublished = submission.status === "published";
   const isEditingPublishedSystem = Boolean(submission.publication?.isEditing);
-  const hasDraftChanges = Boolean(submission.publication?.hasDraftChanges);
   const checkGroups = groupValidationChecks(submission.checks);
   const checksAreScrollable = checkGroups.length > 5;
   const statusHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -120,38 +115,6 @@ export function SubmissionStatusPanelView({
     );
   }
 
-  if (isEditingPublishedSystem && !hasDraftChanges) {
-    return (
-      <section aria-labelledby="submission-status-title">
-        <h2
-          ref={statusHeadingRef}
-          id="submission-status-title"
-          tabIndex={-1}
-          className={typographyClassName("cardTitle", "text-xl")}
-        >
-          No changes to publish
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-muted">
-          This draft matches the published version.
-        </p>
-        {stopError && (
-          <p className="mt-4 text-sm text-negative" role="alert">
-            {stopError}
-          </p>
-        )}
-        <Button
-          variant="quiet"
-          className="mt-5 w-full"
-          disabled={stopping}
-          aria-busy={stopping}
-          onClick={() => void onStopEditing()}
-        >
-          {stopping ? "Stopping..." : "Stop editing"}
-        </Button>
-      </section>
-    );
-  }
-
   if (publishConflict) {
     return (
       <section>
@@ -163,11 +126,6 @@ export function SubmissionStatusPanelView({
           description="Review the latest version before publishing."
           role="alert"
         />
-        {publishError && (
-          <p className="mt-4 text-sm text-negative" role="alert">
-            {publishError}
-          </p>
-        )}
         <Button
           className="mt-5 w-full"
           disabled={reviewingDraft}
@@ -229,36 +187,41 @@ export function SubmissionStatusPanelView({
         </ul>
       </div>
 
-      {isValid && (
-        <>
-          <Checkbox
-            checked={rightsConfirmed}
-            onCheckedChange={onRightsConfirmedChange}
-            label={
-              isEditingPublishedSystem
-                ? "I have the rights to share these changes."
-                : "I have the rights to share this design-system document and its values."
-            }
-            className="mt-6 border-t border-line pt-5"
-          />
-          {publishError && (
-            <p className="mt-4 text-sm text-negative" role="alert">
-              {publishError}
-            </p>
+      {(isValid || isEditingPublishedSystem) && (
+        <div className="mt-6">
+          {isValid && !isEditingPublishedSystem && (
+            <Checkbox
+              checked={rightsConfirmed}
+              onCheckedChange={onRightsConfirmedChange}
+              label="I have the rights to share this design-system document and its values."
+            />
           )}
-          <Button
-            className="mt-5 w-full"
-            disabled={!rightsConfirmed || publishing}
-            onClick={onPublish}
-          >
-            <UploadSimpleIcon className="size-4" aria-hidden="true" />
-            {publishing
-              ? "Publishing..."
-              : isEditingPublishedSystem
-                ? "Publish changes"
-                : "Publish"}
-          </Button>
-        </>
+          {isValid && (
+            <Button
+              className={`${isEditingPublishedSystem ? "" : "mt-5"} w-full`}
+              disabled={(!isEditingPublishedSystem && !rightsConfirmed) || publishing}
+              onClick={onPublish}
+            >
+              <UploadSimpleIcon className="size-4" aria-hidden="true" />
+              {publishing
+                ? "Publishing..."
+                : isEditingPublishedSystem
+                  ? "Publish changes"
+                  : "Publish"}
+            </Button>
+          )}
+          {isEditingPublishedSystem && (
+            <Button
+              ref={discardButtonRef}
+              variant="quiet"
+              className={`${isValid ? "mt-2" : ""} w-full`}
+              disabled={publishing}
+              onClick={onDiscardChanges}
+            >
+              Discard changes
+            </Button>
+          )}
+        </div>
       )}
     </section>
   );

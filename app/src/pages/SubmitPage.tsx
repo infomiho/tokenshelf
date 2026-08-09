@@ -7,7 +7,6 @@ import { SignInDialog } from "../components/auth/SignInDialog";
 import { SubmitOnboardingDialog } from "../components/submit/SubmitOnboardingDialog";
 import { SubmissionPreview, SubmissionSidebar } from "../components/submit/SubmissionWorkspace";
 import {
-  Button,
   ConfirmationDialog,
   PageContainer,
   typographyClassName,
@@ -34,7 +33,6 @@ function SubmitContent() {
     error,
     publishing,
     reviewingDraft,
-    publishError,
     publishConflict,
     publicationOutcome,
     reviewLatestDraft,
@@ -45,7 +43,6 @@ function SubmitContent() {
   const discardButtonRef = useRef<HTMLButtonElement>(null);
   const isEditingPublishedSystem =
     !publicationOutcome && Boolean(currentSubmission?.publication?.isEditing);
-  const hasDraftChanges = Boolean(currentSubmission?.publication?.hasDraftChanges);
   const discardFlow = useDiscardDraftFlow({
     onDiscard: () =>
       currentSubmission
@@ -62,7 +59,15 @@ function SubmitContent() {
 
   function handleDiscardDialogOpenChange(open: boolean) {
     setDiscardDialogOpen(open);
-    if (open) discardFlow.reset();
+  }
+
+  async function handleDiscardAction() {
+    return (await discardFlow.discard()) !== "conflict";
+  }
+
+  async function handleReviewLatestDraftAction() {
+    await discardFlow.reviewLatestDraft();
+    return true;
   }
 
   if (loading) return <LoadingPage label="Loading submission" />;
@@ -70,40 +75,28 @@ function SubmitContent() {
   return (
     <AppShell>
       <PageContainer className="pb-24 pt-5">
-        <header className="flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className={typographyClassName("cardTitle", "text-2xl")}>
-              {isEditingPublishedSystem
-                ? `Editing ${currentSubmission?.system.name}`
-                : currentSubmission
-                  ? currentSubmission.system.name
-                  : "New submission"}
-            </h1>
-            {isEditingPublishedSystem && currentSubmission?.publication && (
-              <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
-                <span className="inline-flex items-center gap-1.5 font-semibold text-positive">
-                  <CheckCircleIcon className="size-4" weight="fill" aria-hidden="true" />
-                  Published version live
-                </span>
-                <Link
-                  to="/systems/:slug"
-                  params={{ slug: currentSubmission.publication.slug }}
-                  className="font-semibold text-ink underline decoration-line underline-offset-4 hover:decoration-brand"
-                >
-                  View published version
-                </Link>
-              </p>
-            )}
-          </div>
-          {isEditingPublishedSystem && hasDraftChanges && (
-            <Button
-              ref={discardButtonRef}
-              variant="secondary"
-              className="w-full sm:w-auto"
-              onClick={() => handleDiscardDialogOpenChange(true)}
-            >
-              Discard draft changes
-            </Button>
+        <header>
+          <h1 className={typographyClassName("cardTitle", "text-2xl")}>
+            {isEditingPublishedSystem
+              ? `Editing ${currentSubmission?.system.name}`
+              : currentSubmission
+                ? currentSubmission.system.name
+                : "New submission"}
+          </h1>
+          {isEditingPublishedSystem && currentSubmission?.publication && (
+            <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-positive">
+                <CheckCircleIcon className="size-4" weight="fill" aria-hidden="true" />
+                Published
+              </span>
+              <Link
+                to="/systems/:slug"
+                params={{ slug: currentSubmission.publication.slug }}
+                className="font-semibold text-ink underline decoration-line underline-offset-4 hover:decoration-brand"
+              >
+                View live version
+              </Link>
+            </p>
           )}
         </header>
         {error && (
@@ -130,13 +123,13 @@ function SubmitContent() {
               onPublish={handlePublish}
               publishing={publishing}
               reviewingDraft={reviewingDraft}
-              publishError={publishError}
               publishConflict={publishConflict}
               publicationOutcome={publicationOutcome}
               onReviewLatestDraft={reviewLatestDraft}
+              onDiscardChanges={() => handleDiscardDialogOpenChange(true)}
+              discardButtonRef={discardButtonRef}
               onStopEditing={discardFlow.discard}
               stopping={discardFlow.discarding}
-              stopError={discardFlow.error}
             />
           </aside>
         </div>
@@ -152,19 +145,18 @@ function SubmitContent() {
         <ConfirmationDialog
           open={discardDialogOpen}
           onOpenChange={handleDiscardDialogOpenChange}
-          title={discardFlow.conflict ? "Draft changed" : "Discard draft changes?"}
+          title={discardFlow.conflict ? "Draft changed" : "Discard changes?"}
           description={
             discardFlow.conflict
               ? "Review the latest version before deciding whether to discard it."
               : `Unpublished changes will be lost. ${currentSubmission.system.name} will remain published, and agent access will end.`
           }
-          actionLabel={discardFlow.conflict ? "Review latest draft" : "Discard draft changes"}
+          actionLabel={discardFlow.conflict ? "Review latest draft" : "Discard changes"}
           actionPendingLabel={discardFlow.reviewing ? "Reviewing draft..." : "Discarding draft..."}
           actionVariant={discardFlow.conflict ? "primary" : "destructive"}
           pending={discardFlow.discarding || discardFlow.reviewing}
-          error={discardFlow.error}
           finalFocus={discardButtonRef}
-          onAction={discardFlow.conflict ? discardFlow.reviewLatestDraft : discardFlow.discard}
+          onAction={discardFlow.conflict ? handleReviewLatestDraftAction : handleDiscardAction}
         />
       )}
     </AppShell>

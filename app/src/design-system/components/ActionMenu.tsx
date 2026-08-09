@@ -1,8 +1,8 @@
 import { Menu } from "@base-ui/react/menu";
 import { DotsThreeVerticalIcon } from "@phosphor-icons/react/dist/csr/DotsThreeVertical";
-import { SpinnerGapIcon } from "@phosphor-icons/react/dist/csr/SpinnerGap";
-import type { ComponentProps, ReactNode, RefObject } from "react";
+import { useEffect, useState, type ComponentProps, type ReactNode, type RefObject } from "react";
 import { IconButton } from "./IconButton";
+import { LoadingIndicator } from "./LoadingIndicator";
 import { menuItemClassName } from "./MenuItem";
 
 export function ActionMenu({
@@ -11,21 +11,40 @@ export function ActionMenu({
   triggerRef,
   disabled = false,
   busy = false,
+  busyLabel = "Loading actions",
 }: {
   label: string;
   children: ReactNode;
   triggerRef?: RefObject<HTMLButtonElement | null>;
   disabled?: boolean;
   busy?: boolean;
+  busyLabel?: string;
 }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (busy) setOpen(false);
+  }, [busy]);
+
   return (
-    <Menu.Root>
+    <Menu.Root
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!busy || !nextOpen) setOpen(nextOpen);
+      }}
+    >
       <Menu.Trigger
         disabled={disabled}
         render={
-          <IconButton ref={triggerRef} label={label} variant="quiet" aria-busy={busy}>
+          <IconButton
+            ref={triggerRef}
+            label={label}
+            variant="quiet"
+            aria-busy={busy}
+            aria-disabled={busy || undefined}
+          >
             {busy ? (
-              <SpinnerGapIcon className="size-5 animate-spin" weight="bold" aria-hidden="true" />
+              <LoadingIndicator label={busyLabel} size="compact" />
             ) : (
               <DotsThreeVerticalIcon className="size-5" weight="bold" aria-hidden="true" />
             )}

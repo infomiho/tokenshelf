@@ -1,5 +1,4 @@
-import { CheckCircleIcon } from "@phosphor-icons/react/dist/csr/CheckCircle";
-import { useLocation, useParams } from "react-router";
+import { useParams } from "react-router";
 import { useAuth } from "wasp/client/auth";
 import { getSystem, getViewerVotes, useQuery } from "wasp/client/operations";
 import { Link } from "wasp/client/router";
@@ -10,12 +9,11 @@ import { SystemActions } from "../components/SystemActions";
 import { SystemDetails } from "../components/SystemDetails";
 import { SystemMetadata } from "../components/SystemMetadata";
 import { SystemPreview } from "../components/SystemPreview";
-import { Notice, PageContainer, typographyClassName } from "../design-system/components";
+import { PageContainer, typographyClassName } from "../design-system/components";
 import { formatCalendarDate } from "../lib/dates";
 
 export function SystemPage() {
   const { slug } = useParams<"slug">();
-  const location = useLocation();
   const auth = useAuth();
   const systemSlug = slug ?? "";
   const isSignedIn = Boolean(auth.data);
@@ -26,11 +24,6 @@ export function SystemPage() {
   const hasViewerVote = Boolean(storedSystem?.databaseId && votedIds.has(storedSystem.databaseId));
   const system = storedSystem ? { ...storedSystem, voted: hasViewerVote } : null;
   const voteStateIsLoading = auth.isLoading || (isSignedIn && votesQuery.isLoading);
-  const draftWasDiscarded =
-    typeof location.state === "object" &&
-    location.state !== null &&
-    "submissionNotice" in location.state &&
-    location.state.submissionNotice === "discarded";
 
   if (systemQuery.isLoading || voteStateIsLoading) {
     return <SystemPageSkeleton />;
@@ -49,16 +42,6 @@ export function SystemPage() {
   return (
     <AppShell>
       <PageContainer className="pb-20 pt-6">
-        {draftWasDiscarded && (
-          <Notice
-            className="mb-6 max-w-2xl"
-            tone="positive"
-            title="Draft changes discarded"
-            description="The published system was not changed. Agent access has ended."
-            icon={<CheckCircleIcon className="size-5" weight="fill" />}
-            role="status"
-          />
-        )}
         <div className="max-w-2xl">
           <header>
             <h1 className={typographyClassName("featureTitle")}>{system.name}</h1>

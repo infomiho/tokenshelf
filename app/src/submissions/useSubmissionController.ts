@@ -17,6 +17,7 @@ import {
 import { authReturnKey } from "../auth/auth-storage";
 import { toUserProfile, type AuthProfile } from "../auth/useCurrentUser";
 import type { SubmissionRecord, SubmissionStage, UserProfile } from "../data/submissions";
+import { useToast } from "../design-system/components";
 import { formatDateTime } from "../lib/dates";
 
 const guestTokenKey = "tokenshelf.guestCredential";
@@ -35,7 +36,6 @@ export type SubmissionContextValue = {
   error: string | null;
   publishing: boolean;
   reviewingDraft: boolean;
-  publishError: string | null;
   publishConflict: boolean;
   publicationOutcome: PublicationOutcome | null;
   signIn: () => void;
@@ -62,12 +62,12 @@ export function useSubmissionController(): SubmissionContextValue {
   const auth = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const toast = useToast();
   const submissionId = /^\/submit\/([^/]+)$/.exec(location.pathname)?.[1];
   const [creating, setCreating] = useState(false);
-  const [mutationError, setMutationError] = useState<string | null>(null);
+  const [pageError, setPageError] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [reviewingDraft, setReviewingDraft] = useState(false);
-  const [publishError, setPublishError] = useState<string | null>(null);
   const [publishConflict, setPublishConflict] = useState(false);
   const [publicationOutcome, setPublicationOutcome] = useState<PublicationOutcome | null>(null);
   const [sessionUrl, setSessionUrl] = useState<string | null>(null);
@@ -107,7 +107,6 @@ export function useSubmissionController(): SubmissionContextValue {
 
   useEffect(() => {
     setPublishConflict(false);
-    setPublishError(null);
     setPublicationOutcome(null);
   }, [submissionId]);
 
@@ -140,12 +139,13 @@ export function useSubmissionController(): SubmissionContextValue {
     if (location.pathname !== "/submit") {
       creationStarted.current = false;
       setCreating(false);
+      setPageError(null);
       return;
     }
     if (creationStarted.current) return;
     creationStarted.current = true;
     setCreating(true);
-    setMutationError(null);
+    setPageError(null);
     void createSubmission({ guestToken })
       .then((created) => {
         if (currentPath.current !== "/submit") return;
@@ -161,7 +161,7 @@ export function useSubmissionController(): SubmissionContextValue {
         if (currentPath.current !== "/submit") return;
         creationStarted.current = false;
         setCreating(false);
-        setMutationError("Unable to create a submission. Reload the page to try again.");
+        setPageError("Unable to create a submission. Reload the page to try again.");
       });
   }, [guestToken, location.pathname, navigate]);
 
@@ -176,11 +176,11 @@ export function useSubmissionController(): SubmissionContextValue {
       return;
     }
     let cancelled = false;
+    toast.dismiss("submission-claim-error");
     void claimGuestSubmissions({ guestToken })
       .then(async () => {
         if (cancelled) return;
         window.localStorage.removeItem(guestTokenKey);
-        setMutationError(null);
         await Promise.allSettled([submissionsQuery.refetch(), workspaceQuery.refetch()]);
         if (returnPath) {
           window.sessionStorage.removeItem(authReturnKey);
@@ -189,8 +189,9 @@ export function useSubmissionController(): SubmissionContextValue {
       })
       .catch(() => {
         if (!cancelled)
-          setMutationError(
-            "Sign-in succeeded, but the submission could not be claimed. Your guest access is still available; try again.",
+          toast.error(
+            "We couldn't add the submission to your account. Your guest access still works.",
+            "submission-claim-error",
           );
       });
     return () => {
@@ -220,15 +221,24 @@ export function useSubmissionController(): SubmissionContextValue {
   async function publish() {
     if (!workspace || publishing) return;
     setPublishing(true);
-    setPublishError(null);
+    toast.dismiss("submission-publish-error");
     setPublishConflict(false);
     try {
       const kind = workspace.publication?.isEditing ? "updated" : "created";
-      const result = await publishSubmission({
-        submissionId: workspace.id,
-        expectedRevision: workspace.revision,
-        rightsAttestation: true,
-      });
+      const publishCommand =
+        kind === "updated"
+          ? {
+              submissionId: workspace.id,
+              expectedRevision: workspace.revision,
+              publication: "update" as const,
+            }
+          : {
+              submissionId: workspace.id,
+              expectedRevision: workspace.revision,
+              publication: "create" as const,
+              rightsAttestation: true as const,
+            };
+      const result = await publishSubmission(publishCommand);
       window.sessionStorage.removeItem(`${agentSessionKey}.${workspace.id}`);
       if (currentSubmissionId.current === workspace.id) {
         setSessionUrl(null);
@@ -238,7 +248,11 @@ export function useSubmissionController(): SubmissionContextValue {
     } catch (error) {
       if (currentSubmissionId.current !== workspace.id) return;
       if (isHttpConflict(error)) setPublishConflict(true);
-      else setPublishError("Unable to publish changes. Check your connection and try again.");
+      else
+        toast.error(
+          "Unable to publish. Check your connection and try again.",
+          "submission-publish-error",
+        );
     } finally {
       setPublishing(false);
     }
@@ -248,16 +262,19 @@ export function useSubmissionController(): SubmissionContextValue {
     if (reviewInFlight.current) return false;
     reviewInFlight.current = true;
     setReviewingDraft(true);
+    toast.dismiss("submission-publish-error");
     try {
       const relevantResult = submissionId
         ? await workspaceQuery.refetch()
         : await submissionsQuery.refetch();
       if (relevantResult.isError) {
-        setPublishError("Unable to load the latest draft. Check your connection and try again.");
+        toast.error(
+          "Unable to load the latest draft. Check your connection and try again.",
+          "submission-publish-error",
+        );
         return false;
       }
       setPublishConflict(false);
-      setPublishError(null);
       if (submissionId) void syncQuery.refetch();
       return true;
     } finally {
@@ -268,6 +285,14 @@ export function useSubmissionController(): SubmissionContextValue {
 
   async function discardDraft(targetSubmissionId: string, expectedRevision: number) {
     const initiatingPath = currentPath.current;
+    const targetWorkspace =
+      workspace?.id === targetSubmissionId
+        ? workspace
+        : ownedWorkspaces.find(({ id }) => id === targetSubmissionId);
+    const isStoppingUnchangedEdit = Boolean(
+      targetWorkspace?.publication?.isEditing && !targetWorkspace.publication.hasDraftChanges,
+    );
+    toast.dismiss("submission-discard-error");
     try {
       const result = await discardSubmissionChanges({
         submissionId: targetSubmissionId,
@@ -276,27 +301,42 @@ export function useSubmissionController(): SubmissionContextValue {
       window.sessionStorage.removeItem(`${agentSessionKey}.${targetSubmissionId}`);
       if (mounted.current && targetSubmissionId === currentSubmissionId.current)
         setSessionUrl(null);
-      if (mounted.current && currentPath.current === initiatingPath)
-        navigate(`/systems/${result.slug}`, {
-          state: { submissionNotice: "discarded" },
-        });
+      if (mounted.current && currentPath.current === initiatingPath) {
+        toast.success(
+          isStoppingUnchangedEdit ? "Editing stopped" : "Draft changes discarded",
+          "submission-success",
+        );
+        if (initiatingPath === "/submissions") void submissionsQuery.refetch();
+        else navigate(isStoppingUnchangedEdit ? "/submissions" : `/systems/${result.slug}`);
+      }
       return "discarded" as const;
     } catch (error) {
       if (isHttpConflict(error)) return "conflict" as const;
+      toast.error(
+        isStoppingUnchangedEdit
+          ? "Unable to stop editing. Try again."
+          : "Unable to discard draft changes. Try again.",
+        "submission-discard-error",
+      );
       return "error" as const;
     }
   }
 
   async function rotateCapability() {
     if (!workspace) return;
-    setMutationError(null);
+    toast.dismiss("agent-access-error");
     try {
       const result = await rotateAgentCapability({ submissionId: workspace.id, guestToken });
       window.sessionStorage.setItem(`${agentSessionKey}.${workspace.id}`, result.sessionUrl);
       setSessionUrl(result.sessionUrl);
       await workspaceQuery.refetch();
     } catch {
-      setMutationError("Unable to create replacement agent access. Try again.");
+      toast.error(
+        sessionUrl
+          ? "Unable to create replacement agent access. Try again."
+          : "Unable to create agent access. Try again.",
+        "agent-access-error",
+      );
     }
   }
 
@@ -311,7 +351,12 @@ export function useSubmissionController(): SubmissionContextValue {
   }
 
   async function deleteOwnedSubmission(targetSubmissionId: string) {
+    const target = ownedWorkspaces.find(({ id }) => id === targetSubmissionId);
     await withdrawSubmission({ submissionId: targetSubmissionId });
+    toast.success(
+      target ? `${target.system.name} deleted` : "Design system deleted",
+      "submission-success",
+    );
   }
 
   function signIn(intent?: "publish") {
@@ -342,10 +387,9 @@ export function useSubmissionController(): SubmissionContextValue {
     capabilityStatus: workspace?.capability ?? null,
     loading: creating || workspaceQuery.isLoading,
     submissionsLoading: auth.isLoading || (Boolean(auth.data) && submissionsQuery.isLoading),
-    error: mutationError || (workspaceQuery.error ? "Unable to load this submission." : null),
+    error: pageError || (workspaceQuery.error ? "Unable to load this submission." : null),
     publishing,
     reviewingDraft,
-    publishError,
     publishConflict,
     publicationOutcome,
     signIn: () => signIn(),

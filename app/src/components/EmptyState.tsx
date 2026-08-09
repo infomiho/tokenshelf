@@ -44,7 +44,7 @@ export function EmptyState({
         <div className="absolute inset-x-[18%] bottom-8 flex h-24 items-end justify-between">
           <span className="h-14 w-8 rounded-t-sm border border-feature-line bg-white/[0.04]" />
           <span className="grid size-16 place-items-center rounded-t-sm border border-brand/70 bg-brand/10">
-            <LogoMark className="size-8 text-brand" />
+            <LogoMark animated className="size-8 text-brand" />
           </span>
           <span className="h-10 w-10 rounded-t-sm border border-feature-line bg-white/[0.04]" />
         </div>

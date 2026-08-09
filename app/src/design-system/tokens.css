@@ -82,6 +82,7 @@
   --shadow-overlay: var(--elevation-overlay);
 
   --z-overlay: 50;
+  --z-toast: 60;
   color-scheme: light;
 }
 

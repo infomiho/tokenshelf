@@ -14,7 +14,6 @@ export type ConfirmationDialogProps = {
   actionVariant?: ButtonVariant;
   cancelLabel?: string;
   pending?: boolean;
-  error?: string | null;
   finalFocus?: RefObject<HTMLElement | null>;
   onAction: () => boolean | Promise<boolean>;
 };
@@ -29,7 +28,6 @@ export function ConfirmationDialog({
   actionVariant = "primary",
   cancelLabel = "Cancel",
   pending = false,
-  error,
   finalFocus,
   onAction,
 }: ConfirmationDialogProps) {
@@ -84,11 +82,6 @@ export function ConfirmationDialog({
                 {pending ? actionPendingLabel : actionLabel}
               </Button>
             </div>
-            {error && (
-              <p className="mt-3 text-sm text-negative" role="alert">
-                {error}
-              </p>
-            )}
           </AlertDialog.Popup>
         </AlertDialog.Viewport>
       </AlertDialog.Portal>

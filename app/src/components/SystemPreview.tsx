@@ -54,7 +54,7 @@ export function SystemPreview({
       {fonts.status !== "loaded" && (
         <div className="preview-font-state" aria-hidden={decorative || undefined}>
           {(fonts.status === "loading" || fonts.status === "slow") && (
-            <LogoMark className="waiting-logo size-8 text-brand" aria-hidden="true" />
+            <LogoMark animated className="size-8 text-brand" aria-hidden="true" />
           )}
           {(fonts.status === "loading" || fonts.status === "slow") && !decorative && (
             <span className="sr-only">Loading preview fonts</span>

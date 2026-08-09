@@ -1,9 +1,14 @@
 import type { SVGProps } from "react";
 
-export function LogoMark(props: SVGProps<SVGSVGElement>) {
+type LogoMarkProps = SVGProps<SVGSVGElement> & {
+  animated?: boolean;
+};
+
+export function LogoMark({ animated = false, className = "", ...props }: LogoMarkProps) {
   return (
     <svg
       viewBox="0 0 32 32"
+      className={`${animated ? "logo-mark-animated " : ""}${className}`}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.75"

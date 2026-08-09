@@ -1,10 +1,17 @@
 import { useClipboard } from "../hooks/useClipboard";
+import { useToast } from "../design-system/components";
 import { contrastRatio } from "../domain/design-system/color";
 
 export function ColorSwatch({ role, value }: { role: string; value: string }) {
   const { copied, copy } = useClipboard();
+  const toast = useToast();
 
-  return <ColorSwatchView role={role} value={value} copied={copied} onCopy={copy} />;
+  async function handleCopy(color: string) {
+    toast.dismiss("clipboard-error");
+    if (!(await copy(color))) toast.error("Unable to copy color. Try again.", "clipboard-error");
+  }
+
+  return <ColorSwatchView role={role} value={value} copied={copied} onCopy={handleCopy} />;
 }
 
 export function ColorSwatchView({

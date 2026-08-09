@@ -15,6 +15,7 @@ import {
   Button,
   PageContainer,
   typographyClassName,
+  useToast,
 } from "../design-system/components";
 import { formatDateTime } from "../lib/dates";
 import { SubmissionProvider, useSubmissions } from "../submissions/SubmissionProvider";
@@ -30,37 +31,28 @@ export function SubmissionsPage() {
 }
 
 type SubmissionMutation = {
-  kind: "edit" | "discard" | "delete";
+  kind: "edit" | "delete";
   submissionId: string;
 };
 
 function SubmissionsContent() {
-  const {
-    user,
-    submissions,
-    submissionsLoading,
-    signIn,
-    editSubmission,
-    discardDraft,
-    reviewLatestDraft,
-    deleteSubmission,
-  } = useSubmissions();
+  const { user, submissions, submissionsLoading, signIn, editSubmission, deleteSubmission } =
+    useSubmissions();
+  const toast = useToast();
   const [signInOpen, setSignInOpen] = useState(false);
   const [mutation, setMutation] = useState<SubmissionMutation | null>(null);
-  const [editError, setEditError] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   useDocumentTitle("Your design systems | Tokenshelf");
 
   async function editOwnedSubmission(submissionId: string) {
     if (mutation) return false;
+    toast.dismiss("submission-edit-error");
     setMutation({ kind: "edit", submissionId });
-    setEditError(null);
     try {
       await editSubmission(submissionId);
       return true;
     } catch {
-      setEditError("Unable to edit this design system. Try again.");
+      toast.error("Unable to start editing. Try again.", "submission-edit-error");
       return false;
     } finally {
       setMutation(null);
@@ -70,24 +62,14 @@ function SubmissionsContent() {
   async function deleteOwnedSubmission(submissionId: string) {
     if (mutation) return false;
     setMutation({ kind: "delete", submissionId });
-    setDeleteError(null);
+    toast.dismiss("submission-delete-error");
     try {
       await deleteSubmission(submissionId);
       requestAnimationFrame(() => headingRef.current?.focus());
       return true;
     } catch {
-      setDeleteError("Unable to delete this design system. Try again.");
+      toast.error("Unable to delete this design system. Try again.", "submission-delete-error");
       return false;
-    } finally {
-      setMutation(null);
-    }
-  }
-
-  async function discardOwnedSubmission(submissionId: string, expectedRevision: number) {
-    if (mutation) return "error" as const;
-    setMutation({ kind: "discard", submissionId });
-    try {
-      return await discardDraft(submissionId, expectedRevision);
     } finally {
       setMutation(null);
     }
@@ -124,12 +106,6 @@ function SubmissionsContent() {
             </Link>
           )}
         </div>
-        {editError && (
-          <p className="mt-4 text-sm text-negative" role="alert">
-            {editError}
-          </p>
-        )}
-
         {submissions.length > 0 ? (
           <div className="mt-6 divide-y divide-line border-y border-line">
             {submissions.map((submission) => (
@@ -137,12 +113,8 @@ function SubmissionsContent() {
                 key={submission.id}
                 submission={submission}
                 actionState={submissionActionState(mutation, submission.id)}
-                deleteError={deleteError}
                 onEdit={() => editOwnedSubmission(submission.id)}
-                onDiscard={() => discardOwnedSubmission(submission.id, submission.revision)}
-                onReviewLatestDraft={reviewLatestDraft}
                 onDelete={() => deleteOwnedSubmission(submission.id)}
-                onDeleteDialogOpen={() => setDeleteError(null)}
               />
             ))}
           </div>
@@ -170,21 +142,13 @@ function SubmissionsContent() {
 function SubmissionRow({
   submission,
   actionState,
-  deleteError,
   onEdit,
-  onDiscard,
-  onReviewLatestDraft,
   onDelete,
-  onDeleteDialogOpen,
 }: {
   submission: SubmissionRecord;
   actionState: SubmissionActionState;
-  deleteError: string | null;
   onEdit: () => Promise<boolean>;
-  onDiscard: () => Promise<"discarded" | "conflict" | "error">;
-  onReviewLatestDraft: () => Promise<boolean>;
   onDelete: () => Promise<boolean>;
-  onDeleteDialogOpen: () => void;
 }) {
   const isEditingPublishedSystem = Boolean(submission.publication?.isEditing);
   const status = isEditingPublishedSystem
@@ -211,9 +175,7 @@ function SubmissionRow({
         ? "text-caution"
         : "text-positive";
   return (
-    <article
-      className={`grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-5 sm:items-center ${isEditingPublishedSystem ? "sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]" : "sm:grid-cols-[minmax(0,1fr)_auto_auto]"}`}
-    >
+    <article className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-5 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center">
       <div className="min-w-0">
         <h3 className="font-semibold">
           {submission.publication ? (
@@ -247,31 +209,13 @@ function SubmissionRow({
         <StatusIcon className="size-4" weight="fill" aria-hidden="true" />
         {status}
       </span>
-      {isEditingPublishedSystem && (
-        <Link
-          to="/submit/:submissionId?"
-          params={{ submissionId: submission.id }}
-          className={actionLinkClassName(
-            "secondary",
-            "col-start-1 row-start-3 w-fit sm:col-start-3 sm:row-start-1",
-            { size: "compact" },
-          )}
-        >
-          Continue editing
-        </Link>
-      )}
       <SubmissionActions
-        className={`col-start-2 row-span-3 row-start-1 self-start sm:row-span-1 sm:self-center ${isEditingPublishedSystem ? "sm:col-start-4" : "sm:col-start-3"}`}
+        className="col-start-2 row-span-2 row-start-1 self-start sm:col-start-3 sm:row-span-1 sm:self-center"
         name={submission.system.name}
         state={actionState}
         editingPublishedSystem={isEditingPublishedSystem}
-        hasDraftChanges={Boolean(submission.publication?.hasDraftChanges)}
-        deleteError={deleteError}
         onEdit={onEdit}
-        onDiscard={onDiscard}
-        onReviewLatestDraft={onReviewLatestDraft}
         onDelete={onDelete}
-        onDeleteDialogOpen={onDeleteDialogOpen}
       />
     </article>
   );
@@ -283,9 +227,5 @@ function submissionActionState(
 ): SubmissionActionState {
   if (!mutation) return "idle";
   if (mutation.submissionId !== submissionId) return "disabled";
-  return mutation.kind === "edit"
-    ? "editing"
-    : mutation.kind === "discard"
-      ? "discarding"
-      : "deleting";
+  return mutation.kind === "edit" ? "editing" : "deleting";
 }

@@ -7,6 +7,7 @@ import {
   type OptimisticUpdateDefinition,
 } from "wasp/client/operations";
 import type { DesignSystem } from "../data/catalog";
+import { useToast } from "../design-system/components";
 
 type VoteInput = { slug: string; voted: boolean };
 type CachedSystem = DesignSystem & { databaseId: string; voted: boolean; publishedAt: Date };
@@ -40,7 +41,7 @@ export function useSystemVote({
   onSignInRequired,
 }: UseSystemVoteOptions) {
   const [voting, setVoting] = useState(false);
-  const [voteError, setVoteError] = useState<string | null>(null);
+  const toast = useToast();
   const databaseId = system.databaseId ?? system.id;
   const setVoteOptimistically = useAction(setVote, {
     optimisticUpdates: [
@@ -62,15 +63,15 @@ export function useSystemVote({
     }
     if (voting) return;
     setVoting(true);
-    setVoteError(null);
+    toast.dismiss("vote-error");
     try {
       await setVoteOptimistically({ slug, voted: nextVoted });
     } catch {
-      setVoteError("Vote not saved. The latest total has been loaded.");
+      toast.error("Vote not saved. The latest total has been loaded.", "vote-error");
     } finally {
       setVoting(false);
     }
   }
 
-  return { vote, voting, voteError };
+  return { vote, voting };
 }
