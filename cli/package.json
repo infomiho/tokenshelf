@@ -1,6 +1,6 @@
 {
   "name": "tokenshelf",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Agent-focused CLI for discovering and working with Tokenshelf design systems",
   "homepage": "https://github.com/infomiho/tokenshelf#readme",
   "bugs": {
