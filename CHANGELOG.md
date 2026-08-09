@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/infomiho/tokenshelf/compare/tokenshelf-v1.1.0...tokenshelf-v1.2.0) (2026-08-09)
+
+
+### Features
+
+* **app:** refine published system editing ([2ab115d](https://github.com/infomiho/tokenshelf/commit/2ab115da7e94dcd71e1a47d50af0011f813de8c9))
+
 ## [1.1.0](https://github.com/infomiho/tokenshelf/compare/tokenshelf-v1.0.0...tokenshelf-v1.1.0) (2026-08-09)
 
 
