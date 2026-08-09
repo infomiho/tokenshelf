@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/infomiho/tokenshelf/compare/tokenshelf-v1.2.0...tokenshelf-v1.2.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* **app:** contain system cards on mobile ([1b74075](https://github.com/infomiho/tokenshelf/commit/1b74075ca489ea0ebbfc41cf6b4672e09ee52098))
+
 ## [1.2.0](https://github.com/infomiho/tokenshelf/compare/tokenshelf-v1.1.0...tokenshelf-v1.2.0) (2026-08-09)
 
 
