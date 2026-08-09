@@ -12,7 +12,9 @@ export function SystemCard({
   stat?: "copies" | "today" | "votes";
 }) {
   return (
-    <article className={panelClassName({ className: "transition-colors hover:border-ink/40" })}>
+    <article
+      className={panelClassName({ className: "min-w-0 transition-colors hover:border-ink/40" })}
+    >
       <Link
         to="/systems/:slug"
         params={{ slug: system.id }}
@@ -46,9 +48,7 @@ function SystemCardContent({
                 : formatCount(system.copies, "copy", "copies")}
           </span>
         </div>
-        <p className="no-scrollbar mt-1 overflow-x-auto whitespace-nowrap text-sm text-muted">
-          {system.tags.join(" / ")}
-        </p>
+        <p className="mt-1 truncate text-sm text-muted">{system.tags.join(" / ")}</p>
       </div>
     </>
   );
