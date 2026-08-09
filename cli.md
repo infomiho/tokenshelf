@@ -1,6 +1,6 @@
-## Revised Final Plan
+# Tokenshelf CLI
 
-### Repository
+## Repository
 
 ```text
 /
@@ -12,20 +12,14 @@
 │   └── release-please.yml
 ├── release-please-config.json
 ├── .release-please-manifest.json
-└── package.json                   # Private orchestration and release version
+└── package.json                   # Private orchestration package
 ```
 
-`app/` and `cli/` remain independent npm projects with separate lockfiles. No root workspaces.
-The private root package owns the release version because the CLI bundles design-system domain code
-from `app/`; Release Please mirrors that version into `cli/package.json`.
+`app/` and `cli/` are independent npm projects. Only the CLI is versioned.
 
-The npm package will be named `tokenshelf` because that is required for:
+The CLI bundles validation code from `app/src/domain/design-system/`. Behavior changes there must update a CLI adapter or test under `cli/`.
 
-```bash
-npx tokenshelf
-```
-
-A package named `@infomiho/tokenshelf-cli` would require `npx @infomiho/tokenshelf-cli` or an additional unscoped shim.
+The npm package is `tokenshelf`, invoked with `npx tokenshelf`.
 
 ## CLI Foundation
 
@@ -61,7 +55,7 @@ npx tokenshelf schema
 npx tokenshelf --version
 ```
 
-No initial `--format`, `--json`, `--output`, or `-o`.
+There are no output-format flags.
 
 Output is fixed by command:
 
@@ -71,16 +65,16 @@ Output is fixed by command:
 - Errors: stderr
 - Successful payloads: stdout
 
-Agents can redirect output naturally:
+Examples:
 
 ```bash
 npx tokenshelf get tactile > DESIGN.md
 npx tokenshelf schema > design-system.schema.json
 ```
 
-## Unified Public API
+## Public API
 
-Greenfield versioned endpoints only:
+Endpoints:
 
 ```text
 GET /v1/systems?q=&sort=&limit=
@@ -89,11 +83,9 @@ GET /v1/systems/:slug/document.json
 GET /v1/schemas/design-system-document/1
 ```
 
-Remove or replace the existing unversioned DESIGN.md route. Update all internal callers to use the unified endpoint.
-
 ### Shared Application Services
 
-REST APIs and Wasp operations become thin adapters:
+REST APIs and Wasp operations are thin adapters:
 
 ```text
 Wasp operations ─┐
@@ -125,9 +117,9 @@ REST handlers must not call Wasp operations, and operations must not call HTTP h
 
 The schema endpoint returns the same schema constant used by server validation.
 
-## Local Validation Phase
+## Validation
 
-After the read-only CLI works, extract portable logic into:
+Portable logic lives in:
 
 ```text
 app/src/domain/design-system/
@@ -144,9 +136,7 @@ This includes:
 - Renderer generation
 - Schema and ruleset identifiers
 
-The CLI bundles this source through tsdown. Nothing imports `app/` at runtime after publication.
-
-Then add:
+The CLI bundles this source through tsdown, with no runtime import from `app/`.
 
 ```bash
 npx tokenshelf validate design-system.json
@@ -155,9 +145,7 @@ cat design-system.json | npx tokenshelf validate -
 
 No output options. Diagnostics go to stdout, with exit code `3` when validation fails.
 
-## Draft Phase
-
-Later:
+## Drafts
 
 ```bash
 TOKENSHELF_SESSION_URL="$URL" \
@@ -169,7 +157,7 @@ TOKENSHELF_SESSION_URL="$URL" \
 
 `draft pull` writes the canonical document to stdout and reports its current revision on stderr.
 
-The CLI remains an agent helper, not a full site interface:
+The CLI excludes:
 
 - No login
 - No publishing
@@ -181,91 +169,9 @@ The CLI remains an agent helper, not a full site interface:
 
 Server validation always has final authority.
 
-## Release Please
+## CLI releases
 
-Copy Buzz’s manifest-based release process.
-
-`release-please-config.json`:
-
-```json
-{
-  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "bump-minor-pre-major": true,
-  "packages": {
-    ".": {
-      "release-type": "node",
-      "extra-files": [
-        {
-          "type": "json",
-          "path": "cli/package.json",
-          "jsonpath": "$.version"
-        }
-      ]
-    }
-  }
-}
-```
-
-Initial `.release-please-manifest.json`:
-
-```json
-{
-  ".": "0.0.0"
-}
-```
-
-Workflow behavior:
-
-1. Pushes to `main` update a CLI release PR.
-2. Conventional `feat:` and `fix:` commits determine the next version.
-3. Merging the release PR creates the GitHub release and tag.
-4. The root `release_created` output triggers npm publication from `cli/`.
-5. Publication uses npm trusted publishing with GitHub OIDC.
-
-Adapted Buzz publishing job:
-
-```yaml
-publish-cli:
-  needs: release-please
-  if: ${{ needs.release-please.outputs.cli_released == 'true' }}
-  runs-on: ubuntu-latest
-  defaults:
-    run:
-      working-directory: cli
-  permissions:
-    contents: read
-    id-token: write
-  steps:
-    - uses: actions/checkout@v7
-
-    - uses: actions/setup-node@v6
-      with:
-        node-version: "24.x"
-        registry-url: "https://registry.npmjs.org"
-
-    - run: npm ci
-    - run: npm test
-    - run: npm run build
-    - run: npm run check:package
-    - run: npm publish --provenance --access public
-```
-
-`prepublishOnly` still builds defensively, matching Buzz’s approach.
-
-## Delivery Order
-
-1. Move the Wasp project into `app/`.
-2. Repair deployment and development paths.
-3. Verify app tests, Storybook, Wasp build, and generated Docker builds.
-4. Extract shared catalog application services.
-5. Add unified `/v1` endpoints.
-6. Create the Node 24 CLI using ky and tsdown.
-7. Implement `search`, `get`, and `schema`.
-8. Add package smoke tests and release-please publishing.
-9. Extract portable validation.
-10. Add `validate`.
-11. Add capability-scoped `draft pull` and `draft push`.
-
-## Implementation Note
-
-Implement the CLI using the `/tdd` skill and its red-green-refactor workflow.
+- Release Please tracks `cli/`; app-only commits do not change the CLI version.
+- `feat:` and `fix:` commits touching `cli/` update the release PR.
+- Merging the PR creates `tokenshelf-vX.Y.Z` and publishes with npm trusted publishing.
+- Publication runs only when `cli--release_created` is true and all CLI package checks pass.

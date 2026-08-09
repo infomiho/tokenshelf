@@ -42,3 +42,9 @@ This project uses the Wasp framework.
 
 - Create migrations only with the Wasp CLI. Never create or edit migration files manually.
 - Ask the user before generating or applying migrations or resetting the database.
+
+## CLI releases
+
+- App-only changes deploy from `main` without a versioned release.
+- Release Please tracks `cli/`. Merge its PR only to publish a CLI version.
+- Changes to bundled code in `app/src/domain/design-system/` must update a CLI adapter or test under `cli/` when they alter CLI behavior.
