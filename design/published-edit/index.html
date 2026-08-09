@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Published-system editing wireframes</title>
+    <style>
+      :root {
+        --bg: #fafaf8;
+        --panel: #fff;
+        --ink: #111;
+        --muted: #666;
+        --line: #e5e5e0;
+        --accent: #d33;
+        --max-width: 1200px;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--bg);
+        font: 15px/1.55 -apple-system, system-ui, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: inherit; }
+      button { font: inherit; }
+
+      .shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100vh; }
+      .toc {
+        position: sticky;
+        inset-block-start: 0;
+        align-self: start;
+        height: 100vh;
+        overflow: auto;
+        padding: 24px 16px 24px 24px;
+        border-inline-end: 1px solid var(--line);
+        background: var(--panel);
+        z-index: 20;
+      }
+      .toc summary { display: none; }
+      .toc h2 {
+        margin: 24px 0 6px;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .toc-title { margin: 0; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; }
+      .toc-subtitle { margin: 4px 0 16px; color: var(--muted); font-size: 13px; }
+      .toc a { display: block; margin-inline-start: -8px; padding: 6px 8px; border-radius: 4px; text-decoration: none; font-size: 13px; }
+      .toc a:hover { background: var(--bg); }
+      .toc-num { display: inline-block; width: 24px; color: var(--muted); }
+
+      main { min-width: 0; max-width: 1320px; padding: 48px 56px 96px; }
+      .hero, section { max-width: var(--max-width); }
+      .hero { margin-block-end: 64px; }
+      .crumb, .lede { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+      .hero h1 { margin: 8px 0 16px; font-size: 36px; line-height: 1.15; }
+      .hero p { max-width: 760px; margin: 0; color: var(--muted); font-size: 16px; }
+      .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-block-start: 20px; }
+      .pill { padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--muted); font-size: 12px; }
+
+      section { margin-block-end: 88px; scroll-margin-top: 24px; }
+      section h2 { margin: 4px 0 8px; font-size: 28px; line-height: 1.2; }
+      .desc { max-width: 760px; margin: 0 0 24px; color: var(--muted); }
+      .flow-section { padding: 32px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+      .screen-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; align-items: start; }
+
+      .wire {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        cursor: zoom-in;
+        transition: transform 80ms ease, box-shadow 80ms ease;
+      }
+      .wire:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgb(0 0 0 / 8%); }
+      .wire-label { display: flex; justify-content: space-between; gap: 16px; padding: 10px 14px; border-block-end: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+      .wire img { display: block; width: 100%; height: auto; background: var(--panel); }
+      .mobile-wire { max-width: 390px; }
+      .notes { padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+      .notes h3 { margin: 0 0 8px; font-size: 16px; }
+      .notes ol { margin: 0; padding-inline-start: 22px; }
+      .notes li + li { margin-block-start: 6px; }
+      .why { margin-block-start: 16px; padding: 12px 14px; border-inline-start: 3px solid var(--ink); background: var(--bg); font-size: 14px; }
+
+      .questions { padding: 24px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+      .questions ul { margin: 16px 0 0; padding-inline-start: 20px; }
+      .questions li + li { margin-block-start: 8px; }
+      footer { max-width: var(--max-width); padding-block-start: 24px; border-block-start: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        background: rgb(0 0 0 / 86%);
+        cursor: zoom-out;
+        z-index: 100;
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        max-height: none;
+        margin: 0;
+        border: 0;
+      }
+      .lightbox[open] { display: flex; }
+      .lightbox::backdrop { background: transparent; }
+      .lightbox img { max-width: 100%; max-height: 100%; border-radius: 4px; background: var(--panel); }
+      .lightbox-close { position: absolute; inset-block-start: 16px; inset-inline-end: 24px; border: 0; background: transparent; color: #fff; font-size: 28px; cursor: pointer; }
+      .lightbox-caption { position: absolute; inset-block-end: 16px; inset-inline-start: 50%; translate: -50% 0; color: #fff; font-size: 13px; }
+
+      @media (max-width: 980px) {
+        .screen-grid { grid-template-columns: 1fr; }
+        .notes { max-width: 720px; }
+      }
+
+      @media (max-width: 900px) {
+        .shell { grid-template-columns: 1fr; }
+        .toc { height: auto; max-height: 60vh; padding: 12px 16px; border-inline-end: 0; border-block-end: 1px solid var(--line); }
+        .toc summary { display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .toc nav { display: none; padding-block-start: 8px; }
+        .toc[open] nav { display: block; }
+        main { padding: 24px 20px 64px; }
+        .hero { margin-block-end: 40px; }
+        .hero h1 { font-size: 28px; }
+        section { margin-block-end: 64px; scroll-margin-top: 80px; }
+        .flow-section { padding: 20px; }
+      }
+
+      @media (max-width: 560px) {
+        main { padding: 16px 14px 56px; }
+        .hero h1 { font-size: 24px; }
+        .hero p, .desc { font-size: 14px; }
+        section h2 { font-size: 20px; }
+        .flow-section { padding: 16px; }
+        .lightbox { overflow: auto; padding: 12px; touch-action: pinch-zoom; }
+        .lightbox[open] { display: block; }
+        .lightbox img { width: 100%; max-width: none; max-height: none; margin: 40px auto 56px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .wire { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <details class="toc">
+        <summary>Published editing <span aria-hidden="true">⌄</span></summary>
+        <nav aria-label="Wireframe sections">
+          <h1 class="toc-title">Tokenshelf</h1>
+          <p class="toc-subtitle">Published-system editing</p>
+          <h2>Flow</h2>
+          <a href="#flow"><span class="toc-num">→</span>Overview</a>
+          <h2>Screens</h2>
+          <a href="#owner-list"><span class="toc-num">1</span>Owner list</a>
+          <a href="#editing"><span class="toc-num">2</span>Editing workspace</a>
+          <a href="#publish-conflict"><span class="toc-num">3</span>Publish conflict</a>
+          <a href="#publish-success"><span class="toc-num">4</span>Publish success</a>
+          <a href="#discard-confirm"><span class="toc-num">5</span>Discard confirmation</a>
+          <a href="#discard-conflict"><span class="toc-num">6</span>Discard conflict</a>
+          <a href="#discard-success"><span class="toc-num">7</span>Discard success</a>
+          <a href="#no-changes"><span class="toc-num">8</span>No changes</a>
+          <a href="#mobile"><span class="toc-num">9</span>Mobile workspace</a>
+          <h2>Decisions</h2>
+          <a href="#decisions"><span class="toc-num">?</span>For review</a>
+        </nav>
+      </details>
+
+      <main>
+        <header class="hero">
+          <div class="crumb">Tokenshelf · Wireframes</div>
+          <h1>Published-system editing</h1>
+          <p>A low-fidelity review of entering an edit, publishing changes, discarding a draft, resolving conflicts, and stopping an unchanged edit while the current system remains live.</p>
+          <div class="pills">
+            <span class="pill">9 screens</span>
+            <span class="pill">Desktop + mobile</span>
+            <span class="pill">Lo-fi · monochrome</span>
+            <span class="pill">Click any wireframe to zoom</span>
+          </div>
+        </header>
+
+        <section id="flow" class="flow-section">
+          <div class="lede">Flow</div>
+          <h2>One private draft, three exits</h2>
+          <p class="desc">Publishing updates the live system, discarding preserves the existing system, and an unchanged draft can stop editing without destructive confirmation.</p>
+          <figure class="wire" data-zoom data-caption="Published-system editing flow">
+            <figcaption class="wire-label"><span>published-edit-flow.svg</span><span>1280×800</span></figcaption>
+            <img src="../wireframes/published-edit-flow.svg" alt="Flow from owner list into editing, then publishing, discarding, or stopping an unchanged edit" />
+          </figure>
+        </section>
+
+        <section id="owner-list">
+          <div class="lede">Step 1 · Entry</div>
+          <h2>Owner list</h2>
+          <p class="desc">The row exposes the dual state clearly: a private edit exists while the published system remains live.</p>
+          <div class="screen-grid">
+            <figure class="wire" data-zoom data-caption="Owner list with active edit">
+              <figcaption class="wire-label"><span>06-owner-editing.svg</span><span>1280×800</span></figcaption>
+              <img src="../wireframes/06-owner-editing.svg" alt="Owner list showing Gridline being edited while its published version remains live" />
+            </figure>
+            <aside class="notes"><h3>Annotations</h3><ol><li>Visible editing status and published continuity.</li><li>Continue editing is the single visible draft entry.</li><li>The menu contains only Discard and Delete, separated by scope.</li></ol><div class="why"><strong>Why:</strong> the system name already opens the published version, so neither destination is repeated in the menu.</div></aside>
+          </div>
+        </section>
+
+        <section id="editing">
+          <div class="lede">Step 2 · Review</div>
+          <h2>Editing workspace</h2>
+          <p class="desc">The existing preview-left and sticky-sidebar-right layout gains one persistent editing context and draft-specific labels.</p>
+          <div class="screen-grid">
+            <figure class="wire" data-zoom data-caption="Editing workspace ready to publish">
+              <figcaption class="wire-label"><span>07-editing-ready.svg</span><span>1280×800</span></figcaption>
+              <img src="../wireframes/07-editing-ready.svg" alt="Desktop editing workspace with draft preview and publish controls" />
+            </figure>
+            <aside class="notes"><h3>Annotations</h3><ol><li>The header carries the published-live reassurance once.</li><li>The draft preview is visually unchanged.</li><li>Publishing follows validation and rights confirmation.</li><li>Agent access remains secondary and concise.</li></ol></aside>
+          </div>
+        </section>
+
+        <section id="publish-conflict">
+          <div class="lede">Step 3A · Publish</div>
+          <h2>Publish conflict</h2>
+          <p class="desc">A durable conflict replaces stale controls and requires reviewing the latest draft before another attempt.</p>
+          <div class="screen-grid">
+            <figure class="wire" data-zoom data-caption="Publish conflict">
+              <figcaption class="wire-label"><span>08-publish-conflict.svg</span><span>1280×800</span></figcaption>
+              <img src="../wireframes/08-publish-conflict.svg" alt="Publish conflict asking the owner to review the latest draft" />
+            </figure>
+            <aside class="notes"><h3>Annotations</h3><ol><li>The published-live reassurance remains visible.</li><li>The latest draft remains available for review.</li><li>No toast or automatic retry.</li></ol></aside>
+          </div>
+        </section>
+
+        <section id="publish-success">
+          <div class="lede">Step 3A · Complete</div>
+          <h2>Publish success</h2>
+          <p class="desc">The existing published state replaces editing controls and offers the updated system as the primary destination.</p>
+          <div class="screen-grid">
+            <figure class="wire" data-zoom data-caption="Publish success">
+              <figcaption class="wire-label"><span>09-publish-success.svg</span><span>1280×800</span></figcaption>
+              <img src="../wireframes/09-publish-success.svg" alt="Published system with concise confirmation that Gridline is updated" />
+            </figure>
+            <aside class="notes"><h3>Annotations</h3><ol><li>Editing context and draft actions are gone.</li><li>Success replaces editing controls.</li><li>Primary destination is the updated system.</li></ol></aside>
+          </div>
+        </section>
+
+        <section id="discard-confirm">
+          <div class="lede">Step 3B · Discard</div>
+          <h2>Discard confirmation</h2>
+          <p class="desc">The dialog names what will be lost, what will survive, and what happens to agent access.</p>
+          <div class="screen-grid">
+            <figure class="wire" data-zoom data-caption="Discard confirmation">
+              <figcaption class="wire-label"><span>10-discard-confirmation.svg</span><span>1280×800</span></figcaption>
+              <img src="../wireframes/10-discard-confirmation.svg" alt="Confirmation dialog for discarding draft changes while preserving the published system" />
+            </figure>
+            <aside class="notes"><h3>Annotations</h3><ol><li>Cancel receives initial focus.</li><li>Discard never uses Delete language.</li><li>The live system is explicitly preserved.</li></ol></aside>
+          </div>
+        </section>
+
+        <section id="discard-conflict">
+          <div class="lede">Step 3B · Conflict</div>
+          <h2>Discard conflict</h2>
+          <p class="desc">If the draft changes while the dialog is open, the owner must review it rather than blindly retrying.</p>
+          <div class="screen-grid">
+            <figure class="wire" data-zoom data-caption="Discard conflict">
+              <figcaption class="wire-label"><span>11-discard-conflict.svg</span><span>1280×800</span></figcaption>
+              <img src="../wireframes/11-discard-conflict.svg" alt="Discard conflict requiring review of the latest draft" />
+            </figure>
+            <aside class="notes"><h3>Annotations</h3><ol><li>The conflict stays in the dialog context.</li><li>Review draft is the primary recovery action.</li><li>The public system remains unchanged.</li></ol></aside>
+          </div>
+        </section>
+
+        <section id="discard-success">
+          <div class="lede">Step 3B · Complete</div>
+          <h2>Discard success</h2>
+          <p class="desc">Discard returns directly to the published system with a persistent inline confirmation.</p>
+          <div class="screen-grid">
+            <figure class="wire" data-zoom data-caption="Discard success">
+              <figcaption class="wire-label"><span>12-discard-success.svg</span><span>1280×800</span></figcaption>
+              <img src="../wireframes/12-discard-success.svg" alt="Published Gridline page with inline confirmation that its draft was discarded" />
+            </figure>
+            <aside class="notes"><h3>Annotations</h3><ol><li>One inline message confirms discard and ended access.</li><li>The owner is already at the surviving published system.</li><li>No intermediate success screen is introduced.</li></ol></aside>
+          </div>
+        </section>
+
+        <section id="no-changes">
+          <div class="lede">Step 3C · No changes</div>
+          <h2>Stop editing</h2>
+          <p class="desc">When the draft matches the published system, destructive language and confirmation disappear.</p>
+          <div class="screen-grid">
+            <figure class="wire" data-zoom data-caption="No changes to publish">
+              <figcaption class="wire-label"><span>13-no-changes.svg</span><span>1280×800</span></figcaption>
+              <img src="../wireframes/13-no-changes.svg" alt="Editing workspace showing no changes to publish and a Stop editing action" />
+            </figure>
+            <aside class="notes"><h3>Annotations</h3><ol><li>No Publish action appears.</li><li>Stop editing is non-destructive.</li><li>No confirmation is required.</li></ol></aside>
+          </div>
+        </section>
+
+        <section id="mobile">
+          <div class="lede">Responsive · Mobile</div>
+          <h2>Review before publishing</h2>
+          <p class="desc">The mobile reading order keeps context first, then the draft, validation, publishing, and agent access.</p>
+          <div class="screen-grid">
+            <figure class="wire mobile-wire" data-zoom data-caption="Mobile editing workspace">
+              <figcaption class="wire-label"><span>14-editing-ready-mobile.svg</span><span>375×812</span></figcaption>
+              <img src="../wireframes/14-editing-ready-mobile.svg" alt="Mobile editing workspace with draft preview before publishing controls" />
+            </figure>
+            <aside class="notes"><h3>Annotations</h3><ol><li>Discard remains visible without becoming sticky.</li><li>The draft precedes validation and publishing.</li><li>Agent access remains last.</li></ol><div class="why"><strong>Why:</strong> the owner should inspect the proposed version before encountering the final action.</div></aside>
+          </div>
+        </section>
+
+        <section id="decisions" class="questions">
+          <div class="lede">For review</div>
+          <h2>UX guarantees retained</h2>
+          <ul>
+            <li>Draft and published states remain visibly distinct throughout editing.</li>
+            <li>Publish, discard, stop editing, and permanent deletion keep distinct labels and consequences.</li>
+            <li>Publish and discard conflicts require review instead of retrying unseen changes.</li>
+            <li>Discard and stop editing explicitly end agent access.</li>
+            <li>Publish success remains inline; discard returns directly to the surviving published system.</li>
+            <li>No-change editing ends without destructive language or confirmation.</li>
+            <li>Focus moves to headings, conflicts, previews, and safe dialog actions as defined in the UX analysis.</li>
+            <li>Mobile keeps review before publish, with no sticky action bar or added animation.</li>
+          </ul>
+        </section>
+
+        <footer>Low-fidelity wireframes use monochrome UI, 1.5px strokes, an 8px grid, and red dashed annotations only for reviewer callouts.</footer>
+      </main>
+    </div>
+
+    <dialog class="lightbox" id="lightbox" aria-label="Wireframe preview">
+      <button class="lightbox-close" type="button" aria-label="Close preview">×</button>
+      <img alt="" />
+      <div class="lightbox-caption"></div>
+    </dialog>
+
+    <script>
+      const lightbox = document.querySelector('#lightbox');
+      const lightboxImage = lightbox.querySelector('img');
+      const lightboxCaption = lightbox.querySelector('.lightbox-caption');
+      const closeButton = lightbox.querySelector('.lightbox-close');
+      let lightboxOpener = null;
+
+      function openLightbox(wireframe) {
+        const image = wireframe.querySelector('img');
+        lightboxOpener = wireframe;
+        lightboxImage.src = image.src;
+        lightboxImage.alt = image.alt;
+        lightboxCaption.textContent = wireframe.dataset.caption;
+        lightbox.showModal();
+        closeButton.focus();
+      }
+
+      document.querySelectorAll('[data-zoom]').forEach((wireframe) => {
+        wireframe.tabIndex = 0;
+        wireframe.setAttribute('role', 'button');
+        wireframe.setAttribute('aria-label', `Zoom ${wireframe.dataset.caption}`);
+        wireframe.addEventListener('click', () => openLightbox(wireframe));
+        wireframe.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openLightbox(wireframe);
+          }
+        });
+      });
+
+      function closeLightbox() {
+        if (lightbox.open) lightbox.close();
+      }
+
+      closeButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        closeLightbox();
+      });
+      lightbox.addEventListener('click', (event) => {
+        if (event.target === lightbox) closeLightbox();
+      });
+      lightbox.addEventListener('close', () => {
+        lightboxOpener?.focus();
+        lightboxOpener = null;
+      });
+
+      const toc = document.querySelector('.toc');
+      const narrow = window.matchMedia('(max-width: 900px)');
+      const syncToc = () => { toc.open = !narrow.matches; };
+      syncToc();
+      narrow.addEventListener('change', syncToc);
+      toc.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => {
+          if (narrow.matches) toc.open = false;
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -4,16 +4,30 @@ import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
 import { UploadSimpleIcon } from "@phosphor-icons/react/dist/csr/UploadSimple";
 import { WarningIcon } from "@phosphor-icons/react/dist/csr/Warning";
 import { XIcon } from "@phosphor-icons/react/dist/csr/X";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import type { SubmissionRecord } from "../../data/submissions";
-import { Button, Checkbox, StatusIcon, typographyClassName } from "../../design-system/components";
+import type { PublicationOutcome } from "../../submissions/useSubmissionController";
+import {
+  Button,
+  Checkbox,
+  Notice,
+  StatusIcon,
+  typographyClassName,
+} from "../../design-system/components";
 import { formatValidationMessage, groupValidationChecks } from "../../lib/validation-checks";
 
 type SubmissionStatusPanelViewProps = {
   submission: SubmissionRecord;
   onPublish: () => void;
   publishing: boolean;
+  reviewingDraft: boolean;
   publishError: string | null;
+  publishConflict: boolean;
+  publicationOutcome: PublicationOutcome | null;
+  onReviewLatestDraft: () => Promise<boolean>;
+  onStopEditing: () => Promise<boolean>;
+  stopping: boolean;
+  stopError: string | null;
   publishedActions?: ReactNode;
   rightsConfirmed: boolean;
   onRightsConfirmedChange: (confirmed: boolean) => void;
@@ -23,24 +37,65 @@ export function SubmissionStatusPanelView({
   submission,
   onPublish,
   publishing,
+  reviewingDraft,
   publishError,
+  publishConflict,
+  publicationOutcome,
+  onReviewLatestDraft,
+  onStopEditing,
+  stopping,
+  stopError,
   publishedActions,
   rightsConfirmed,
   onRightsConfirmedChange,
 }: SubmissionStatusPanelViewProps) {
   const isValid = submission.status === "valid";
   const isPublished = submission.status === "published";
+  const isEditingPublishedSystem = Boolean(submission.publication?.isEditing);
+  const hasDraftChanges = Boolean(submission.publication?.hasDraftChanges);
   const checkGroups = groupValidationChecks(submission.checks);
   const checksAreScrollable = checkGroups.length > 5;
+  const statusHeadingRef = useRef<HTMLHeadingElement>(null);
+  const conflictRef = useRef<HTMLDivElement>(null);
+  const previousState = useRef({
+    published: isPublished || Boolean(publicationOutcome),
+    conflict: publishConflict,
+  });
 
-  if (isPublished) {
+  useEffect(() => {
+    const published = isPublished || Boolean(publicationOutcome);
+    const previous = previousState.current;
+    const focusTarget =
+      !previous.published && published
+        ? statusHeadingRef.current
+        : !previous.conflict && publishConflict
+          ? conflictRef.current
+          : previous.conflict && !publishConflict
+            ? statusHeadingRef.current
+            : null;
+    previousState.current = { published, conflict: publishConflict };
+    if (!focusTarget) return;
+    const frame = requestAnimationFrame(() => focusTarget.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [isPublished, publicationOutcome, publishConflict]);
+
+  if (isPublished || publicationOutcome) {
     return (
       <section aria-labelledby="submission-status-title">
-        <h2 id="submission-status-title" className={typographyClassName("cardTitle", "text-xl")}>
-          {submission.system.name} is published
+        <h2
+          ref={statusHeadingRef}
+          id="submission-status-title"
+          tabIndex={-1}
+          className={typographyClassName("cardTitle", "text-xl")}
+        >
+          {publicationOutcome?.kind === "updated"
+            ? "Changes published"
+            : `${submission.system.name} is published`}
         </h2>
         <p className="mt-2 text-sm leading-6 text-muted">
-          This design system is live in the Tokenshelf catalog.
+          {publicationOutcome?.kind === "updated"
+            ? "Your changes are live."
+            : "This design system is live in the Tokenshelf catalog."}
         </p>
         <dl className="mt-5 grid grid-cols-2 divide-x divide-line border-y border-line">
           <div className="py-4 pe-4">
@@ -65,13 +120,82 @@ export function SubmissionStatusPanelView({
     );
   }
 
+  if (isEditingPublishedSystem && !hasDraftChanges) {
+    return (
+      <section aria-labelledby="submission-status-title">
+        <h2
+          ref={statusHeadingRef}
+          id="submission-status-title"
+          tabIndex={-1}
+          className={typographyClassName("cardTitle", "text-xl")}
+        >
+          No changes to publish
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-muted">
+          This draft matches the published version.
+        </p>
+        {stopError && (
+          <p className="mt-4 text-sm text-negative" role="alert">
+            {stopError}
+          </p>
+        )}
+        <Button
+          variant="quiet"
+          className="mt-5 w-full"
+          disabled={stopping}
+          aria-busy={stopping}
+          onClick={() => void onStopEditing()}
+        >
+          {stopping ? "Stopping..." : "Stop editing"}
+        </Button>
+      </section>
+    );
+  }
+
+  if (publishConflict) {
+    return (
+      <section>
+        <Notice
+          ref={conflictRef}
+          tabIndex={-1}
+          tone="caution"
+          title="Draft changed"
+          description="Review the latest version before publishing."
+          role="alert"
+        />
+        {publishError && (
+          <p className="mt-4 text-sm text-negative" role="alert">
+            {publishError}
+          </p>
+        )}
+        <Button
+          className="mt-5 w-full"
+          disabled={reviewingDraft}
+          aria-busy={reviewingDraft}
+          onClick={() => void onReviewLatestDraft()}
+        >
+          {reviewingDraft ? "Reviewing draft..." : "Review latest draft"}
+        </Button>
+      </section>
+    );
+  }
+
   return (
     <section
       className="lg:flex lg:min-h-0 lg:flex-1 lg:flex-col"
       aria-labelledby="submission-status-title"
     >
-      <h2 id="submission-status-title" className={typographyClassName("cardTitle", "text-xl")}>
-        {isValid ? "Ready to publish" : "Fixes needed"}
+      <h2
+        ref={statusHeadingRef}
+        id="submission-status-title"
+        tabIndex={-1}
+        className={typographyClassName("cardTitle", "text-xl")}
+      >
+        {isValid
+          ? isEditingPublishedSystem
+            ? "Ready to publish changes"
+            : "Ready to publish"
+          : "Fixes needed"}
       </h2>
       {!isValid && (
         <p className="mt-2 text-sm leading-6 text-muted">Your agent is addressing the feedback.</p>
@@ -110,7 +234,11 @@ export function SubmissionStatusPanelView({
           <Checkbox
             checked={rightsConfirmed}
             onCheckedChange={onRightsConfirmedChange}
-            label="I have the rights to share this design-system document and its values."
+            label={
+              isEditingPublishedSystem
+                ? "I have the rights to share these changes."
+                : "I have the rights to share this design-system document and its values."
+            }
             className="mt-6 border-t border-line pt-5"
           />
           {publishError && (
@@ -124,7 +252,11 @@ export function SubmissionStatusPanelView({
             onClick={onPublish}
           >
             <UploadSimpleIcon className="size-4" aria-hidden="true" />
-            {publishing ? "Publishing..." : "Publish"}
+            {publishing
+              ? "Publishing..."
+              : isEditingPublishedSystem
+                ? "Publish changes"
+                : "Publish"}
           </Button>
         </>
       )}

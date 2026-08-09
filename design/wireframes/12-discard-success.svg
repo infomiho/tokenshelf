@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop viewport: 1280x800 -->
+  <rect x="0" y="0" width="1280" height="800" />
+  <!-- 1: published-system navigation -->
+  <g transform="translate(0,0)"><rect width="1280" height="64" /><text x="48" y="40" font-size="20" font-weight="600" stroke="none" fill="#000">TOKENSHELF</text><circle cx="1216" cy="32" r="16" fill="#e6e6e6" /></g>
+  <!-- 2: persistent inline confirmation -->
+  <g transform="translate(48,88)" data-region="discard-confirmation"><rect width="1184" height="64" rx="4" /><circle cx="32" cy="32" r="12" /><polyline points="26,32 31,37 39,27" fill="none" /><text x="56" y="28" font-size="14" font-weight="600" stroke="none" fill="#000">Draft discarded. Gridline remains published.</text><text x="56" y="48" font-size="12" stroke="none" fill="#666">Agent access ended.</text></g>
+  <!-- 3: destination is the surviving published system -->
+  <g transform="translate(48,192)" data-region="published-system"><text x="0" y="28" font-size="28" font-weight="700" stroke="none" fill="#000">Gridline</text><text x="0" y="56" font-size="14" stroke="none" fill="#666">A precise system for structured editorial interfaces.</text><rect x="0" y="88" width="752" height="440" rx="6" fill="#e6e6e6" /><rect x="32" y="120" width="688" height="64" rx="4" /><rect x="32" y="208" width="320" height="120" rx="4" /><rect x="376" y="208" width="344" height="120" rx="4" /><rect x="32" y="352" width="688" height="144" rx="4" /></g>
+  <!-- 4: ordinary published details -->
+  <g transform="translate(824,280)" data-region="details"><rect width="408" height="264" rx="6" /><text x="24" y="40" font-size="20" font-weight="600" stroke="none" fill="#000">Gridline</text><text x="24" y="72" font-size="14" stroke="none" fill="#666">Published system</text><line x1="24" y1="96" x2="384" y2="96" /><text x="24" y="136" font-size="12" stroke="none" fill="#666">TAGS</text><text x="24" y="168" font-size="14" stroke="none" fill="#000">Editorial · Structured · Neutral</text><g transform="translate(24,192)"><rect width="360" height="48" rx="4" fill="#000" /><text x="180" y="30" font-size="14" font-weight="600" text-anchor="middle" stroke="none" fill="#fff">Copy for agent</text></g></g>
+  <g data-region="annotations"><rect x="40" y="80" width="1200" height="80" fill="none" stroke="#d33" stroke-dasharray="6 3" /><circle cx="40" cy="80" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" /><text x="40" y="84" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text></g>
+</svg>

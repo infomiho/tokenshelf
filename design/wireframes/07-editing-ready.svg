@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop viewport: 1280x800 -->
+  <rect x="0" y="0" width="1280" height="800" />
+  <!-- 1: navigation -->
+  <g transform="translate(0,0)"><rect width="1280" height="64" /><text x="48" y="40" font-size="20" font-weight="600" stroke="none" fill="#000">TOKENSHELF</text><circle cx="1216" cy="32" r="16" fill="#e6e6e6" /></g>
+  <!-- 2: editing context header -->
+  <g transform="translate(48,96)" data-region="editing-context">
+    <text x="0" y="28" font-size="28" font-weight="700" stroke="none" fill="#000">Editing Gridline</text>
+    <circle cx="8" cy="56" r="6" /><polyline points="4,56 8,60 16,50" fill="none" />
+    <text x="24" y="60" font-size="14" font-weight="600" stroke="none" fill="#000">Published version live</text>
+    <text x="200" y="60" font-size="14" text-decoration="underline" stroke="none" fill="#000">View published version</text>
+    <g transform="translate(984,8)"><rect width="200" height="40" rx="4" /><text x="100" y="25" font-size="14" text-anchor="middle" stroke="none" fill="#000">Discard draft changes</text></g>
+  </g>
+  <!-- 3: draft preview -->
+  <g transform="translate(48,184)" data-region="draft-preview">
+    <text x="0" y="20" font-size="20" font-weight="600" stroke="none" fill="#000">Draft preview</text>
+    <rect x="0" y="48" width="752" height="504" rx="6" fill="#e6e6e6" />
+    <rect x="32" y="80" width="688" height="64" rx="4" />
+    <text x="56" y="120" font-size="28" font-weight="700" stroke="none" fill="#000">Gridline</text>
+    <rect x="32" y="168" width="320" height="136" rx="4" /><rect x="376" y="168" width="344" height="136" rx="4" />
+    <rect x="32" y="328" width="688" height="192" rx="4" />
+  </g>
+  <!-- 4: sticky publish panel -->
+  <g transform="translate(824,184)" data-region="publish-panel">
+    <rect width="408" height="352" rx="6" />
+    <text x="24" y="40" font-size="20" font-weight="600" stroke="none" fill="#000">Ready to publish changes</text>
+    <line x1="24" y1="64" x2="384" y2="64" />
+    <text x="24" y="96" font-size="14" stroke="none" fill="#000">✓ Structure complete</text>
+    <text x="24" y="128" font-size="14" stroke="none" fill="#000">✓ Accessibility checks passed</text>
+    <text x="24" y="160" font-size="14" stroke="none" fill="#000">! 1 non-blocking warning</text>
+    <line x1="24" y1="184" x2="384" y2="184" />
+    <rect x="24" y="208" width="20" height="20" rx="2" fill="#000" /><polyline points="28,219 33,224 40,214" stroke="#fff" fill="none" />
+    <text x="56" y="224" font-size="12" stroke="none" fill="#000">I have the rights to share this design system</text>
+    <text x="56" y="240" font-size="12" stroke="none" fill="#000">and its values.</text>
+    <g transform="translate(24,280)"><rect width="360" height="48" rx="4" fill="#000" /><text x="180" y="30" font-size="14" font-weight="600" text-anchor="middle" stroke="none" fill="#fff">Publish changes</text></g>
+  </g>
+  <!-- 5: agent panel -->
+  <g transform="translate(824,560)" data-region="agent-panel">
+    <rect width="408" height="96" rx="6" />
+    <text x="24" y="32" font-size="14" font-weight="600" stroke="none" fill="#000">Agent access</text>
+    <text x="24" y="64" font-size="12" stroke="none" fill="#666">Your agent can update this draft but cannot publish it.</text>
+  </g>
+  <g data-region="annotations">
+    <rect x="40" y="88" width="1200" height="80" fill="none" stroke="#d33" stroke-dasharray="6 3" /><circle cx="40" cy="88" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" /><text x="40" y="92" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+    <circle cx="808" cy="200" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" /><text x="808" y="204" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+  </g>
+</svg>

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { fn } from "storybook/test";
+import { useState, type ComponentProps } from "react";
+import { expect, fn, waitFor } from "storybook/test";
 import { catalogFixtures } from "../../data/catalogFixtures";
 import {
   passedPublicationChecks,
@@ -37,11 +38,13 @@ function submission(
 ): SubmissionRecord {
   return {
     id: `submission-${status}`,
+    revision: 3,
     system: catalogFixtures.find(({ fixtureId }) => fixtureId === "tactile")!,
     status,
     submittedAt: "2 minutes ago",
     updatedAt: new Date("2026-08-05T10:00:00Z"),
     checks,
+    publication: null,
   };
 }
 
@@ -52,7 +55,14 @@ const meta = {
     submission: submission("feedback", feedbackChecks),
     onPublish: fn(),
     publishing: false,
+    reviewingDraft: false,
     publishError: null,
+    publishConflict: false,
+    publicationOutcome: null,
+    onReviewLatestDraft: fn(async () => true),
+    onStopEditing: fn(async () => true),
+    stopping: false,
+    stopError: null,
     rightsConfirmed: false,
     onRightsConfirmedChange: fn(),
   },
@@ -83,3 +93,83 @@ export const Published: Story = {
     publishedActions: <Button className="w-full">View published system</Button>,
   },
 };
+
+export const EditingPublishedSystem: Story = {
+  args: {
+    submission: {
+      ...submission("valid", passedPublicationChecks),
+      publication: { slug: "tactile", isEditing: true, hasDraftChanges: true },
+    },
+    rightsConfirmed: true,
+  },
+};
+
+export const NoChanges: Story = {
+  args: {
+    submission: {
+      ...submission("valid", passedPublicationChecks),
+      publication: { slug: "tactile", isEditing: true, hasDraftChanges: false },
+    },
+  },
+};
+
+export const PublishConflict: Story = {
+  args: {
+    submission: {
+      ...submission("valid", passedPublicationChecks),
+      publication: { slug: "tactile", isEditing: true, hasDraftChanges: true },
+    },
+    publishConflict: true,
+  },
+};
+
+export const FocusTransitions: Story = {
+  render: (args) => <FocusTransitionHarness {...args} />,
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Simulate conflict" }));
+    await waitFor(() => expect(canvas.getByRole("alert")).toHaveFocus());
+
+    await userEvent.click(canvas.getByRole("button", { name: "Review latest draft" }));
+    await waitFor(() =>
+      expect(canvas.getByRole("heading", { name: "Ready to publish changes" })).toHaveFocus(),
+    );
+
+    await userEvent.click(canvas.getByRole("button", { name: "Publish changes" }));
+    await waitFor(() =>
+      expect(canvas.getByRole("heading", { name: "Changes published" })).toHaveFocus(),
+    );
+  },
+};
+
+function FocusTransitionHarness(args: ComponentProps<typeof SubmissionStatusPanelView>) {
+  const [publishConflict, setPublishConflict] = useState(false);
+  const [revision, setRevision] = useState(args.submission.revision);
+  const [published, setPublished] = useState(false);
+  const editingSubmission = {
+    ...args.submission,
+    revision,
+    status: "valid" as const,
+    publication: { slug: "tactile", isEditing: true, hasDraftChanges: true },
+  };
+
+  return (
+    <>
+      <Button className="mb-4" onClick={() => setPublishConflict(true)}>
+        Simulate conflict
+      </Button>
+      <SubmissionStatusPanelView
+        {...args}
+        submission={editingSubmission}
+        publishConflict={publishConflict}
+        publicationOutcome={published ? { kind: "updated", slug: "tactile", revision } : null}
+        rightsConfirmed
+        onPublish={() => setPublished(true)}
+        onReviewLatestDraft={async () => {
+          setRevision((current) => current + 1);
+          setPublishConflict(false);
+          return true;
+        }}
+      />
+    </>
+  );
+}

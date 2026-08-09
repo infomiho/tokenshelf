@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { CheckCircleIcon } from "@phosphor-icons/react/dist/csr/CheckCircle";
 import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/csr/PencilSimple";
 import { WarningCircleIcon } from "@phosphor-icons/react/dist/csr/WarningCircle";
 import { Link } from "wasp/client/router";
 import { AppShell } from "../components/AppShell";
@@ -29,13 +30,21 @@ export function SubmissionsPage() {
 }
 
 type SubmissionMutation = {
-  kind: "edit" | "delete";
+  kind: "edit" | "discard" | "delete";
   submissionId: string;
 };
 
 function SubmissionsContent() {
-  const { user, submissions, submissionsLoading, signIn, editSubmission, deleteSubmission } =
-    useSubmissions();
+  const {
+    user,
+    submissions,
+    submissionsLoading,
+    signIn,
+    editSubmission,
+    discardDraft,
+    reviewLatestDraft,
+    deleteSubmission,
+  } = useSubmissions();
   const [signInOpen, setSignInOpen] = useState(false);
   const [mutation, setMutation] = useState<SubmissionMutation | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
@@ -69,6 +78,16 @@ function SubmissionsContent() {
     } catch {
       setDeleteError("Unable to delete this design system. Try again.");
       return false;
+    } finally {
+      setMutation(null);
+    }
+  }
+
+  async function discardOwnedSubmission(submissionId: string, expectedRevision: number) {
+    if (mutation) return "error" as const;
+    setMutation({ kind: "discard", submissionId });
+    try {
+      return await discardDraft(submissionId, expectedRevision);
     } finally {
       setMutation(null);
     }
@@ -120,6 +139,8 @@ function SubmissionsContent() {
                 actionState={submissionActionState(mutation, submission.id)}
                 deleteError={deleteError}
                 onEdit={() => editOwnedSubmission(submission.id)}
+                onDiscard={() => discardOwnedSubmission(submission.id, submission.revision)}
+                onReviewLatestDraft={reviewLatestDraft}
                 onDelete={() => deleteOwnedSubmission(submission.id)}
                 onDeleteDialogOpen={() => setDeleteError(null)}
               />
@@ -151,6 +172,8 @@ function SubmissionRow({
   actionState,
   deleteError,
   onEdit,
+  onDiscard,
+  onReviewLatestDraft,
   onDelete,
   onDeleteDialogOpen,
 }: {
@@ -158,37 +181,45 @@ function SubmissionRow({
   actionState: SubmissionActionState;
   deleteError: string | null;
   onEdit: () => Promise<boolean>;
+  onDiscard: () => Promise<"discarded" | "conflict" | "error">;
+  onReviewLatestDraft: () => Promise<boolean>;
   onDelete: () => Promise<boolean>;
   onDeleteDialogOpen: () => void;
 }) {
-  const status =
-    submission.status === "waiting"
+  const isEditingPublishedSystem = Boolean(submission.publication?.isEditing);
+  const status = isEditingPublishedSystem
+    ? "Editing"
+    : submission.status === "waiting"
       ? "Draft"
       : submission.status === "feedback"
         ? "Needs fixes"
         : submission.status === "valid"
           ? "Ready"
           : "Published";
-  const StatusIcon =
-    submission.status === "waiting"
+  const StatusIcon = isEditingPublishedSystem
+    ? PencilSimpleIcon
+    : submission.status === "waiting"
       ? ClockIcon
       : submission.status === "feedback"
         ? WarningCircleIcon
         : CheckCircleIcon;
-  const statusColor =
-    submission.status === "waiting"
+  const statusColor = isEditingPublishedSystem
+    ? "text-brand"
+    : submission.status === "waiting"
       ? "text-muted"
       : submission.status === "feedback"
         ? "text-caution"
         : "text-positive";
   return (
-    <article className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-5 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center">
+    <article
+      className={`grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-5 sm:items-center ${isEditingPublishedSystem ? "sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]" : "sm:grid-cols-[minmax(0,1fr)_auto_auto]"}`}
+    >
       <div className="min-w-0">
         <h3 className="font-semibold">
-          {submission.status === "published" ? (
+          {submission.publication ? (
             <Link
               to="/systems/:slug"
-              params={{ slug: submission.system.id }}
+              params={{ slug: submission.publication.slug }}
               className="text-ink underline decoration-line underline-offset-4 hover:decoration-brand"
             >
               {submission.system.name}
@@ -204,7 +235,7 @@ function SubmissionRow({
           )}
         </h3>
         <p className="mt-1 text-sm text-muted">
-          Updated{" "}
+          {isEditingPublishedSystem ? "Draft updated" : "Updated"}{" "}
           <time dateTime={submission.updatedAt.toISOString()}>
             {formatDateTime(submission.updatedAt)}
           </time>
@@ -216,12 +247,29 @@ function SubmissionRow({
         <StatusIcon className="size-4" weight="fill" aria-hidden="true" />
         {status}
       </span>
+      {isEditingPublishedSystem && (
+        <Link
+          to="/submit/:submissionId?"
+          params={{ submissionId: submission.id }}
+          className={actionLinkClassName(
+            "secondary",
+            "col-start-1 row-start-3 w-fit sm:col-start-3 sm:row-start-1",
+            { size: "compact" },
+          )}
+        >
+          Continue editing
+        </Link>
+      )}
       <SubmissionActions
-        className="col-start-2 row-span-2 row-start-1 self-start sm:col-start-3 sm:row-span-1 sm:self-center"
+        className={`col-start-2 row-span-3 row-start-1 self-start sm:row-span-1 sm:self-center ${isEditingPublishedSystem ? "sm:col-start-4" : "sm:col-start-3"}`}
         name={submission.system.name}
         state={actionState}
+        editingPublishedSystem={isEditingPublishedSystem}
+        hasDraftChanges={Boolean(submission.publication?.hasDraftChanges)}
         deleteError={deleteError}
         onEdit={onEdit}
+        onDiscard={onDiscard}
+        onReviewLatestDraft={onReviewLatestDraft}
         onDelete={onDelete}
         onDeleteDialogOpen={onDeleteDialogOpen}
       />
@@ -235,5 +283,9 @@ function submissionActionState(
 ): SubmissionActionState {
   if (!mutation) return "idle";
   if (mutation.submissionId !== submissionId) return "disabled";
-  return mutation.kind === "edit" ? "editing" : "deleting";
+  return mutation.kind === "edit"
+    ? "editing"
+    : mutation.kind === "discard"
+      ? "discarding"
+      : "deleting";
 }

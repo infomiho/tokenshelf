@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop flow overview viewport: 1280x800 -->
+  <rect x="0" y="0" width="1280" height="800" />
+  <text x="48" y="64" font-size="28" font-weight="700" stroke="none" fill="#000">Published-system editing flow</text>
+  <text x="48" y="96" font-size="14" stroke="none" fill="#666">The published system stays live while its owner edits a private draft.</text>
+  <!-- 1: entry -->
+  <g transform="translate(48,144)"><rect width="240" height="136" rx="6" /><text x="24" y="40" font-size="12" stroke="none" fill="#666">OWNER LIST</text><text x="24" y="72" font-size="20" font-weight="600" stroke="none" fill="#000">Editing</text><text x="24" y="104" font-size="14" stroke="none" fill="#000">Continue editing</text></g>
+  <g transform="translate(288,208)"><line x1="0" y1="0" x2="80" y2="0" /><polygon points="80,0 70,-6 70,6" fill="#000" stroke="none" /></g>
+  <!-- 2: workspace -->
+  <g transform="translate(368,144)"><rect width="240" height="136" rx="6" /><text x="24" y="40" font-size="12" stroke="none" fill="#666">PRIVATE DRAFT</text><text x="24" y="72" font-size="20" font-weight="600" stroke="none" fill="#000">Editing Gridline</text><text x="24" y="104" font-size="14" stroke="none" fill="#000">Published version live</text></g>
+  <!-- branch arrows -->
+  <g transform="translate(488,280)"><line x1="0" y1="0" x2="0" y2="72" /><line x1="0" y1="72" x2="-280" y2="72" /><polygon points="-280,72 -270,66 -270,78" fill="#000" stroke="none" /><line x1="0" y1="72" x2="280" y2="72" /><polygon points="280,72 270,66 270,78" fill="#000" stroke="none" /></g>
+  <!-- 3: publish branch -->
+  <g transform="translate(48,352)"><rect width="320" height="152" rx="6" /><text x="24" y="40" font-size="12" stroke="none" fill="#666">PUBLISH BRANCH</text><text x="24" y="72" font-size="20" font-weight="600" stroke="none" fill="#000">Publish changes</text><text x="24" y="104" font-size="14" stroke="none" fill="#000">Conflict → Review latest draft</text><text x="24" y="128" font-size="14" stroke="none" fill="#000">Success → Updated system live</text></g>
+  <!-- 4: discard branch -->
+  <g transform="translate(608,352)"><rect width="320" height="152" rx="6" /><text x="24" y="40" font-size="12" stroke="none" fill="#666">DISCARD BRANCH</text><text x="24" y="72" font-size="20" font-weight="600" stroke="none" fill="#000">Discard draft changes</text><text x="24" y="104" font-size="14" stroke="none" fill="#000">Conflict → Review latest draft</text><text x="24" y="128" font-size="14" stroke="none" fill="#000">Success → Published system + confirmation</text></g>
+  <!-- 5: no-change branch -->
+  <g transform="translate(960,144)"><rect width="272" height="136" rx="6" /><text x="24" y="40" font-size="12" stroke="none" fill="#666">NO-CHANGE BRANCH</text><text x="24" y="72" font-size="20" font-weight="600" stroke="none" fill="#000">Stop editing</text><text x="24" y="104" font-size="14" stroke="none" fill="#000">No confirmation needed</text></g>
+  <g transform="translate(608,208)"><line x1="0" y1="0" x2="352" y2="0" /><polygon points="352,0 342,-6 342,6" fill="#000" stroke="none" /></g>
+  <!-- 6: invariant -->
+  <g transform="translate(48,584)" data-region="invariant"><rect width="1184" height="120" rx="6" /><text x="24" y="40" font-size="12" stroke="none" fill="#666">FLOW INVARIANT</text><text x="24" y="72" font-size="20" font-weight="600" stroke="none" fill="#000">Editing never takes the public system offline.</text><text x="24" y="96" font-size="14" stroke="none" fill="#666">Only Delete design system removes it; discard and stop editing preserve it.</text></g>
+  <g data-region="annotations"><rect x="40" y="576" width="1200" height="136" fill="none" stroke="#d33" stroke-dasharray="6 3" /><circle cx="40" cy="576" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" /><text x="40" y="580" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text></g>
+</svg>

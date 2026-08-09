@@ -1,8 +1,10 @@
 import { mintCapability } from "@infomiho/agent-work-protocol/server";
+import type { Prisma } from "@prisma/client";
 import { HttpError, prisma } from "wasp/server";
 import type {
   ClaimGuestSubmissions,
   CreateSubmission,
+  DiscardSubmissionChanges,
   PublishSubmission,
   ReopenSubmission,
   RotateAgentCapability,
@@ -220,17 +222,29 @@ export const reopenSubmission: ReopenSubmission<OwnedSubmissionInput, AgentSessi
       async (transaction) => {
         const submission = await transaction.submission.findUnique({
           where: { id: args.submissionId },
-          include: { publishedSystem: true },
+          include: { draft: true, publishedSystem: true },
         });
         if (!submission || submission.ownerId !== context.user!.id)
           throw new HttpError(404, "Design system not found.");
         if (
           submission.lifecycle !== "PUBLISHED" ||
+          !submission.draft ||
           submission.publishedSystem?.lifecycle !== "PUBLISHED"
         )
           throw new HttpError(409, "Design system cannot be edited.");
 
         const generation = submission.sessionGeneration + 1;
+        await transaction.submissionDraft.update({
+          where: { submissionId: submission.id },
+          data: {
+            revision: { increment: 1 },
+            document: submission.publishedSystem.document as Prisma.InputJsonValue,
+            assessment: submission.publishedSystem.assessment as Prisma.InputJsonValue,
+            designMd: submission.publishedSystem.designMd,
+            renderer: submission.publishedSystem.renderer as Prisma.InputJsonValue,
+            updatedBy: "owner",
+          },
+        });
         await transaction.submissionAgentSession.create({
           data: {
             submissionId: submission.id,
@@ -252,6 +266,56 @@ export const reopenSubmission: ReopenSubmission<OwnedSubmissionInput, AgentSessi
       { isolationLevel: "Serializable" },
     );
   return retrySerializationConflict(reopen);
+};
+
+type DiscardSubmissionChangesInput = OwnedSubmissionInput & { expectedRevision: number };
+
+export const discardSubmissionChanges: DiscardSubmissionChanges<
+  DiscardSubmissionChangesInput,
+  { slug: string }
+> = async (args, context) => {
+  if (!context.user) throw new HttpError(401, "Sign in to discard draft changes.");
+  const discard = () =>
+    prisma.$transaction(
+      async (transaction) => {
+        const submission = await transaction.submission.findUnique({
+          where: { id: args.submissionId },
+          include: { draft: true, publishedSystem: true },
+        });
+        if (!submission || submission.ownerId !== context.user!.id)
+          throw new HttpError(404, "Design system not found.");
+        if (
+          submission.lifecycle !== "OPEN" ||
+          !submission.draft ||
+          submission.publishedSystem?.lifecycle !== "PUBLISHED"
+        )
+          throw new HttpError(409, "Draft changes cannot be discarded.");
+        if (submission.draft.revision !== args.expectedRevision)
+          throw new HttpError(409, "The draft changed. Review the latest version.");
+
+        const restored = await transaction.submissionDraft.updateMany({
+          where: { submissionId: submission.id, revision: args.expectedRevision },
+          data: {
+            revision: { increment: 1 },
+            document: submission.publishedSystem.document as Prisma.InputJsonValue,
+            assessment: submission.publishedSystem.assessment as Prisma.InputJsonValue,
+            designMd: submission.publishedSystem.designMd,
+            renderer: submission.publishedSystem.renderer as Prisma.InputJsonValue,
+            updatedBy: "owner",
+          },
+        });
+        if (restored.count === 0)
+          throw new HttpError(409, "The draft changed. Review the latest version.");
+
+        await transaction.submission.update({
+          where: { id: submission.id },
+          data: { lifecycle: "PUBLISHED", sessionGeneration: { increment: 1 } },
+        });
+        return { slug: submission.publishedSystem.slug };
+      },
+      { isolationLevel: "Serializable" },
+    );
+  return retrySerializationConflict(discard);
 };
 
 export const withdrawSubmission: WithdrawSubmission<
@@ -305,8 +369,11 @@ export const publishSubmission: PublishSubmission<
         });
         if (!submission || submission.ownerId !== context.user!.id)
           throw new HttpError(404, "Submission not found.");
-        if (submission.publishedSystem && submission.lifecycle === "PUBLISHED")
+        if (submission.publishedSystem && submission.lifecycle === "PUBLISHED") {
+          if (submission.publishedSystem.sourceRevision !== args.expectedRevision)
+            throw new HttpError(409, "The draft changed. Review the latest version.");
           return { id: submission.publishedSystem.id, slug: submission.publishedSystem.slug };
+        }
         if (submission.lifecycle !== "OPEN" || !submission.draft)
           throw new HttpError(409, "Submission cannot be published.");
         if (submission.publishedSystem && submission.publishedSystem.lifecycle !== "PUBLISHED")

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop viewport: 1280x800 -->
+  <rect x="0" y="0" width="1280" height="800" />
+  <g transform="translate(0,0)"><rect width="1280" height="64" /><text x="48" y="40" font-size="20" font-weight="600" stroke="none" fill="#000">TOKENSHELF</text></g>
+  <!-- 1: editing context -->
+  <g transform="translate(48,96)"><text x="0" y="28" font-size="28" font-weight="700" stroke="none" fill="#000">Editing Gridline</text><circle cx="8" cy="56" r="6" /><polyline points="4,56 8,60 16,50" fill="none" /><text x="24" y="60" font-size="14" font-weight="600" stroke="none" fill="#000">Published version live</text><text x="200" y="60" font-size="14" text-decoration="underline" stroke="none" fill="#000">View published version</text></g>
+  <!-- 2: unchanged preview -->
+  <g transform="translate(48,184)"><text x="0" y="20" font-size="20" font-weight="600" stroke="none" fill="#000">Draft preview</text><text x="0" y="48" font-size="14" stroke="none" fill="#666">Only you can see this draft until you publish changes.</text><rect x="0" y="72" width="752" height="480" rx="6" fill="#e6e6e6" /><rect x="32" y="104" width="688" height="64" rx="4" /><rect x="32" y="192" width="320" height="136" rx="4" /><rect x="376" y="192" width="344" height="136" rx="4" /><rect x="32" y="352" width="688" height="168" rx="4" /></g>
+  <!-- 3: no-change state -->
+  <g transform="translate(824,184)" data-region="no-change-state">
+    <rect width="408" height="280" rx="6" />
+    <circle cx="48" cy="48" r="16" /><polyline points="40,48 47,55 58,40" fill="none" />
+    <text x="24" y="96" font-size="20" font-weight="600" stroke="none" fill="#000">No changes to publish</text>
+    <text x="24" y="128" font-size="14" stroke="none" fill="#666">This draft matches the published version.</text>
+    <g transform="translate(24,168)"><rect width="360" height="48" rx="4" fill="#000" /><text x="180" y="30" font-size="14" font-weight="600" text-anchor="middle" stroke="none" fill="#fff">View published version</text></g>
+    <text x="204" y="256" font-size="14" text-anchor="middle" text-decoration="underline" stroke="none" fill="#000">Stop editing</text>
+  </g>
+  <g data-region="annotations"><circle cx="824" cy="472" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" /><text x="824" y="476" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text><text x="848" y="476" font-size="12" stroke="none" fill="#d33">No destructive language or confirmation</text></g>
+</svg>

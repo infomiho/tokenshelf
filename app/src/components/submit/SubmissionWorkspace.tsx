@@ -1,4 +1,5 @@
 import type { SubmissionRecord, SubmissionStage } from "../../data/submissions";
+import type { PublicationOutcome } from "../../submissions/useSubmissionController";
 import { Panel, typographyClassName } from "../../design-system/components";
 import { LogoMark } from "../../design-system/components";
 import { SystemDetails } from "../SystemDetails";
@@ -11,13 +12,27 @@ export function SubmissionSidebar({
   stage,
   onPublish,
   publishing,
+  reviewingDraft,
   publishError,
+  publishConflict,
+  publicationOutcome,
+  onReviewLatestDraft,
+  onStopEditing,
+  stopping,
+  stopError,
 }: {
   submission: SubmissionRecord | null;
   stage: SubmissionStage;
   onPublish: () => void;
   publishing: boolean;
+  reviewingDraft: boolean;
   publishError: string | null;
+  publishConflict: boolean;
+  publicationOutcome: PublicationOutcome | null;
+  onReviewLatestDraft: () => Promise<boolean>;
+  onStopEditing: () => Promise<boolean>;
+  stopping: boolean;
+  stopError: string | null;
 }) {
   if (submission) {
     return (
@@ -26,9 +41,16 @@ export function SubmissionSidebar({
           submission={submission}
           onPublish={onPublish}
           publishing={publishing}
+          reviewingDraft={reviewingDraft}
           publishError={publishError}
+          publishConflict={publishConflict}
+          publicationOutcome={publicationOutcome}
+          onReviewLatestDraft={onReviewLatestDraft}
+          onStopEditing={onStopEditing}
+          stopping={stopping}
+          stopError={stopError}
         />
-        {stage !== "published" && (
+        {stage !== "published" && !publicationOutcome && (
           <div className="mt-8 shrink-0 border-t border-line pt-8 lg:mt-auto">
             <AgentPromptPanel collapsed />
           </div>
@@ -56,17 +78,26 @@ export function SubmissionSidebar({
 }
 
 export function SubmissionPreview({ submission }: { submission: SubmissionRecord | null }) {
+  const isEditingPublishedSystem = Boolean(submission?.publication?.isEditing);
+
   return (
     <section
       className="min-w-0 lg:col-start-1 lg:row-start-1"
       aria-labelledby="draft-preview-title"
     >
       <h2 id="draft-preview-title" className={typographyClassName("cardTitle", "text-xl")}>
-        Preview
+        {isEditingPublishedSystem ? "Draft preview" : "Preview"}
       </h2>
+      {isEditingPublishedSystem && (
+        <p className="mt-2 text-sm leading-6 text-muted">
+          Only you can see this draft until you publish changes.
+        </p>
+      )}
       {submission ? (
         <>
-          <div className="mt-4 overflow-hidden rounded-panel">
+          <div
+            className={`${isEditingPublishedSystem ? "mt-3" : "mt-4"} overflow-hidden rounded-panel`}
+          >
             <SystemPreview system={submission.system} projection="detail" />
           </div>
           <SystemDetails system={submission.system} />

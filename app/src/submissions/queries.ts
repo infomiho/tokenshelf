@@ -1,4 +1,5 @@
 import { HttpError, prisma } from "wasp/server";
+import { isDeepStrictEqual } from "node:util";
 import type {
   GetCapabilityPreview,
   GetSubmissionSync,
@@ -28,6 +29,11 @@ export type SubmissionWorkspaceView = {
   };
   updatedAt: Date;
   publishedSystemId: string | null;
+  publication: {
+    slug: string;
+    isEditing: boolean;
+    hasDraftChanges: boolean;
+  } | null;
   system: DesignSystem;
   checks: Array<{ id: string; label: string; detail: string; status: "pass" | "warning" | "fail" }>;
   capability: { status: "active" | "expired" | "revoked"; expiresAt: Date | null };
@@ -156,6 +162,13 @@ function toWorkspace(submission: Awaited<ReturnType<typeof ownedSubmission>>) {
       pointer: string;
     }>;
   };
+  const publication = submission.publishedSystem
+    ? {
+        slug: submission.publishedSystem.slug,
+        isEditing: submission.lifecycle === "OPEN",
+        hasDraftChanges: !isDeepStrictEqual(draft.document, submission.publishedSystem.document),
+      }
+    : null;
   return {
     id: submission.id,
     lifecycle: submission.lifecycle,
@@ -163,6 +176,7 @@ function toWorkspace(submission: Awaited<ReturnType<typeof ownedSubmission>>) {
     assessment,
     updatedAt: submission.updatedAt,
     publishedSystemId: submission.publishedSystem?.slug ?? null,
+    publication,
     system: {
       id: submission.publishedSystem?.slug ?? submission.id,
       name: document.identity.name,

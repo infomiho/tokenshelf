@@ -4,6 +4,7 @@ import { SubmissionsPage } from "../pages/SubmissionsPage" with { type: "ref" };
 import {
   claimGuestSubmissions,
   createSubmission,
+  discardSubmissionChanges,
   publishSubmission,
   reopenSubmission,
   rotateAgentCapability,
@@ -32,6 +33,7 @@ export const submissionSpec: Spec = [
   action(claimGuestSubmissions, { entities: submissionEntities }),
   action(rotateAgentCapability, { entities: submissionEntities }),
   action(reopenSubmission, { entities: [...submissionEntities, "DesignSystem"] }),
+  action(discardSubmissionChanges, { entities: [...submissionEntities, "DesignSystem"] }),
   action(withdrawSubmission, { entities: [...submissionEntities, "DesignSystem"] }),
   action(publishSubmission, { entities: [...submissionEntities, "DesignSystem"] }),
 ];

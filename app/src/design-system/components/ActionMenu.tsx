@@ -65,3 +65,7 @@ export function ActionMenuItem({
     />
   );
 }
+
+export function ActionMenuSeparator() {
+  return <Menu.Separator className="mx-1 my-1 h-px bg-line" />;
+}

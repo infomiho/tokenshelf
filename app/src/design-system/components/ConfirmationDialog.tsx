@@ -1,32 +1,38 @@
 import { AlertDialog } from "@base-ui/react/alert-dialog";
 import { useEffect, useRef, type RefObject } from "react";
-import { Button, buttonClassName } from "./Button";
+import { Button, buttonClassName, type ButtonVariant } from "./Button";
 import { dialogSurfaceClassName } from "./DialogSurface";
 import { typographyClassName } from "./Typography";
 
-export type DestructiveConfirmationDialogProps = {
+export type ConfirmationDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
   description: string;
-  confirmLabel: string;
+  actionLabel: string;
+  actionPendingLabel?: string;
+  actionVariant?: ButtonVariant;
+  cancelLabel?: string;
   pending?: boolean;
   error?: string | null;
   finalFocus?: RefObject<HTMLElement | null>;
-  onConfirm: () => boolean | Promise<boolean>;
+  onAction: () => boolean | Promise<boolean>;
 };
 
-export function DestructiveConfirmationDialog({
+export function ConfirmationDialog({
   open,
   onOpenChange,
   title,
   description,
-  confirmLabel,
+  actionLabel,
+  actionPendingLabel = actionLabel,
+  actionVariant = "primary",
+  cancelLabel = "Cancel",
   pending = false,
   error,
   finalFocus,
-  onConfirm,
-}: DestructiveConfirmationDialogProps) {
+  onAction,
+}: ConfirmationDialogProps) {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -41,8 +47,8 @@ export function DestructiveConfirmationDialog({
     onOpenChange(nextOpen);
   }
 
-  async function handleConfirm() {
-    if (await onConfirm()) onOpenChange(false);
+  async function handleAction() {
+    if (await onAction()) onOpenChange(false);
   }
 
   return (
@@ -67,15 +73,15 @@ export function DestructiveConfirmationDialog({
                 className={buttonClassName("secondary", "aria-disabled:opacity-45")}
                 aria-disabled={pending}
               >
-                Cancel
+                {cancelLabel}
               </AlertDialog.Close>
               <Button
-                variant="destructive"
+                variant={actionVariant}
                 disabled={pending}
                 aria-busy={pending}
-                onClick={() => void handleConfirm()}
+                onClick={() => void handleAction()}
               >
-                {confirmLabel}
+                {pending ? actionPendingLabel : actionLabel}
               </Button>
             </div>
             {error && (

@@ -52,11 +52,17 @@ export const passedPublicationChecks: ValidationCheck[] = [
 
 export type SubmissionRecord = {
   id: string;
+  revision: number;
   system: DesignSystem;
   status: SubmissionStage;
   submittedAt: string;
   updatedAt: Date;
   checks: ValidationCheck[];
+  publication: {
+    slug: string;
+    isEditing: boolean;
+    hasDraftChanges: boolean;
+  } | null;
 };
 
 export type UserProfile = {

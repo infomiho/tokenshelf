@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="-apple-system, system-ui, sans-serif" fill="#fff" stroke="#000" stroke-width="1.5">
+  <!-- Desktop viewport: 1280x800 -->
+  <rect x="0" y="0" width="1280" height="800" />
+  <!-- 1: navigation -->
+  <g transform="translate(0,0)" data-region="navigation">
+    <rect width="1280" height="64" />
+    <text x="48" y="40" font-size="20" font-weight="600" stroke="none" fill="#000">TOKENSHELF</text>
+    <text x="872" y="40" font-size="14" stroke="none" fill="#666">Hot</text>
+    <text x="928" y="40" font-size="14" stroke="none" fill="#666">New</text>
+    <text x="984" y="40" font-size="14" font-weight="600" stroke="none" fill="#000">Your systems</text>
+    <circle cx="1216" cy="32" r="16" fill="#e6e6e6" />
+  </g>
+  <!-- 2: page heading -->
+  <g transform="translate(48,104)" data-region="heading">
+    <text x="0" y="28" font-size="28" font-weight="700" stroke="none" fill="#000">Your design systems</text>
+    <g transform="translate(1024,0)">
+      <rect width="160" height="40" rx="4" fill="#000" />
+      <text x="80" y="25" font-size="14" text-anchor="middle" stroke="none" fill="#fff">New submission</text>
+    </g>
+  </g>
+  <!-- 3: editing row -->
+  <g transform="translate(48,184)" data-region="editing-row">
+    <line x1="0" y1="0" x2="1184" y2="0" />
+    <text x="0" y="40" font-size="20" font-weight="600" text-decoration="underline" stroke="none" fill="#000">Gridline</text>
+    <text x="0" y="64" font-size="12" stroke="none" fill="#666">Draft updated 8 minutes ago</text>
+    <text x="560" y="32" font-size="14" font-weight="600" stroke="none" fill="#000">Editing</text>
+    <circle cx="568" cy="56" r="6" />
+    <polyline points="564,56 568,60 576,50" fill="none" />
+    <text x="584" y="60" font-size="12" stroke="none" fill="#666">Published version live</text>
+    <g transform="translate(864,24)">
+      <rect width="160" height="40" rx="4" />
+      <text x="80" y="25" font-size="14" text-anchor="middle" stroke="none" fill="#000">Continue editing</text>
+    </g>
+    <g transform="translate(1040,24)">
+      <rect width="40" height="40" rx="4" />
+      <circle cx="20" cy="12" r="2" fill="#000" />
+      <circle cx="20" cy="20" r="2" fill="#000" />
+      <circle cx="20" cy="28" r="2" fill="#000" />
+    </g>
+    <line x1="0" y1="96" x2="1184" y2="96" />
+  </g>
+  <!-- 4: destructive actions remain grouped by scope -->
+  <g transform="translate(880,248)" data-region="action-menu">
+    <rect width="248" height="120" rx="4" />
+    <text x="16" y="32" font-size="14" stroke="none" fill="#000">Discard draft changes</text>
+    <line x1="8" y1="56" x2="240" y2="56" />
+    <text x="16" y="88" font-size="14" stroke="none" fill="#000">Delete design system</text>
+  </g>
+  <!-- 5: ordinary published row -->
+  <g transform="translate(48,504)" data-region="published-row">
+    <line x1="0" y1="0" x2="1184" y2="0" />
+    <text x="0" y="40" font-size="20" font-weight="600" text-decoration="underline" stroke="none" fill="#000">Tactile</text>
+    <text x="0" y="64" font-size="12" stroke="none" fill="#666">Updated yesterday</text>
+    <text x="560" y="48" font-size="14" font-weight="600" stroke="none" fill="#000">Published</text>
+    <g transform="translate(1040,24)"><rect width="40" height="40" rx="4" /><circle cx="20" cy="12" r="2" fill="#000" /><circle cx="20" cy="20" r="2" fill="#000" /><circle cx="20" cy="28" r="2" fill="#000" /></g>
+    <line x1="0" y1="96" x2="1184" y2="96" />
+  </g>
+  <g data-region="annotations">
+    <circle cx="632" cy="216" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" /><text x="632" y="220" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">1</text>
+    <circle cx="896" cy="376" r="12" fill="#fff" stroke="#d33" stroke-dasharray="4 2" /><text x="896" y="380" font-size="12" font-weight="700" text-anchor="middle" stroke="none" fill="#d33">2</text>
+  </g>
+</svg>
