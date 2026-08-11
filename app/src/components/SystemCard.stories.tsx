@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { MemoryRouter } from "react-router";
 import { expect } from "storybook/test";
 import { catalogFixtures } from "../data/catalogFixtures";
+import { formatCount } from "../lib/counts";
 import { SystemCard } from "./SystemCard";
 
 const meta = {
@@ -31,10 +32,77 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const MobileWidth: Story = {
-  play: async ({ canvas }) => {
-    const grid = canvas.getByTestId("card-grid").getBoundingClientRect();
+  args: {
+    system: {
+      ...meta.args.system,
+      copies: 2_147_483_647,
+      votes: 2_147_483_647,
+    },
+  },
+  render: (args) => (
+    <div data-testid="narrow-card" className="w-72 max-w-full">
+      <SystemCard {...args} />
+    </div>
+  ),
+  play: async ({ args, canvas }) => {
+    const grid = canvas.getByTestId("narrow-card").getBoundingClientRect();
     const card = canvas.getByRole("article").getBoundingClientRect();
+    const labels = [
+      formatCount(args.system.copies, "copy", "copies"),
+      formatCount(args.system.votes, "like"),
+    ];
 
     await expect(card.right).toBeLessThanOrEqual(grid.right + 0.5);
+    for (const label of labels) {
+      const badge = canvas.getByText(label).getBoundingClientRect();
+      await expect(badge.left).toBeGreaterThanOrEqual(card.left - 0.5);
+      await expect(badge.right).toBeLessThanOrEqual(card.right + 0.5);
+      await expect(badge.height).toBeLessThanOrEqual(24.5);
+    }
+  },
+};
+
+export const PartialActivity: Story = {
+  args: {
+    system: {
+      ...meta.args.system,
+      copies: 0,
+      votes: 4,
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("0 copies")).toBeVisible();
+    await expect(canvas.getByText("4 likes")).toBeVisible();
+    await expect(canvas.queryByText("New")).not.toBeInTheDocument();
+  },
+};
+
+export const PartialCopies: Story = {
+  args: {
+    system: {
+      ...meta.args.system,
+      copies: 4,
+      votes: 0,
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("4 copies")).toBeVisible();
+    await expect(canvas.getByText("0 likes")).toBeVisible();
+    await expect(canvas.queryByText("New")).not.toBeInTheDocument();
+  },
+};
+
+export const New: Story = {
+  args: {
+    system: {
+      ...meta.args.system,
+      copies: 0,
+      votes: 0,
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("New")).toBeVisible();
+    await expect(canvas.queryByText(/copies$/)).not.toBeInTheDocument();
+    await expect(canvas.queryByText(/likes$/)).not.toBeInTheDocument();
   },
 };

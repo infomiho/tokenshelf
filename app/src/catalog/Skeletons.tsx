@@ -4,12 +4,15 @@ import { PageContainer, panelClassName, Skeleton } from "../design-system/compon
 export function SystemCardSkeleton() {
   return (
     <div className={panelClassName({ className: "overflow-hidden" })} aria-hidden="true">
-      <Skeleton className="aspect-video min-h-[10.5rem] rounded-t-[calc(var(--radius-card)-1px)]" />
-      <div className="p-4">
-        <div className="flex items-center justify-between gap-5">
-          <Skeleton className="h-5 w-2/5 rounded-sm" />
-          <Skeleton className="h-3 w-14 rounded-sm" />
+      <div className="relative">
+        <Skeleton className="aspect-video min-h-[10.5rem] rounded-t-[calc(var(--radius-card)-1px)]" />
+        <div className="absolute end-3 top-3 flex gap-1.5">
+          <Skeleton className="h-6 w-20 rounded-full" />
+          <Skeleton className="h-6 w-16 rounded-full" />
         </div>
+      </div>
+      <div className="p-4">
+        <Skeleton className="h-5 w-2/5 rounded-sm" />
         <Skeleton className="mt-3 h-3 w-3/5 rounded-sm" />
       </div>
     </div>

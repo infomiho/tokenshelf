@@ -109,7 +109,7 @@ export function CollectionPage({ mode }: { mode: "hot" | "new" }) {
               </div>
               <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {systems.map((system) => (
-                  <SystemCard key={system.id} system={system} stat="votes" />
+                  <SystemCard key={system.id} system={system} />
                 ))}
               </div>
               {catalog.hasNextPage && (

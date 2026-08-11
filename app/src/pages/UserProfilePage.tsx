@@ -75,7 +75,7 @@ export function UserProfilePage() {
             </h2>
             <div className="grid gap-5 md:grid-cols-2">
               {profile.systems.map((system) => (
-                <SystemCard key={system.id} system={system} stat="copies" />
+                <SystemCard key={system.id} system={system} />
               ))}
             </div>
           </section>

@@ -4,13 +4,10 @@ import { panelClassName } from "../design-system/components";
 import { formatCount } from "../lib/counts";
 import { SystemPreview } from "./SystemPreview";
 
-export function SystemCard({
-  system,
-  stat = "copies",
-}: {
-  system: SystemCardData;
-  stat?: "copies" | "today" | "votes";
-}) {
+const metricBadgeClassName =
+  "inline-flex min-h-[var(--badge-height)] items-center whitespace-nowrap rounded-[var(--radius-round)] border border-line px-2 shadow-[var(--shadow-raised)]";
+
+export function SystemCard({ system }: { system: SystemCardData }) {
   return (
     <article
       className={panelClassName({ className: "min-w-0 transition-colors hover:border-ink/40" })}
@@ -21,33 +18,36 @@ export function SystemCard({
         aria-label={`View ${system.name}`}
         className="block rounded-[var(--radius-card)] text-inherit no-underline"
       >
-        <SystemCardContent system={system} stat={stat} />
+        <SystemCardContent system={system} />
       </Link>
     </article>
   );
 }
 
-function SystemCardContent({
-  system,
-  stat,
-}: {
-  system: SystemCardData;
-  stat: "copies" | "today" | "votes";
-}) {
+function SystemCardContent({ system }: { system: SystemCardData }) {
+  const hasMetrics = system.copies > 0 || system.votes > 0;
+
   return (
     <>
-      <SystemPreview system={system} projection="card" decorative />
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-4">
-          <h3 className="card-title text-lg text-ink">{system.name}</h3>
-          <span className="shrink-0 pt-0.5 text-xs font-semibold tabular-nums text-muted">
-            {stat === "votes"
-              ? formatCount(system.votes, "vote")
-              : stat === "today"
-                ? `${system.todayCopies} today`
-                : formatCount(system.copies, "copy", "copies")}
-          </span>
+      <div className="relative">
+        <SystemPreview system={system} projection="card" decorative />
+        <div className="absolute inset-x-3 top-3 flex flex-wrap items-center justify-end gap-1.5 text-[0.6875rem] font-semibold tabular-nums text-muted">
+          {hasMetrics ? (
+            <>
+              <span className={`${metricBadgeClassName} bg-surface`}>
+                {formatCount(system.copies, "copy", "copies")}
+              </span>
+              <span className={`${metricBadgeClassName} bg-brand-soft text-brand`}>
+                {formatCount(system.votes, "like")}
+              </span>
+            </>
+          ) : (
+            <span className={`${metricBadgeClassName} bg-brand-soft text-brand`}>New</span>
+          )}
         </div>
+      </div>
+      <div className="p-4">
+        <h3 className="card-title text-lg text-ink">{system.name}</h3>
         <p className="mt-1 truncate text-sm text-muted">{system.tags.join(" / ")}</p>
       </div>
     </>
