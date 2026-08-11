@@ -13,6 +13,7 @@ export * from "./Notice";
 export * from "./MenuItem";
 export * from "./PageContainer";
 export * from "./Panel";
+export * from "./Popover";
 export * from "./Skeleton";
 export * from "./StatusBadge";
 export * from "./StatusIcon";

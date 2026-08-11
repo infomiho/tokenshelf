@@ -6,6 +6,7 @@ import { InfoIcon } from "@phosphor-icons/react/dist/csr/Info";
 import {
   Button,
   Panel,
+  Popover,
   controlSizeClassName,
   typographyClassName,
 } from "../../design-system/components";
@@ -86,23 +87,50 @@ export function AgentPromptPanelView({
                     ? "Open this temporary Tokenshelf access link to learn how to fetch the current version and submit updates:"
                     : "Open this temporary Tokenshelf access link to learn how to submit it:"}
                 </p>
-                <details className="group/access relative mt-2 min-w-0">
-                  <summary
-                    className={`flex ${controlSizeClassName("default")} list-none items-center gap-2 text-on-feature marker:content-none hover:text-paper`}
-                  >
-                    <code className="min-w-0 truncate underline decoration-brand decoration-dotted underline-offset-4">
+                <div
+                  className={`mt-2 flex ${controlSizeClassName("default")} min-w-0 items-center gap-2`}
+                >
+                  {agentSessionUrl ? (
+                    <a
+                      href={agentSessionUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block min-w-0 text-on-feature hover:text-paper"
+                    >
+                      <code className="block truncate underline decoration-brand decoration-dotted underline-offset-4">
+                        {maskedSessionUrl}
+                      </code>
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  ) : (
+                    <code className="block min-w-0 truncate text-on-feature-muted">
                       {maskedSessionUrl}
                     </code>
-                    <InfoIcon className="size-4 shrink-0 text-brand" aria-hidden="true" />
-                  </summary>
-                  <div className="mt-2 border-s border-feature-line ps-3 font-sans">
-                    <strong className="block text-sm text-paper">Temporary agent access</strong>
-                    <p className="mt-1 text-sm leading-6 text-on-feature-muted">
-                      This authenticated URL lets your agent read the submission instructions and
-                      send draft updates. It expires in 24 hours and cannot publish.
-                    </p>
-                  </div>
-                </details>
+                  )}
+                  <Popover
+                    title="What's in the link?"
+                    side="right"
+                    align="center"
+                    trigger={
+                      <button
+                        type="button"
+                        aria-label="About temporary agent access"
+                        className="inline-flex size-6 shrink-0 items-center justify-center rounded-full text-brand hover:bg-on-feature/8 hover:text-paper"
+                      >
+                        <InfoIcon className="size-4" aria-hidden="true" />
+                      </button>
+                    }
+                  >
+                    <ul className="list-disc space-y-1 ps-4">
+                      <li>Markdown docs on how to submit a design system to Tokenshelf.</li>
+                      <li>
+                        Your agent uses the temporary link to submit its work. It expires after 24
+                        hours.
+                      </li>
+                      <li>Nothing needs to be installed or run on your computer.</li>
+                    </ul>
+                  </Popover>
+                </div>
               </div>
               <p>
                 {editingPublishedSystem
