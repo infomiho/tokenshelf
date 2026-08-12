@@ -13,6 +13,8 @@ FROM node:24.14.1-trixie-slim AS node-runtime
 
 FROM chromedp/headless-shell:151.0.7922.34@sha256:88359186a9024c4de0b0245c7001e39d5609e0aa0dafab3a0914e9419f258e28
 
+RUN apt-get update && apt-get install --yes --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 COPY --from=node-runtime /usr/local/ /usr/local/
 
 WORKDIR /service
