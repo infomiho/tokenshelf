@@ -18,7 +18,7 @@ const source: CatalogSource = {
           todayCopies: 3,
           votes: 8,
           publishedAt: new Date("2026-08-02T00:00:00.000Z"),
-          renderer: {} as never,
+          screenshot: null,
         },
       ],
       total: 1,

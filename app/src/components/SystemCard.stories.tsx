@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { MemoryRouter } from "react-router";
-import { expect } from "storybook/test";
+import { expect, fireEvent } from "storybook/test";
 import { catalogFixtures } from "../data/catalogFixtures";
 import { formatCount } from "../lib/counts";
 import { SystemCard } from "./SystemCard";
@@ -15,6 +15,7 @@ const meta = {
       databaseId: catalogFixtures[0]!.databaseId ?? catalogFixtures[0]!.id,
       name: "Wasp",
       tags: ["wasp", "brutalist", "monospace", "yellow", "developer-tools"],
+      screenshot: null,
     },
   },
   decorators: [
@@ -104,5 +105,24 @@ export const New: Story = {
     await expect(canvas.getByText("New")).toBeVisible();
     await expect(canvas.queryByText(/copies$/)).not.toBeInTheDocument();
     await expect(canvas.queryByText(/likes$/)).not.toBeInTheDocument();
+  },
+};
+
+export const Screenshot: Story = {
+  args: {
+    system: {
+      ...meta.args.system,
+      screenshot: {
+        url: "https://placehold.co/724x408/webp",
+        width: 724,
+        height: 408,
+        canvas: "#0a0a0b",
+      },
+    },
+  },
+  play: async ({ canvas }) => {
+    const image = canvas.getByRole("presentation");
+    await fireEvent.error(image);
+    await expect(canvas.queryByRole("presentation")).not.toBeInTheDocument();
   },
 };

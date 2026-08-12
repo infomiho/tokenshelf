@@ -62,7 +62,12 @@ export const serverMiddleware: MiddlewareConfigFn = (middleware) => {
           fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
           formAction: ["'self'"],
           frameAncestors: ["'self'"],
-          imgSrc: ["'self'", "data:", "https://avatars.githubusercontent.com"],
+          imgSrc: [
+            "'self'",
+            "data:",
+            "https://avatars.githubusercontent.com",
+            process.env.SCREENSHOT_PUBLIC_BASE_URL ?? "http://localhost:9000",
+          ],
           objectSrc: ["'none'"],
           scriptSrc: ["'self'"],
           scriptSrcAttr: ["'none'"],

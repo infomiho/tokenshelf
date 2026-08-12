@@ -10,6 +10,7 @@ import { agentSpec } from "./src/submissions/agent.wasp";
 import { analyticsJobsSpec } from "./src/analytics/analytics.wasp";
 import { catalogSpec } from "./src/catalog/catalog.wasp";
 import { submissionSpec } from "./src/submissions/submission.wasp";
+import { screenshotsSpec } from "./src/screenshots/screenshots.wasp";
 import { NotFoundPage } from "./src/pages/NotFoundPage" with { type: "ref" };
 
 export default app({
@@ -56,6 +57,7 @@ export default app({
     submissionSpec,
     agentSpec,
     analyticsJobsSpec,
+    screenshotsSpec,
     route("NotFoundRoute", "/*", page(NotFoundPage)),
   ],
 });

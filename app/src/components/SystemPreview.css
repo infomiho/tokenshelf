@@ -84,15 +84,6 @@
     background: var(--preview-canvas);
   }
 
-  .system-preview[data-projection="card"]::after {
-    position: absolute;
-    z-index: 1;
-    inset: 58% 0 0;
-    background: linear-gradient(to bottom, transparent, var(--preview-canvas));
-    content: "";
-    pointer-events: none;
-  }
-
   .system-preview[data-decorative] {
     user-select: none;
   }
@@ -101,7 +92,12 @@
     pointer-events: none;
   }
 
-  .system-preview[data-font-status]:not([data-font-status="loaded"]) [data-renderer-root="system"] {
+  .system-preview:is(
+      [data-font-status="idle"],
+      [data-font-status="loading"],
+      [data-font-status="slow"]
+    )
+    [data-renderer-root="system"] {
     visibility: hidden;
   }
 

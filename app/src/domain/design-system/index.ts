@@ -1315,8 +1315,6 @@ const error = (code: string, message: string, pointer: string): Diagnostic => ({
   message,
   pointer,
 });
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
 const isHexColor = (value: string) => /^#[0-9a-f]{6}$/i.test(value);
 const isBoundedLength = (value: number) => Number.isFinite(value) && value >= 0 && value <= 256;
 const isShadow = (value: string) => value === "none" || isSafeCssValue(value);

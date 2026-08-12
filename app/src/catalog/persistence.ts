@@ -1,8 +1,16 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "wasp/server";
-import type { DesignSystem, Inspiration, PreviewRenderer, SystemCardData } from "../data/catalog";
+import type {
+  DesignSystem,
+  FeaturedSystemData,
+  Inspiration,
+  PreviewRenderer,
+  SystemCardData,
+} from "../data/catalog";
 import type { DesignSystemDocument, RendererIR } from "../domain/design-system";
 import { utcDate } from "../infrastructure/security";
 import { normalizeTagKey } from "../domain/design-system/tags";
+import { cardImageSelection, toCardScreenshot } from "../screenshots/card-image";
 import { createCatalogService, type CatalogSource } from "./service";
 
 export const createSystemDetailSelection = () =>
@@ -36,7 +44,7 @@ export const createSystemCardSelection = () =>
     name: true,
     summary: true,
     tags: true,
-    renderer: true,
+    ...cardImageSelection,
     publishedAt: true,
     _count: { select: { votes: { where: { voteDate: utcDate() } } } },
     dailyPicks: {
@@ -46,19 +54,26 @@ export const createSystemCardSelection = () =>
     },
   }) as const;
 
+export const createFeaturedSystemSelection = () =>
+  ({ ...createSystemCardSelection(), renderer: true }) as const;
+
 export const loadSystems = (
-  where: Record<string, unknown>,
+  where: Prisma.DesignSystemWhereInput,
   options: {
-    orderBy?: Record<string, unknown> | Record<string, unknown>[];
+    orderBy?:
+      | Prisma.DesignSystemOrderByWithRelationInput
+      | Prisma.DesignSystemOrderByWithRelationInput[];
     skip?: number;
     take?: number;
   } = {},
 ) => prisma.designSystem.findMany({ where, select: createSystemDetailSelection(), ...options });
 
 export const loadSystemCardRecords = (
-  where: Record<string, unknown>,
+  where: Prisma.DesignSystemWhereInput,
   options: {
-    orderBy?: Record<string, unknown> | Record<string, unknown>[];
+    orderBy?:
+      | Prisma.DesignSystemOrderByWithRelationInput
+      | Prisma.DesignSystemOrderByWithRelationInput[];
     skip?: number;
     take?: number;
   } = {},
@@ -66,6 +81,7 @@ export const loadSystemCardRecords = (
 
 type StoredSystem = Awaited<ReturnType<typeof loadSystems>>[number];
 type StoredSystemCard = Awaited<ReturnType<typeof loadSystemCardRecords>>[number];
+type StoredFeaturedSystem = StoredSystemCard & { renderer: unknown };
 
 function toPreviewRenderer(value: unknown): PreviewRenderer {
   const renderer = value as RendererIR;
@@ -115,7 +131,17 @@ export async function toSystemCards(systems: StoredSystemCard[]): Promise<System
     votes: system._count.votes,
     pickedOn: system.dailyPicks[0]?.featuredDate.toISOString().slice(0, 10),
     publishedAt: system.publishedAt,
-    renderer: toPreviewRenderer(system.renderer),
+    screenshot: toCardScreenshot(system),
+  }));
+}
+
+export async function toFeaturedSystems(
+  systems: StoredFeaturedSystem[],
+): Promise<FeaturedSystemData[]> {
+  const cards = await toSystemCards(systems);
+  return cards.map((card, index) => ({
+    ...card,
+    renderer: toPreviewRenderer(systems[index]!.renderer),
   }));
 }
 
@@ -162,7 +188,7 @@ const toCatalogRecords = (cards: SystemCardData[]) =>
     votes: card.votes,
     pickedOn: card.pickedOn,
     publishedAt: card.publishedAt as Date,
-    renderer: card.renderer,
+    screenshot: card.screenshot,
   }));
 
 export const catalogSource: CatalogSource = {

@@ -1,8 +1,8 @@
+import { useState, type CSSProperties } from "react";
 import { Link } from "wasp/client/router";
 import type { SystemCardData } from "../data/catalog";
 import { panelClassName } from "../design-system/components";
 import { formatCount } from "../lib/counts";
-import { SystemPreview } from "./SystemPreview";
 
 const metricBadgeClassName =
   "inline-flex min-h-[var(--badge-height)] items-center whitespace-nowrap rounded-[var(--radius-round)] border border-line px-2 shadow-[var(--shadow-raised)]";
@@ -26,11 +26,34 @@ export function SystemCard({ system }: { system: SystemCardData }) {
 
 function SystemCardContent({ system }: { system: SystemCardData }) {
   const hasMetrics = system.copies > 0 || system.votes > 0;
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const screenshot = system.screenshot?.url === failedImageUrl ? null : system.screenshot;
 
   return (
     <>
       <div className="relative">
-        <SystemPreview system={system} projection="card" decorative />
+        <div className="aspect-video min-h-[10.5rem] overflow-hidden rounded-t-[calc(var(--radius-card)-1px)] bg-surface-subtle">
+          {screenshot ? (
+            <img
+              key={screenshot.url}
+              src={screenshot.url}
+              width={screenshot.width}
+              height={screenshot.height}
+              alt=""
+              loading="lazy"
+              onError={() => setFailedImageUrl(screenshot.url)}
+              className="size-full object-cover object-start"
+            />
+          ) : (
+            <div className="size-full bg-[radial-gradient(circle,var(--line)_1px,transparent_1px)] bg-[size:16px_16px]" />
+          )}
+          {screenshot && (
+            <div
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-linear-to-b from-transparent to-[var(--card-preview-canvas)]"
+              style={{ "--card-preview-canvas": screenshot.canvas } as CSSProperties}
+            />
+          )}
+        </div>
         <div className="absolute inset-x-3 top-3 flex flex-wrap items-center justify-end gap-1.5 text-[0.6875rem] font-semibold tabular-nums text-muted">
           {hasMetrics ? (
             <>

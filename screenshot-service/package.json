@@ -1,0 +1,28 @@
+{
+  "name": "@tokenshelf/screenshot-service",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "fmt": "oxfmt src package.json tsconfig.json tsdown.config.ts .oxfmtrc.json",
+    "fmt:check": "oxfmt --check src package.json tsconfig.json tsdown.config.ts .oxfmtrc.json",
+    "start": "node dist/main.mjs",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1108.0",
+    "playwright": "1.62.1",
+    "typebox": "1.3.12"
+  },
+  "devDependencies": {
+    "@types/node": "24.3.0",
+    "oxfmt": "0.62.0",
+    "tsdown": "0.22.14",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

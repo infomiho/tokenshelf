@@ -1,4 +1,5 @@
 import type { DesignSystemDocument, RendererIR } from "../domain/design-system";
+import type { CardScreenshot } from "../screenshots/contracts";
 
 export type PreviewRenderer = Pick<
   RendererIR,
@@ -61,6 +62,10 @@ export type SystemCardData = Pick<
   | "publishedAt"
 > & {
   databaseId: string;
+  screenshot: CardScreenshot | null;
+};
+
+export type FeaturedSystemData = SystemCardData & {
   renderer: PreviewRenderer;
 };
 

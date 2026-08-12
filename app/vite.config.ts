@@ -4,4 +4,5 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [wasp(), tailwindcss()],
+  server: { allowedHosts: ["host.docker.internal"] },
 });

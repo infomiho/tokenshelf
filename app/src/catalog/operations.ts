@@ -8,20 +8,22 @@ import type {
   ListSystems,
   SetVote,
 } from "wasp/server/operations";
-import type { SystemCardData, TagSuggestion } from "../data/catalog";
+import type { FeaturedSystemData, SystemCardData, TagSuggestion } from "../data/catalog";
 import { normalizeTagKey, normalizeTags } from "../domain/design-system/tags";
 import { normalizePublicUsername } from "../lib/usernames";
 import { utcDate } from "../infrastructure/security";
 import {
   catalogService,
+  createFeaturedSystemSelection,
   createSystemCardSelection,
   loadSystems,
   toCatalogSystem,
+  toFeaturedSystems,
   toSystemCards,
   type CatalogSystemView,
 } from "./persistence";
 type CatalogHomeView = {
-  dailyPick: SystemCardData | null;
+  dailyPick: FeaturedSystemData | null;
   previousPicks: SystemCardData[];
   latestSystems: SystemCardData[];
   hasPublishedSystems: boolean;
@@ -40,7 +42,7 @@ export const getCatalogHome: GetCatalogHome<void, CatalogHomeView> = async () =>
       where: { winner: { lifecycle: "PUBLISHED" } },
       orderBy: { featuredDate: "desc" },
       take: 5,
-      select: { winnerId: true, winner: { select: createSystemCardSelection() } },
+      select: { winnerId: true, winner: { select: createFeaturedSystemSelection() } },
     }),
     prisma.designSystem.findMany({
       where: { lifecycle: "PUBLISHED" },
@@ -49,13 +51,13 @@ export const getCatalogHome: GetCatalogHome<void, CatalogHomeView> = async () =>
       select: createSystemCardSelection(),
     }),
   ]);
-  const [systems, latestSystems] = await Promise.all([
-    toSystemCards(picks.map(({ winner }) => winner)),
+  const [featuredSystems, latestSystems] = await Promise.all([
+    toFeaturedSystems(picks.map(({ winner }) => winner)),
     toSystemCards(latestSystemRecords),
   ]);
   return {
-    dailyPick: systems[0] ?? null,
-    previousPicks: systems.slice(1),
+    dailyPick: featuredSystems[0] ?? null,
+    previousPicks: featuredSystems.slice(1).map(({ renderer: _renderer, ...card }) => card),
     latestSystems,
     hasPublishedSystems: latestSystems.length > 0,
   };
@@ -88,7 +90,7 @@ export const listSystems: ListSystems<ListInput, SystemPageView> = async (args) 
       votes: system.votes,
       pickedOn: system.pickedOn,
       publishedAt: system.publishedAt,
-      renderer: system.renderer,
+      screenshot: system.screenshot,
     })),
     page: result.page,
     pageSize: result.pageSize,

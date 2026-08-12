@@ -22,6 +22,10 @@ vi.mock("@infomiho/agent-work-protocol/server", () => ({
   mintCapability: mocks.mintCapability,
 }));
 
+vi.mock("wasp/server/jobs", () => ({
+  captureSystemCard: { submit: vi.fn() },
+}));
+
 vi.mock("wasp/server", () => {
   class HttpError extends Error {
     constructor(
@@ -290,7 +294,13 @@ describe("owned design-system lifecycle", () => {
     expect(mocks.designSystemCreate).not.toHaveBeenCalled();
     expect(mocks.designSystemUpdate).toHaveBeenCalledWith({
       where: { id: "system-id" },
-      data: expect.objectContaining({ sourceRevision: 7, name: fixture.document.identity.name }),
+      data: expect.objectContaining({
+        sourceRevision: 7,
+        name: fixture.document.identity.name,
+        cardImageKey: null,
+        cardImageRenderVersion: null,
+        cardImageCanvas: null,
+      }),
     });
     const publicationUpdate = mocks.designSystemUpdate.mock.calls[0]![0].data;
     expect(publicationUpdate).not.toHaveProperty("rightsAttestation");

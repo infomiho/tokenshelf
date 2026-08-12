@@ -25,7 +25,7 @@ export function SystemPreview({
   projection = "detail",
   decorative = false,
 }: SystemPreviewProps) {
-  const fonts = usePreviewFonts(system.renderer, projection === "card" ? "visible" : "eager");
+  const fonts = usePreviewFonts(system.renderer, "eager");
   return (
     <div
       ref={fonts.elementRef}
@@ -51,7 +51,7 @@ export function SystemPreview({
         projection={projection}
         decorative={decorative}
       />
-      {fonts.status !== "loaded" && (
+      {fonts.status !== "loaded" && !(decorative && fonts.status === "failed") && (
         <div className="preview-font-state" aria-hidden={decorative || undefined}>
           {(fonts.status === "loading" || fonts.status === "slow") && (
             <LogoMark animated className="size-8 text-brand" aria-hidden="true" />

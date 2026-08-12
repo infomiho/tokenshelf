@@ -1,10 +1,10 @@
 import { Link } from "wasp/client/router";
-import type { SystemCardData } from "../data/catalog";
+import type { FeaturedSystemData } from "../data/catalog";
 import { actionLinkClassName } from "../design-system/components";
 import { CopyPromptButton } from "./CopyPromptButton";
 import { SystemPreview } from "./SystemPreview";
 
-export function DailyPickFeature({ system }: { system: SystemCardData }) {
+export function DailyPickFeature({ system }: { system: FeaturedSystemData }) {
   return (
     <article className="mt-8 grid overflow-hidden rounded-[var(--radius-hero)] border border-feature-line bg-feature lg:grid-cols-[0.8fr_1.2fr]">
       <div className="flex flex-col justify-between gap-10 p-6 text-on-feature sm:p-8 lg:p-10">

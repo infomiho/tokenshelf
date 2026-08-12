@@ -1,0 +1,78 @@
+services:
+  rustfs:
+    image: rustfs/rustfs:1.0.0-rc.1
+    command: /data
+    environment:
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-tokenshelf-local}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-tokenshelf-local-secret}
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+      RUSTFS_CONSOLE_ENABLE: "true"
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - rustfs-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9000/health"]
+      interval: 3s
+      timeout: 2s
+      retries: 20
+      start_period: 5s
+
+  rustfs-bootstrap:
+    image: amazon/aws-cli:2.27.49
+    depends_on:
+      rustfs:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: ${RUSTFS_ACCESS_KEY:-tokenshelf-local}
+      AWS_SECRET_ACCESS_KEY: ${RUSTFS_SECRET_KEY:-tokenshelf-local-secret}
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        aws --endpoint-url http://rustfs:9000 s3api head-bucket --bucket tokenshelf-public >/dev/null 2>&1 ||
+        aws --endpoint-url http://rustfs:9000 s3api create-bucket --bucket tokenshelf-public;
+        aws --endpoint-url http://rustfs:9000 s3api put-bucket-policy --bucket tokenshelf-public
+        --policy '{"Version":"2012-10-17","Statement":[{"Sid":"PublicRead","Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::tokenshelf-public/public/*"}]}'
+    restart: "no"
+
+  screenshot-service:
+    build:
+      context: ./screenshot-service
+    depends_on:
+      rustfs-bootstrap:
+        condition: service_completed_successfully
+    environment:
+      PORT: "4100"
+      SCREENSHOT_SERVICE_TOKEN: ${SCREENSHOT_SERVICE_TOKEN:-tokenshelf-local-screenshot-token}
+      CAPTURE_ORIGIN: ${CAPTURE_ORIGIN:-http://host.docker.internal:3000}
+      CAPTURE_CONCURRENCY: ${CAPTURE_CONCURRENCY:-2}
+      CAPTURE_TIMEOUT_MS: ${CAPTURE_TIMEOUT_MS:-15000}
+      S3_ENDPOINT: http://rustfs:9000
+      S3_REGION: us-east-1
+      S3_BUCKET: tokenshelf-public
+      S3_ACCESS_KEY_ID: ${RUSTFS_ACCESS_KEY:-tokenshelf-local}
+      S3_SECRET_ACCESS_KEY: ${RUSTFS_SECRET_KEY:-tokenshelf-local-secret}
+      S3_UPLOAD_TIMEOUT_MS: ${S3_UPLOAD_TIMEOUT_MS:-15000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:4100:4100"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:4100/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    init: true
+
+volumes:
+  rustfs-data:

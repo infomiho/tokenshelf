@@ -3,9 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "fmt": "npm --prefix app run fmt && npm --prefix cli run fmt",
-    "fmt:check": "npm --prefix app run fmt:check && npm --prefix cli run fmt:check",
-    "test": "npm --prefix app test && npm --prefix cli test",
+    "screenshots:build": "npm --prefix screenshot-service run build",
+    "fmt": "npm --prefix app run fmt && npm --prefix cli run fmt && npm --prefix screenshot-service run fmt",
+    "fmt:check": "npm --prefix app run fmt:check && npm --prefix cli run fmt:check && npm --prefix screenshot-service run fmt:check",
+    "test": "npm --prefix app test && npm --prefix cli test && npm --prefix screenshot-service test",
     "test:app": "npm --prefix app test",
     "test:cli": "npm --prefix cli test",
     "build:cli": "npm --prefix cli run build"

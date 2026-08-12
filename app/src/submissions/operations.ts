@@ -20,6 +20,8 @@ import { hashCredential, randomCredential } from "../infrastructure/security";
 import { canAccessSubmission } from "./submission-access";
 import { createPublicationSlug } from "./publication-slug";
 import { retrySerializationConflict } from "./serialization";
+import { requestCardScreenshot } from "../screenshots/request";
+import { invalidateCardImage } from "../screenshots/card-image";
 
 type GuestInput = { guestToken?: string };
 type AgentSessionResult = { capability: string; sessionUrl: string; expiresAt: Date };
@@ -374,7 +376,11 @@ export const publishSubmission: PublishSubmission<
         if (submission.publishedSystem && submission.lifecycle === "PUBLISHED") {
           if (submission.publishedSystem.sourceRevision !== args.expectedRevision)
             throw new HttpError(409, "The draft changed. Review the latest version.");
-          return { id: submission.publishedSystem.id, slug: submission.publishedSystem.slug };
+          return {
+            id: submission.publishedSystem.id,
+            slug: submission.publishedSystem.slug,
+            sourceRevision: submission.publishedSystem.sourceRevision,
+          };
         }
         if (submission.lifecycle !== "OPEN" || !submission.draft)
           throw new HttpError(409, "Submission cannot be published.");
@@ -411,6 +417,7 @@ export const publishSubmission: PublishSubmission<
           assessment: wireAssessment(assessment.diagnostics),
           validatorVersion: `${designSystemModel.id}@${designSystemModel.version}`,
           sourceRevision: submission.draft.revision,
+          ...invalidateCardImage,
         };
         const system = submission.publishedSystem
           ? await transaction.designSystem.update({
@@ -432,11 +439,13 @@ export const publishSubmission: PublishSubmission<
           where: { id: submission.id },
           data: { lifecycle: "PUBLISHED", sessionGeneration: { increment: 1 } },
         });
-        return { id: system.id, slug: system.slug };
+        return { id: system.id, slug: system.slug, sourceRevision: system.sourceRevision };
       },
       { isolationLevel: "Serializable" },
     );
-  return retrySerializationConflict(publish);
+  const result = await retrySerializationConflict(publish);
+  await requestCardScreenshot(result.id, result.sourceRevision);
+  return { id: result.id, slug: result.slug };
 };
 
 type SubmissionStore = Pick<typeof prisma, "submission" | "guestSession">;

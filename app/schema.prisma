@@ -106,6 +106,9 @@ model DesignSystem {
   sourceSubmissionId String               @unique
   sourceSubmission  Submission            @relation("SubmissionPublication", fields: [sourceSubmissionId], references: [id], onDelete: Restrict)
   sourceRevision    Int
+  cardImageKey      String?
+  cardImageRenderVersion String?
+  cardImageCanvas   String?
   rightsAttestation Boolean
   rightsStatementVersion String
   rightsAcceptedAt  DateTime

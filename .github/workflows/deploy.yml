@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - app/**
+      - screenshot-service/**
       - .github/workflows/deploy.yml
   workflow_dispatch:
 
@@ -18,6 +19,7 @@ env:
   SERVER_APP_NAME: tokenshelf-server
   SERVER_APP_URL: https://api.tokenshelf.dev
   CLIENT_APP_NAME: tokenshelf-client
+  SCREENSHOT_APP_NAME: tokenshelf-screenshot-service
   DOCKER_REGISTRY: ghcr.io
   DOCKER_REGISTRY_USERNAME: ${{ github.repository_owner }}
   DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
@@ -54,6 +56,12 @@ jobs:
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.CLIENT_APP_NAME }}
 
+      - name: Extract screenshot service image metadata
+        id: meta-screenshot
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.SCREENSHOT_APP_NAME }}
+
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
@@ -72,6 +80,9 @@ jobs:
         run: npx vite build
         env:
           REACT_APP_API_URL: ${{ env.SERVER_APP_URL }}
+
+      - name: Test screenshot service
+        run: npm --prefix ../screenshot-service ci && npm --prefix ../screenshot-service test
 
       - name: Prepare client Dockerfile
         run: |
@@ -99,11 +110,22 @@ jobs:
           tags: ${{ steps.meta-client.outputs.tags }}
           labels: ${{ steps.meta-client.outputs.labels }}
 
+      - name: Build and push screenshot service image
+        uses: docker/build-push-action@v7
+        with:
+          context: screenshot-service
+          file: screenshot-service/Dockerfile
+          push: true
+          tags: ${{ steps.meta-screenshot.outputs.tags }}
+          labels: ${{ steps.meta-screenshot.outputs.labels }}
+
       - name: Trigger Coolify deploys
         env:
           COOLIFY_SERVER_WEBHOOK: ${{ secrets.COOLIFY_SERVER_WEBHOOK }}
           COOLIFY_CLIENT_WEBHOOK: ${{ secrets.COOLIFY_CLIENT_WEBHOOK }}
+          COOLIFY_SCREENSHOT_WEBHOOK: ${{ secrets.COOLIFY_SCREENSHOT_WEBHOOK }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
         run: |
+          curl --fail-with-body --silent --show-error "$COOLIFY_SCREENSHOT_WEBHOOK" --header "Authorization: Bearer $COOLIFY_TOKEN"
           curl --fail-with-body --silent --show-error "$COOLIFY_SERVER_WEBHOOK" --header "Authorization: Bearer $COOLIFY_TOKEN"
           curl --fail-with-body --silent --show-error "$COOLIFY_CLIENT_WEBHOOK" --header "Authorization: Bearer $COOLIFY_TOKEN"
