@@ -126,6 +126,6 @@ jobs:
           COOLIFY_SCREENSHOT_WEBHOOK: ${{ secrets.COOLIFY_SCREENSHOT_WEBHOOK }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
         run: |
-          curl --fail-with-body --silent --show-error "$COOLIFY_SCREENSHOT_WEBHOOK" --header "Authorization: Bearer $COOLIFY_TOKEN"
-          curl --fail-with-body --silent --show-error "$COOLIFY_SERVER_WEBHOOK" --header "Authorization: Bearer $COOLIFY_TOKEN"
-          curl --fail-with-body --silent --show-error "$COOLIFY_CLIENT_WEBHOOK" --header "Authorization: Bearer $COOLIFY_TOKEN"
+          curl --request POST --fail-with-body --silent --show-error "$COOLIFY_SCREENSHOT_WEBHOOK" --header "Authorization: Bearer $COOLIFY_TOKEN"
+          curl --request POST --fail-with-body --silent --show-error "$COOLIFY_SERVER_WEBHOOK" --header "Authorization: Bearer $COOLIFY_TOKEN"
+          curl --request POST --fail-with-body --silent --show-error "$COOLIFY_CLIENT_WEBHOOK" --header "Authorization: Bearer $COOLIFY_TOKEN"
