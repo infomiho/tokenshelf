@@ -24,7 +24,10 @@ export class ScreenshotService {
   }
 
   async start(): Promise<void> {
-    this.#browser = await chromium.launch({ headless: true });
+    this.#browser = await chromium.launch({
+      headless: true,
+      executablePath: this.#config.browserExecutablePath,
+    });
   }
 
   async isReady(): Promise<boolean> {

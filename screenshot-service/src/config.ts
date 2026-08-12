@@ -27,6 +27,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env) {
   return {
     port: positiveInteger(env, "PORT", 4100),
     authToken: required(env, "SCREENSHOT_SERVICE_TOKEN"),
+    browserExecutablePath: env.BROWSER_EXECUTABLE_PATH?.trim() || undefined,
     captureOrigin: captureOrigin.origin,
     captureConcurrency: positiveInteger(env, "CAPTURE_CONCURRENCY", 2),
     captureTimeoutMs: positiveInteger(env, "CAPTURE_TIMEOUT_MS", 15_000),
