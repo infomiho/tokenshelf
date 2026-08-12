@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isAuthorized, parseScreenshotRequest } from "./protocol.js";
+import { isAllowedCaptureUrl, isAuthorized, parseScreenshotRequest } from "./protocol.js";
 import { systemCardProfile } from "./card-profile.js";
 
 const origin = "http://host.docker.internal:3000";
@@ -22,9 +22,22 @@ describe("parseScreenshotRequest", () => {
     });
   });
 
+  it("accepts the capture endpoint after client-side trailing slash normalization", () => {
+    const captureUrl = `${origin}/internal/system-card-capture?token=value`;
+    expect(
+      parseScreenshotRequest(
+        {
+          profile: systemCardProfile.id,
+          captureUrl,
+          objectKey: "public/systems/abc/card.webp",
+        },
+        origin,
+      ).captureUrl,
+    ).toBe(captureUrl);
+  });
+
   it.each([
     "http://example.com/internal/system-card-capture/",
-    `${origin}/internal/system-card-capture`,
     `${origin}/internal/system-card-capture/extra`,
     `${origin}/internal/system-card-capture/#fragment`,
   ])("rejects capture URL %s", (captureUrl) => {
@@ -66,6 +79,14 @@ describe("parseScreenshotRequest", () => {
         origin,
       ),
     ).toThrow("Invalid request body");
+  });
+});
+
+describe("isAllowedCaptureUrl", () => {
+  it("accepts the capture route after client-side trailing slash normalization", () => {
+    expect(isAllowedCaptureUrl(`${origin}/internal/system-card-capture?token=value`, origin)).toBe(
+      true,
+    );
   });
 });
 

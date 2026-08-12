@@ -3,6 +3,7 @@ import { Link } from "wasp/client/router";
 import type { SystemCardData } from "../data/catalog";
 import { panelClassName } from "../design-system/components";
 import { formatCount } from "../lib/counts";
+import { SystemPreview } from "./SystemPreview";
 
 const metricBadgeClassName =
   "inline-flex min-h-[var(--badge-height)] items-center whitespace-nowrap rounded-[var(--radius-round)] border border-line px-2 shadow-[var(--shadow-raised)]";
@@ -45,7 +46,7 @@ function SystemCardContent({ system }: { system: SystemCardData }) {
               className="size-full object-cover object-start"
             />
           ) : (
-            <div className="size-full bg-[radial-gradient(circle,var(--line)_1px,transparent_1px)] bg-[size:16px_16px]" />
+            <SystemPreview system={system} projection="card" decorative />
           )}
           {screenshot && (
             <div

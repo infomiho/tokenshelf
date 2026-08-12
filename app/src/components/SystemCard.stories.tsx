@@ -103,6 +103,9 @@ export const New: Story = {
   },
   play: async ({ canvas }) => {
     await expect(canvas.getByText("New")).toBeVisible();
+    await expect(
+      canvas.getByTestId("card-grid").querySelector('[data-renderer-preview="system"]'),
+    ).toBeTruthy();
     await expect(canvas.queryByText(/copies$/)).not.toBeInTheDocument();
     await expect(canvas.queryByText(/likes$/)).not.toBeInTheDocument();
   },
@@ -124,5 +127,8 @@ export const Screenshot: Story = {
     const image = canvas.getByRole("presentation");
     await fireEvent.error(image);
     await expect(canvas.queryByRole("presentation")).not.toBeInTheDocument();
+    await expect(
+      canvas.getByTestId("card-grid").querySelector('[data-renderer-preview="system"]'),
+    ).toBeTruthy();
   },
 };

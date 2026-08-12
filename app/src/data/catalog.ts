@@ -63,10 +63,9 @@ export type SystemCardData = Pick<
 > & {
   databaseId: string;
   screenshot: CardScreenshot | null;
-};
-
-export type FeaturedSystemData = SystemCardData & {
   renderer: PreviewRenderer;
 };
+
+export type FeaturedSystemData = SystemCardData;
 
 export type TagSuggestion = { label: string; count: number };

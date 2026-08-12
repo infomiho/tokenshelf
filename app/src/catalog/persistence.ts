@@ -44,6 +44,7 @@ export const createSystemCardSelection = () =>
     name: true,
     summary: true,
     tags: true,
+    renderer: true,
     ...cardImageSelection,
     publishedAt: true,
     _count: { select: { votes: { where: { voteDate: utcDate() } } } },
@@ -132,6 +133,7 @@ export async function toSystemCards(systems: StoredSystemCard[]): Promise<System
     pickedOn: system.dailyPicks[0]?.featuredDate.toISOString().slice(0, 10),
     publishedAt: system.publishedAt,
     screenshot: toCardScreenshot(system),
+    renderer: toPreviewRenderer(system.renderer),
   }));
 }
 
@@ -189,6 +191,7 @@ const toCatalogRecords = (cards: SystemCardData[]) =>
     pickedOn: card.pickedOn,
     publishedAt: card.publishedAt as Date,
     screenshot: card.screenshot,
+    renderer: card.renderer,
   }));
 
 export const catalogSource: CatalogSource = {

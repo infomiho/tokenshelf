@@ -1,4 +1,5 @@
 import type { DesignSystemDocument } from "../domain/design-system";
+import type { PreviewRenderer } from "../data/catalog";
 import type { CardScreenshot } from "../screenshots/contracts";
 import { normalizeTagKey } from "../domain/design-system/tags";
 
@@ -16,6 +17,7 @@ export type CatalogRecord = {
   pickedOn?: string;
   publishedAt: Date;
   screenshot: CardScreenshot | null;
+  renderer: PreviewRenderer;
 };
 
 export type CatalogDocumentRecord = {

@@ -57,7 +57,7 @@ export const getCatalogHome: GetCatalogHome<void, CatalogHomeView> = async () =>
   ]);
   return {
     dailyPick: featuredSystems[0] ?? null,
-    previousPicks: featuredSystems.slice(1).map(({ renderer: _renderer, ...card }) => card),
+    previousPicks: featuredSystems.slice(1),
     latestSystems,
     hasPublishedSystems: latestSystems.length > 0,
   };
@@ -91,6 +91,7 @@ export const listSystems: ListSystems<ListInput, SystemPageView> = async (args) 
       pickedOn: system.pickedOn,
       publishedAt: system.publishedAt,
       screenshot: system.screenshot,
+      renderer: system.renderer,
     })),
     page: result.page,
     pageSize: result.pageSize,

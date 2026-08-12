@@ -12,6 +12,7 @@ const tactile = {
   votes: 8,
   publishedAt: new Date("2026-08-02T00:00:00.000Z"),
   screenshot: null,
+  renderer: {} as never,
 };
 const listSystems = vi.fn<CatalogSource["listSystems"]>().mockResolvedValue({
   items: [tactile],

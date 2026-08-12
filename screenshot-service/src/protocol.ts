@@ -14,6 +14,10 @@ export const screenshotRequestSchema = Type.Object(
 
 export type ScreenshotRequest = Static<typeof screenshotRequestSchema>;
 
+function withoutTrailingSlash(pathname: string): string {
+  return pathname.length > 1 ? pathname.replace(/\/$/, "") : pathname;
+}
+
 export function isAllowedCaptureUrl(value: string, captureOrigin: string): boolean {
   let captureUrl: URL;
   try {
@@ -24,7 +28,8 @@ export function isAllowedCaptureUrl(value: string, captureOrigin: string): boole
 
   return (
     captureUrl.origin === captureOrigin &&
-    captureUrl.pathname === systemCardProfile.capturePath &&
+    withoutTrailingSlash(captureUrl.pathname) ===
+      withoutTrailingSlash(systemCardProfile.capturePath) &&
     !captureUrl.username &&
     !captureUrl.password &&
     !captureUrl.hash
