@@ -15,6 +15,10 @@ export const systemCardOutputSize = {
   height: systemCardProfile.height * systemCardProfile.scale,
 } as const;
 
+export function systemCardDataUrl(apiUrl: string, token: string): string {
+  return `${apiUrl.replace(/\/$/, "")}${systemCardProfile.dataPath}?token=${encodeURIComponent(token)}`;
+}
+
 export type CaptureTokenPayload = {
   designSystemId: string;
   sourceRevision: number;
