@@ -1,5 +1,7 @@
 import {
+  useEffect,
   useId,
+  useRef,
   useState,
   type ButtonHTMLAttributes,
   type CSSProperties,
@@ -17,6 +19,7 @@ import {
 } from "../domain/design-system";
 import type { PreviewRenderer } from "../data/catalog";
 import type { SystemPreviewProjection } from "./SystemPreview";
+import { AnimatedCursorCue } from "../design-system/components/AnimatedCursorCue";
 
 type RendererStyle = CSSProperties & Record<`--preview-${string}`, string>;
 
@@ -24,10 +27,14 @@ export function SystemComponentSpecimen({
   renderer,
   projection,
   decorative = false,
+  cursorCueEligible = false,
+  cursorCueEnabled = false,
 }: {
   renderer: PreviewRenderer;
   projection: SystemPreviewProjection;
   decorative?: boolean;
+  cursorCueEligible?: boolean;
+  cursorCueEnabled?: boolean;
 }) {
   return (
     <section
@@ -40,15 +47,52 @@ export function SystemComponentSpecimen({
       aria-label={`${renderer.name} ${projection} preview`}
       aria-hidden={decorative || undefined}
     >
-      <ComponentGallery renderer={renderer} />
+      <ComponentGallery
+        renderer={renderer}
+        cursorCueEligible={cursorCueEligible}
+        cursorCueEnabled={cursorCueEnabled}
+      />
     </section>
   );
 }
 
-function ComponentGallery({ renderer }: { renderer: PreviewRenderer }) {
+function ComponentGallery({
+  renderer,
+  cursorCueEligible,
+  cursorCueEnabled,
+}: {
+  renderer: PreviewRenderer;
+  cursorCueEligible: boolean;
+  cursorCueEnabled: boolean;
+}) {
   const instanceId = useId();
   const [activeNavbarItem, setActiveNavbarItem] = useState("Projects");
   const [activeView, setActiveView] = useState("Overview");
+  const [showCursorCue, setShowCursorCue] = useState(cursorCueEnabled);
+  const cursorCueCancelled = useRef(false);
+
+  useEffect(() => {
+    if (cursorCueEnabled && !cursorCueCancelled.current) setShowCursorCue(true);
+  }, [cursorCueEnabled]);
+
+  useEffect(() => {
+    if (!cursorCueEligible) return;
+    const cancelCursorCue = () => {
+      cursorCueCancelled.current = true;
+      setShowCursorCue(false);
+    };
+    document.addEventListener("pointerdown", cancelCursorCue, { once: true });
+    document.addEventListener("keydown", cancelCursorCue, { once: true });
+    return () => {
+      document.removeEventListener("pointerdown", cancelCursorCue);
+      document.removeEventListener("keydown", cancelCursorCue);
+    };
+  }, [cursorCueEligible]);
+
+  function completeCursorCue() {
+    cursorCueCancelled.current = true;
+    setShowCursorCue(false);
+  }
 
   return (
     <div className="component-gallery">
@@ -61,7 +105,12 @@ function ComponentGallery({ renderer }: { renderer: PreviewRenderer }) {
 
       <div className="preview-component-columns">
         <div className="preview-component-column">
-          <FormPanel actions={renderer.actions} fieldId={`${instanceId}-project-name`} />
+          <FormPanel
+            actions={renderer.actions}
+            fieldId={`${instanceId}-project-name`}
+            showCursorCue={showCursorCue}
+            onCursorCueComplete={completeCursorCue}
+          />
           <TemplateChoices groupName={`${instanceId}-template`} />
           <ActionPanel actions={renderer.actions} />
         </div>
@@ -160,7 +209,19 @@ function ActionPanel({ actions }: { actions: ActionsDocument }) {
   );
 }
 
-function FormPanel({ actions, fieldId }: { actions: ActionsDocument; fieldId: string }) {
+function FormPanel({
+  actions,
+  fieldId,
+  showCursorCue,
+  onCursorCueComplete,
+}: {
+  actions: ActionsDocument;
+  fieldId: string;
+  showCursorCue: boolean;
+  onCursorCueComplete: () => void;
+}) {
+  const [publishUpdates, setPublishUpdates] = useState(true);
+
   return (
     <section className="preview-panel preview-form-panel">
       <h3>Project settings</h3>
@@ -181,10 +242,21 @@ function FormPanel({ actions, fieldId }: { actions: ActionsDocument; fieldId: st
             <strong>Publish updates</strong>
             <small>Notify collaborators after saving</small>
           </span>
-          <input className="preview-switch-input" type="checkbox" defaultChecked />
+          <input
+            className="preview-switch-input"
+            type="checkbox"
+            checked={publishUpdates}
+            onChange={(event) => setPublishUpdates(event.target.checked)}
+          />
           <span className="preview-switch" aria-hidden="true">
             <i />
           </span>
+          {showCursorCue && (
+            <AnimatedCursorCue
+              onActivate={() => setPublishUpdates((value) => !value)}
+              onComplete={onCursorCueComplete}
+            />
+          )}
         </label>
         <label className="preview-option-row preview-check-row">
           <input className="preview-checkbox-input" type="checkbox" defaultChecked />

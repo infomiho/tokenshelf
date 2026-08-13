@@ -3,8 +3,12 @@ import type { FeaturedSystemData } from "../data/catalog";
 import { actionLinkClassName } from "../design-system/components";
 import { CopyPromptButton } from "./CopyPromptButton";
 import { SystemPreview } from "./SystemPreview";
+import { useDesktopPointer, useMotionAllowed } from "../hooks/useDesktopPointer";
 
 export function DailyPickFeature({ system }: { system: FeaturedSystemData }) {
+  const hasDesktopPointer = useDesktopPointer();
+  const motionAllowed = useMotionAllowed();
+
   return (
     <article className="mt-8 grid overflow-hidden rounded-[var(--radius-hero)] border border-feature-line bg-feature lg:grid-cols-[0.8fr_1.2fr]">
       <div className="flex flex-col justify-between gap-10 p-6 text-on-feature sm:p-8 lg:p-10">
@@ -39,7 +43,13 @@ export function DailyPickFeature({ system }: { system: FeaturedSystemData }) {
         className="relative h-[26rem] min-w-0 overflow-hidden border-t border-feature-line sm:h-[32rem] lg:h-[36rem] lg:border-l lg:border-t-0"
         style={{ background: system.renderer.colors.canvas }}
       >
-        <SystemPreview system={system} projection="hero" decorative />
+        <SystemPreview
+          system={system}
+          projection="hero"
+          decorative={!hasDesktopPointer}
+          cursorCueEligible
+          cursorCueEnabled={hasDesktopPointer && motionAllowed}
+        />
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-40 sm:h-48"
           style={{

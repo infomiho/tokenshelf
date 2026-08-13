@@ -12,6 +12,8 @@ type SystemPreviewProps = {
   system: { renderer: PreviewRenderer };
   projection?: SystemPreviewProjection;
   decorative?: boolean;
+  cursorCueEligible?: boolean;
+  cursorCueEnabled?: boolean;
 };
 
 type PreviewStyle = CSSProperties & {
@@ -24,6 +26,8 @@ export function SystemPreview({
   system,
   projection = "detail",
   decorative = false,
+  cursorCueEligible = false,
+  cursorCueEnabled = false,
 }: SystemPreviewProps) {
   const fonts = usePreviewFonts(system.renderer, "eager");
   return (
@@ -50,6 +54,8 @@ export function SystemPreview({
         renderer={system.renderer}
         projection={projection}
         decorative={decorative}
+        cursorCueEligible={cursorCueEligible}
+        cursorCueEnabled={cursorCueEnabled && fonts.status === "loaded"}
       />
       {fonts.status !== "loaded" && !(decorative && fonts.status === "failed") && (
         <div className="preview-font-state" aria-hidden={decorative || undefined}>
