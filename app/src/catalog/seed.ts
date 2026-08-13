@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import type { DbSeedFn, PrismaClient } from "wasp/server";
 import { catalogFixtures } from "../data/catalogFixtures";
 import { designSystemModel } from "../domain/design-system/model";
@@ -81,7 +82,7 @@ async function seedCatalogSystems(prisma: PrismaClient) {
         name: document.identity.name,
         summary: document.identity.summary,
         tags: document.identity.tags,
-        inspiration: fixture.inspiration,
+        inspiration: document.provenance.inspiration ?? Prisma.DbNull,
         document,
         designMd,
         renderer,
@@ -104,7 +105,7 @@ async function seedCatalogSystems(prisma: PrismaClient) {
         name: document.identity.name,
         summary: document.identity.summary,
         tags: document.identity.tags,
-        inspiration: fixture.inspiration,
+        inspiration: document.provenance.inspiration ?? Prisma.DbNull,
         document,
         designMd,
         renderer,

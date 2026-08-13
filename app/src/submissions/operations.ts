@@ -1,5 +1,5 @@
 import { mintCapability } from "@infomiho/agent-work-protocol/server";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { HttpError, prisma } from "wasp/server";
 import type {
   ClaimGuestSubmissions,
@@ -411,6 +411,7 @@ export const publishSubmission: PublishSubmission<
           name: document.identity.name,
           summary: document.identity.summary,
           tags: document.identity.tags,
+          inspiration: document.provenance.inspiration ?? Prisma.DbNull,
           document,
           designMd: artifacts.designMd,
           renderer: artifacts.renderer,

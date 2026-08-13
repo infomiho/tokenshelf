@@ -63,6 +63,25 @@ describe("DesignSystemDocument", () => {
       });
   });
 
+  it("supports the catalog inspiration metadata in the public schema", async () => {
+    const document = structuredClone(catalogFixtures[0].document);
+
+    expect(document.provenance.inspiration).toEqual(catalogFixtures[0].inspiration);
+    expect(await designSystemModel.schema.decoder["~standard"].validate(document)).toMatchObject({
+      value: document,
+    });
+
+    document.provenance.inspiration!.docsUrl = "javascript:alert(1)";
+    expect(assessDesignSystemDocument(document).diagnostics).toContainEqual(
+      expect.objectContaining({ pointer: "/provenance/inspiration/docsUrl", severity: "error" }),
+    );
+
+    document.provenance.inspiration!.company = "  ";
+    expect(assessDesignSystemDocument(document).diagnostics).toContainEqual(
+      expect.objectContaining({ pointer: "/provenance/inspiration/company", severity: "error" }),
+    );
+  });
+
   it("renders byte-identical LF-only DESIGN.md with fixed ordering", () => {
     const document = catalogFixtures[0].document;
     const first = renderDesignMd(document);

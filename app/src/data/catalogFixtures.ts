@@ -12,7 +12,8 @@ type CatalogMetadata = Omit<
 >;
 
 function publishCatalogSystem(metadata: CatalogMetadata, designMd: string): CatalogFixture {
-  const document = legacyDesignMdToDocument(designMd, metadata.tags, metadata.inspiration?.license);
+  const document = legacyDesignMdToDocument(designMd, metadata.tags);
+  document.provenance.inspiration = metadata.inspiration;
   return {
     ...metadata,
     id: metadata.slug,

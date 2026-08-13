@@ -99,6 +99,15 @@ export type TypeStyleDocument = {
   axes?: Array<{ tag: string; value: number }>;
 };
 
+export type InspirationDocument = {
+  company: string;
+  system: string;
+  docsUrl: string;
+  sourceUrl: string;
+  license: string;
+  licenseUrl: string;
+};
+
 export type DesignSystemDocument = {
   version: "1";
   identity: {
@@ -132,6 +141,7 @@ export type DesignSystemDocument = {
   provenance: {
     sources: Array<{ name: string; url?: string }>;
     license?: string;
+    inspiration?: InspirationDocument;
   };
   notes?: string;
 };
@@ -268,6 +278,18 @@ const actionsSchema = objectSchema(
   },
 );
 
+const inspirationSchema = objectSchema(
+  ["company", "system", "docsUrl", "sourceUrl", "license", "licenseUrl"],
+  {
+    company: boundedString(120),
+    system: boundedString(120),
+    docsUrl: boundedString(2_000),
+    sourceUrl: boundedString(2_000),
+    license: boundedString(120),
+    licenseUrl: boundedString(2_000),
+  },
+);
+
 export const designSystemDocumentSchema = objectSchema(
   ["version", "identity", "principles", "foundations", "components", "accessibility", "provenance"],
   {
@@ -305,6 +327,7 @@ export const designSystemDocumentSchema = objectSchema(
         items: objectSchema(["name"], { name: boundedString(120), url: boundedString(2_000) }),
       },
       license: boundedString(120),
+      inspiration: inspirationSchema,
     }),
     notes: boundedString(4_000),
   },
@@ -626,6 +649,27 @@ export function assessDesignSystemDocument(document: DesignSystemDocument) {
         ),
       );
   });
+  if (document.provenance.inspiration) {
+    for (const field of ["company", "system", "license"] as const)
+      requiredText(
+        document.provenance.inspiration[field],
+        `/provenance/inspiration/${field}`,
+        "foundation.value.invalid",
+        `Inspiration ${field} is required.`,
+        diagnostics,
+        120,
+      );
+    for (const field of ["docsUrl", "sourceUrl", "licenseUrl"] as const) {
+      if (!isHttpUrl(document.provenance.inspiration[field]))
+        diagnostics.push(
+          error(
+            "foundation.value.invalid",
+            "Inspiration URL must use http or https.",
+            `/provenance/inspiration/${field}`,
+          ),
+        );
+    }
+  }
   for (const [pointer, value] of markdownTextFields(document)) {
     if (containsControlCharacters(value))
       diagnostics.push(
@@ -746,7 +790,11 @@ export function renderDesignMd(document: DesignSystemDocument): string {
     ...document.principles.map((principle) => `- ${markdownText(principle)}`),
     `- ${markdownText(document.accessibility.guidance)}`,
   ];
-  if (document.provenance.sources.length || document.provenance.license) {
+  if (
+    document.provenance.sources.length ||
+    document.provenance.license ||
+    document.provenance.inspiration
+  ) {
     lines.push("", "## Provenance", "");
     document.provenance.sources.forEach((source) =>
       lines.push(
@@ -757,6 +805,8 @@ export function renderDesignMd(document: DesignSystemDocument): string {
     );
     if (document.provenance.license)
       lines.push(`- License: ${markdownText(document.provenance.license)}`);
+    if (document.provenance.inspiration)
+      lines.push(`- Inspiration license: ${markdownText(document.provenance.inspiration.license)}`);
   }
   if (document.notes) lines.push("", "## Notes", "", markdownText(document.notes));
   return `${lines
@@ -1384,6 +1434,15 @@ function markdownTextFields(document: DesignSystemDocument): Array<[string, stri
     ]),
     ...(document.provenance.license
       ? [["/provenance/license", document.provenance.license] as [string, string]]
+      : []),
+    ...(document.provenance.inspiration
+      ? (["company", "system", "docsUrl", "sourceUrl", "license", "licenseUrl"] as const).map(
+          (field) =>
+            [`/provenance/inspiration/${field}`, document.provenance.inspiration![field]] as [
+              string,
+              string,
+            ],
+        )
       : []),
     ...(document.notes ? [["/notes", document.notes] as [string, string]] : []),
   ];

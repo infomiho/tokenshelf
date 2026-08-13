@@ -1,4 +1,8 @@
-import type { DesignSystemDocument, RendererIR } from "../domain/design-system";
+import type {
+  DesignSystemDocument,
+  InspirationDocument,
+  RendererIR,
+} from "../domain/design-system";
 import type { CardScreenshot } from "../screenshots/contracts";
 
 export type PreviewRenderer = Pick<
@@ -14,14 +18,7 @@ export type PreviewRenderer = Pick<
   | "treatments"
 >;
 
-export type Inspiration = {
-  company: string;
-  system: string;
-  docsUrl: string;
-  sourceUrl: string;
-  license: string;
-  licenseUrl: string;
-};
+export type Inspiration = InspirationDocument;
 
 export type SystemAuthor = {
   name: string;

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Prisma } from "@prisma/client";
 import { catalogFixtures } from "../data/catalogFixtures";
 
 const mocks = vi.hoisted(() => ({
@@ -253,6 +254,32 @@ describe("owned design-system lifecycle", () => {
     expect(mocks.designSystemCreate).not.toHaveBeenCalled();
   });
 
+  it("publishes inspiration metadata with a new design system", async () => {
+    const fixture = catalogFixtures[0]!;
+    mocks.submissionFindUnique.mockResolvedValue({
+      id: "submission-id",
+      ownerId: "owner-id",
+      lifecycle: "OPEN",
+      draft: { revision: 1, document: fixture.document },
+      publishedSystem: null,
+    });
+    mocks.designSystemCreate.mockResolvedValue({ id: "system-id", slug: fixture.slug });
+
+    await publishSubmission(
+      {
+        submissionId: "submission-id",
+        expectedRevision: 1,
+        publication: "create",
+        rightsAttestation: true,
+      },
+      context,
+    );
+
+    expect(mocks.designSystemCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({ inspiration: fixture.inspiration }),
+    });
+  });
+
   it("rejects an update command before the first publication", async () => {
     mocks.submissionFindUnique.mockResolvedValue({
       id: "submission-id",
@@ -297,6 +324,7 @@ describe("owned design-system lifecycle", () => {
       data: expect.objectContaining({
         sourceRevision: 7,
         name: fixture.document.identity.name,
+        inspiration: fixture.inspiration,
         cardImageKey: null,
         cardImageRenderVersion: null,
         cardImageCanvas: null,
@@ -310,6 +338,30 @@ describe("owned design-system lifecycle", () => {
       data: { lifecycle: "PUBLISHED", sessionGeneration: { increment: 1 } },
     });
     expect(result).toEqual({ id: "system-id", slug: fixture.slug });
+  });
+
+  it("clears inspiration metadata when it is removed from a republished document", async () => {
+    const fixture = catalogFixtures[0]!;
+    const document = structuredClone(fixture.document);
+    delete document.provenance.inspiration;
+    mocks.submissionFindUnique.mockResolvedValue({
+      id: "submission-id",
+      ownerId: "owner-id",
+      lifecycle: "OPEN",
+      draft: { revision: 8, document },
+      publishedSystem: { id: "system-id", slug: fixture.slug, lifecycle: "PUBLISHED" },
+    });
+    mocks.designSystemUpdate.mockResolvedValue({ id: "system-id", slug: fixture.slug });
+
+    await publishSubmission(
+      { submissionId: "submission-id", expectedRevision: 8, publication: "update" },
+      context,
+    );
+
+    expect(mocks.designSystemUpdate).toHaveBeenCalledWith({
+      where: { id: "system-id" },
+      data: expect.objectContaining({ inspiration: Prisma.DbNull }),
+    });
   });
 
   it("returns the existing publication after an acknowledged publish retry", async () => {
